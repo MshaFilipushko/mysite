@@ -1,0 +1,46 @@
+{% load static %}
+
+{% with replies=comment.replies.all %}
+{% if replies %}
+<div class="comment-replies">
+    <div class="comment-replies-header mb-2">
+        <strong>Ответы ({{ replies|length }}):</strong>
+    </div>
+    {% for reply in replies %}
+    <div class="comment-reply" id="comment-{{ reply.id }}">
+        <div class="comment-reply-header">
+            <div class="comment-reply-author-avatar">
+                {% if reply.author.userprofile.profile_pic %}
+                <img src="{{ reply.author.userprofile.profile_pic.url }}" class="w-100 h-100" alt="{{ reply.author.username }}">
+                {% else %}
+                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center w-100 h-100">
+                    <span class="text-white small">{{ reply.author.username|first|upper }}</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="comment-author-info">
+                <div class="comment-author">{{ reply.author.username }}</div>
+                <div class="comment-date">{{ reply.created_on|date:"d.m.Y H:i" }}</div>
+            </div>
+            {% if user.is_authenticated %}
+            <a href="{% url 'comment_reply' post.slug reply.id %}" class="reply-link ms-auto">
+                <i class="fas fa-reply me-1"></i>Ответить
+            </a>
+            {% endif %}
+        </div>
+        <div class="comment-content">
+            {{ reply.content|safe }}
+        </div>
+        
+        {% if reply.replies.exists %}
+        <div class="comment-replies">
+            {% with comment=reply %}
+                {% include "weightloss/blog/comment_replies.html" %}
+            {% endwith %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %} 
