@@ -1,0 +1,67 @@
+{% load weight_filters %}
+
+{% comment %}
+    Шаблон для рекурсивного отображения комментариев любой глубины.
+    Параметры:
+    - comment: объект комментария
+    - post: объект публикации (для формирования URL)
+    - level: глубина вложенности (опционально)
+{% endcomment %}
+
+<div class="comment-reply {% if level > 1 %}deeper-comment level-{{ level }}{% endif %}" id="comment-{{ comment.id }}">
+    <div class="comment-reply-card">
+        <div class="comment-reply-header">
+            {% if comment.author.userprofile.profile_pic %}
+            <div class="comment-reply-author-avatar">
+                <img src="{{ comment.author.userprofile.profile_pic.url }}" alt="{{ comment.author.username }}">
+            </div>
+            {% else %}
+            <div class="comment-author-placeholder" style="width: 35px; height: 35px; font-size: 0.9rem;">
+                {{ comment.author.username|first|upper }}
+            </div>
+            {% endif %}
+            
+            <div class="comment-author-info">
+                <div class="comment-author">
+                    <a href="{% url 'user_profile' comment.author.username %}">{{ comment.author.username }}</a>
+                    {% if comment.author|is_admin %}
+                    <span class="admin-badge">admin</span>
+                    {% endif %}
+                    {% if level > 1 %}
+                    <span class="level-indicator">уровень {{ level }}</span>
+                    {% endif %}
+                </div>
+                <div class="comment-date">
+                    <i class="far fa-clock"></i> {{ comment.created_on|date:"d.m.Y H:i" }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="comment-reply-body">
+            <div class="comment-content">
+                {% if comment.parent and level > 1 %}
+                <p class="reply-indicator">Ответ пользователю <strong>{{ comment.parent.author.username }}</strong>:</p>
+                {% endif %}
+                {{ comment.content|safe }}
+            </div>
+        </div>
+        
+        <div class="comment-reply-footer">
+            {% if user.is_authenticated %}
+            <a href="{% url 'comment_reply' post.slug comment.id %}" class="reply-link">
+                <i class="fas fa-reply"></i> Ответить
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if comment.replies.exists %}
+    <div class="nested-reply {% if level > 1 %}deeper-level-{{ level|add:"1" }}{% endif %}">
+        {% for reply in comment.replies.all %}
+            {% with 'weightloss/blog/comment_template.html' as template_path %}
+                {% include template_path with comment=reply post=post level=level|default:1|add:1 %}
+            {% endwith %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div> 

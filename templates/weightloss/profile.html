@@ -1,0 +1,419 @@
+{% extends 'weightloss/base.html' %}
+{% load weight_filters %}
+
+{% block title %}Профиль - ЗдоровыйВес{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        padding: 40px 0;
+    }
+    
+    .profile-card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .profile-card:hover {
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        transform: translateY(-5px);
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        color: white;
+        padding: 30px;
+        position: relative;
+    }
+    
+    .profile-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 40px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='1' d='M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,202.7C672,203,768,181,864,186.7C960,192,1056,224,1152,218.7C1248,213,1344,171,1392,149.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+        background-size: cover;
+    }
+    
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 5px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        object-fit: cover;
+    }
+    
+    .profile-avatar-placeholder {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 5px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+        color: #00796b;
+    }
+    
+    .profile-name {
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-top: 15px;
+        margin-bottom: 5px;
+    }
+    
+    .profile-email {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+    
+    .profile-actions {
+        margin-top: 20px;
+    }
+    
+    .profile-btn {
+        border-radius: 30px;
+        padding: 10px 20px;
+        font-weight: 500;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .profile-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .profile-content {
+        padding: 30px;
+    }
+    
+    .profile-section {
+        margin-bottom: 30px;
+    }
+    
+    .profile-section-title {
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #2c3e50;
+        position: relative;
+        padding-bottom: 10px;
+    }
+    
+    .profile-section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(to right, #4caf50, #8bc34a);
+        border-radius: 3px;
+    }
+    
+    .weight-stat {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .weight-stat:hover {
+        background: white;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        transform: translateY(-5px);
+    }
+    
+    .weight-stat-label {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+    
+    .weight-stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    
+    .progress-container {
+        background-color: #e9ecef;
+        border-radius: 30px;
+        height: 16px;
+        width: 100%;
+        margin: 20px 0;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        background: linear-gradient(to right, #4caf50, #8bc34a);
+        height: 100%;
+        border-radius: 30px;
+        transition: width 1s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .progress-bar::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-image: linear-gradient(
+            -45deg, 
+            rgba(255, 255, 255, .2) 25%, 
+            transparent 25%, 
+            transparent 50%, 
+            rgba(255, 255, 255, .2) 50%, 
+            rgba(255, 255, 255, .2) 75%, 
+            transparent 75%, 
+            transparent
+        );
+        background-size: 50px 50px;
+        animation: move 2s linear infinite;
+        overflow: hidden;
+    }
+    
+    .admin-badge {
+        background-color: #dc3545;
+        color: white;
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 4px;
+        margin-left: 10px;
+        text-transform: uppercase;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    
+    /* BMI Calculator Styles */
+    .bmi-container {
+        padding: 20px 10px;
+    }
+    
+    .bmi-value {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 25px;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .bmi-scale {
+        height: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+        width: 100%;
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .bmi-segment {
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .bmi-marker {
+        position: absolute;
+        top: -12px;
+        transform: translateX(-50%);
+        width: 10px;
+        height: 45px;
+        background-color: #2c3e50;
+        border-radius: 6px;
+        z-index: 2;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    .bmi-labels {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        margin-top: 20px;
+        font-weight: 500;
+    }
+    
+    .bmi-label {
+        max-width: 25%;
+        text-align: center;
+        padding: 0 5px;
+    }
+    
+    @keyframes move {
+        0% {
+            background-position: 0 0;
+        }
+        100% {
+            background-position: 50px 50px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="container">
+        <!-- Блок для сообщений -->
+        {% if messages %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} shadow-sm border-0">
+                <i class="fas fa-info-circle me-2"></i>{{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="row">
+            <!-- Профиль пользователя -->
+            <div class="col-lg-4 mb-4">
+                <div class="profile-card">
+                    <div class="profile-header text-center">
+                        {% if profile.profile_pic %}
+                        <img src="{{ profile.profile_pic.url }}" alt="{{ user.username }}" class="profile-avatar">
+                        {% else %}
+                        <div class="profile-avatar-placeholder mx-auto">
+                            {{ user.username|first|upper }}
+                        </div>
+                        {% endif %}
+                        
+                        <h3 class="profile-name">{{ user.username }}
+                        {% if user|is_admin %}
+                        <span class="admin-badge">admin</span>
+                        {% endif %}
+                        </h3>
+                        <p class="profile-email">{{ user.email }}</p>
+                    </div>
+                    
+                    <div class="profile-content">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'edit_profile' %}" class="btn btn-primary profile-btn">
+                                <i class="fas fa-user-edit me-2"></i>Редактировать профиль
+                            </a>
+                            <a href="{% url 'password_reset' %}" class="btn btn-outline-secondary profile-btn">
+                                <i class="fas fa-key me-2"></i>Сменить пароль
+                            </a>
+                            {% if user.is_staff %}
+                            <a href="{% url 'admin:index' %}" class="btn btn-danger profile-btn">
+                                <i class="fas fa-user-shield me-2"></i>Админ-панель
+                            </a>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="profile-section mt-4">
+                            <h5 class="profile-section-title">О себе</h5>
+                            <p class="bio-text">{{ profile.bio|default:"Расскажите о себе, своих целях и мотивации к похудению." }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Информация о весе и прогрессе -->
+            <div class="col-lg-8">
+                <div class="profile-card">
+                    <div class="profile-content">
+                        <h4 class="profile-section-title">Информация о весе</h4>
+                        
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="weight-stat">
+                                    <div class="weight-stat-label">Начальный вес</div>
+                                    <div class="weight-stat-value">{{ profile.starting_weight|default:"--" }} <small>кг</small></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="weight-stat">
+                                    <div class="weight-stat-label">Текущий вес</div>
+                                    <div class="weight-stat-value">{{ profile.current_weight|default:"--" }} <small>кг</small></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="weight-stat">
+                                    <div class="weight-stat-label">Целевой вес</div>
+                                    <div class="weight-stat-value">{{ profile.goal_weight|default:"--" }} <small>кг</small></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if profile.starting_weight and profile.current_weight and profile.goal_weight %}
+                        <div class="mt-4">
+                            <h6 class="mb-3">Прогресс к цели</h6>
+                            {% with total_loss=profile.starting_weight|sub:profile.goal_weight current_loss=profile.starting_weight|sub:profile.current_weight %}
+                            {% with progress_percentage=current_loss|div:total_loss|mul:100 %}
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: {{ progress_percentage }}%;"></div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div>Начало: {{ profile.starting_weight }} кг</div>
+                                <div>Прогресс: {{ progress_percentage|floatformat:1 }}%</div>
+                                <div>Цель: {{ profile.goal_weight }} кг</div>
+                            </div>
+                            {% endwith %}
+                            {% endwith %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- ИМТ калькулятор -->
+                {% if profile.height and profile.current_weight %}
+                <div class="profile-card">
+                    <div class="profile-content">
+                        <h4 class="profile-section-title">Индекс массы тела (ИМТ)</h4>
+                        
+                        {% with height_m=profile.height|div:100 %}
+                        {% with bmi=profile.current_weight|div:height_m|div:height_m %}
+                        
+                        <div class="bmi-container text-center">
+                            <div class="bmi-value">{{ bmi|floatformat:1 }}</div>
+                            
+                            <div class="position-relative">
+                                <div class="bmi-scale d-flex">
+                                    <div class="bmi-segment bg-success" style="width: 25%;"></div>
+                                    <div class="bmi-segment bg-info" style="width: 25%;"></div>
+                                    <div class="bmi-segment bg-warning" style="width: 25%;"></div>
+                                    <div class="bmi-segment bg-danger" style="width: 25%;"></div>
+                                </div>
+                                <div class="bmi-marker" style="left: {{ bmi|sub:18.5|div:11.5|mul:100|max:0|min:100 }}%;"></div>
+                            </div>
+                            
+                            <div class="bmi-labels d-flex justify-content-between mt-2">
+                                <div class="bmi-label">Недостаточный &lt;18.5</div>
+                                <div class="bmi-label">Нормальный 18.5-24.9</div>
+                                <div class="bmi-label">Избыточный 25-29.9</div>
+                                <div class="bmi-label">Ожирение &gt;30</div>
+                            </div>
+                        </div>
+                        
+                        {% with bmi_category=bmi|bmi_category %}
+                        <div class="alert {% if bmi_category == 'Недостаточный' %}alert-success{% elif bmi_category == 'Нормальный' %}alert-info{% elif bmi_category == 'Избыточный' %}alert-warning{% else %}alert-danger{% endif %} mt-4 shadow-sm">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Ваш текущий ИМТ: <strong>{{ bmi|floatformat:1 }}</strong> - {{ bmi_category }} вес
+                        </div>
+                        {% endwith %}
+                        {% endwith %}
+                        {% endwith %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

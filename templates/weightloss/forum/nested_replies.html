@@ -1,0 +1,71 @@
+{% load weight_filters %}
+{% load static %}
+
+<div class="nested-replies">
+    {% for reply in replies %}
+    <div class="comment deeper-comment level-{{ depth }}" id="reply-{{ reply.id }}">
+        <div class="comment-reply-card">
+            <div class="comment-reply-header">
+                {% if reply.author.profile.profile_pic %}
+                <div class="comment-reply-author-avatar">
+                    <img src="{{ reply.author.profile.profile_pic.url }}" alt="{{ reply.author.username }}">
+                </div>
+                {% else %}
+                <div class="comment-author-placeholder" style="width: 35px; height: 35px; font-size: 0.9rem;">
+                    {{ reply.author.username|first|upper }}
+                </div>
+                {% endif %}
+                
+                <div class="comment-author-info">
+                    <div class="comment-author">
+                        <a href="{% url 'public_profile' reply.author.username %}">{{ reply.author.username }}</a>
+                        {% if reply.author|is_admin %}
+                        <span class="admin-badge">admin</span>
+                        {% endif %}
+                        {% if depth > 1 %}
+                        <span class="level-indicator">уровень {{ depth }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="comment-date">
+                        <i class="far fa-clock"></i> {{ reply.created_on|date:"d.m.Y H:i" }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="comment-reply-body">
+                <div class="comment-content">
+                    {% if reply.parent %}
+                    <p class="reply-indicator">Ответ пользователю <strong>{{ reply.parent.author.username }}</strong>:</p>
+                    {% endif %}
+                    {{ reply.content|safe }}
+                </div>
+            </div>
+            
+            <div class="comment-reply-footer">
+                {% if user.is_authenticated and not reply.topic.is_closed %}
+                <a href="{% url 'forum_post_create' reply.topic.category.slug reply.topic.slug %}?reply_to={{ reply.id }}" class="reply-link">
+                    <i class="fas fa-reply"></i> Ответить
+                </a>
+                {% if user == reply.author or user.is_staff %}
+                <form method="post" action="{% url 'forum_post_delete' reply.id %}" class="d-inline ms-3">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Вы уверены, что хотите удалить этот ответ?')">
+                        <i class="fas fa-trash-alt"></i> Удалить
+                    </button>
+                </form>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Вложенные ответы -->
+        {% if reply.get_replies %}
+        <div class="deeper-replies" id="deeper-replies-{{ reply.id }}">
+            {% with depth=depth|add:1 replies=reply.get_replies %}
+                {% include 'weightloss/forum/nested_replies.html' %}
+            {% endwith %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div> 

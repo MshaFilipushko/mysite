@@ -1,0 +1,414 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block title %}Здоровые рецепты - ЗдоровыйВес{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modern Recipe List Styling */
+    .recipe-header {
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        border-radius: 15px;
+        padding: 40px;
+        margin-bottom: 40px;
+        position: relative;
+        color: white;
+        box-shadow: 0 10px 30px rgba(76, 175, 80, 0.2);
+        overflow: hidden;
+    }
+    
+    .recipe-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 300px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath fill='%23ffffff' fill-opacity='0.05' d='M34.5,-59.2C45.9,-51.7,57.3,-44.5,65.9,-33.4C74.5,-22.3,80.3,-7.4,78.9,6.8C77.5,21,68.9,34.4,58.4,44.3C47.9,54.1,35.4,60.4,22.1,65.2C8.8,70.1,-5.4,73.5,-18.2,70.5C-31,67.5,-42.4,58.1,-51.1,46.6C-59.8,35.1,-65.9,21.6,-68.6,7.1C-71.3,-7.3,-70.7,-22.7,-64.3,-35.4C-58,-48.1,-46,-58,-33.3,-64.6C-20.6,-71.2,-7.2,-74.6,3.4,-79.8C14,-85.1,28,-85.3,34.5,-73.2C41,-61.1,41,-46.7,34.5,-59.2Z' transform='translate(100 100)'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        opacity: 0.6;
+        z-index: 0;
+    }
+    
+    .recipe-header-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .recipe-title {
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .recipe-description {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 80%;
+    }
+    
+    .add-recipe-btn {
+        background-color: white;
+        color: #4caf50;
+        border: none;
+        border-radius: 30px;
+        padding: 12px 30px;
+        font-weight: 600;
+        margin-top: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .add-recipe-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        background-color: #f8f8f8;
+    }
+    
+    .add-recipe-btn i {
+        margin-right: 8px;
+    }
+    
+    .recipe-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+    
+    .recipe-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .recipe-img-container {
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .recipe-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s ease;
+    }
+    
+    .recipe-card:hover .recipe-img {
+        transform: scale(1.05);
+    }
+    
+    .recipe-card-body {
+        padding: 25px;
+    }
+    
+    .recipe-card-title {
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: #2c3e50;
+        font-size: 1.3rem;
+    }
+    
+    .recipe-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .recipe-stat {
+        text-align: center;
+        padding: 8px 0;
+        flex: 1;
+        min-width: 80px;
+    }
+    
+    .recipe-stat-value {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+    
+    .recipe-stat-label {
+        font-size: 0.8rem;
+        color: #95a5a6;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .recipe-view-btn {
+        width: 100%;
+        border-radius: 30px;
+        padding: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .recipe-view-btn:hover {
+        background: linear-gradient(135deg, #3d9140 0%, #7cb342 100%);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        color: white;
+    }
+    
+    .pagination-container {
+        margin-top: 50px;
+        margin-bottom: 30px;
+    }
+    
+    .page-link {
+        border-radius: 50%;
+        margin: 0 5px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #4caf50;
+        font-weight: 600;
+        border: 1px solid rgba(76, 175, 80, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .page-link:hover {
+        background-color: rgba(76, 175, 80, 0.1);
+        color: #4caf50;
+    }
+    
+    .page-item.active .page-link {
+        background-color: #4caf50;
+        border-color: #4caf50;
+    }
+    
+    .join-card {
+        border-radius: 20px;
+        padding: 40px;
+        background: linear-gradient(135deg, #f9f9f9 0%, #f2f2f2 100%);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        text-align: center;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        transition: all 0.3s ease;
+    }
+    
+    .join-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+    
+    .join-icon {
+        font-size: 3.5rem;
+        color: #4caf50;
+        margin-bottom: 20px;
+    }
+    
+    .join-title {
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+        color: #2c3e50;
+    }
+    
+    .join-text {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        margin-bottom: 25px;
+    }
+    
+    .join-btn {
+        border-radius: 30px;
+        padding: 12px 30px;
+        font-weight: 600;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .join-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    /* Animation for stats counter */
+    @keyframes countUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .recipe-stat-value {
+        animation: countUp 0.8s ease forwards;
+    }
+    
+    /* Skeleton loading animation */
+    @keyframes pulse {
+        0% {
+            background-position: 0% 0%;
+        }
+        100% {
+            background-position: -135% 0%;
+        }
+    }
+    
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 400% 100%;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate stats on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    animateValue(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        document.querySelectorAll('.recipe-stat-value').forEach(stat => {
+            observer.observe(stat);
+        });
+        
+        function animateValue(obj) {
+            const text = obj.textContent;
+            const value = parseInt(text.match(/\d+/));
+            if (!isNaN(value) && !obj.classList.contains('animated')) {
+                obj.classList.add('animated');
+                let start = 0;
+                const duration = 1000;
+                const end = value;
+                const range = end - start;
+                let current = start;
+                const increment = end > start ? 1 : -1;
+                const stepTime = Math.abs(Math.floor(duration / range));
+                const unit = text.replace(/\d+/, '');
+                
+                const timer = setInterval(function() {
+                    current += increment;
+                    obj.textContent = current + unit;
+                    if (current == end) {
+                        clearInterval(timer);
+                    }
+                }, stepTime);
+            }
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Recipe Header -->
+    <div class="recipe-header">
+        <div class="recipe-header-content">
+            <h1 class="recipe-title">Здоровые рецепты</h1>
+            <p class="recipe-description">Коллекция вкусных и полезных рецептов для поддержания здорового образа жизни и достижения ваших целей</p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'create_recipe' %}" class="btn add-recipe-btn">
+                <i class="fas fa-plus-circle"></i>Добавить свой рецепт
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} shadow-sm">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Recipe Grid -->
+    <div class="row">
+        {% if recipes %}
+            {% for recipe in recipes %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="recipe-card">
+                    <div class="recipe-img-container">
+                    {% if recipe.image %}
+                        <img src="{{ recipe.image.url }}" class="recipe-img" alt="{{ recipe.title }}">
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 100%;">
+                        <i class="fas fa-utensils fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    </div>
+                    <div class="recipe-card-body">
+                        <h3 class="recipe-card-title">{{ recipe.title }}</h3>
+                        <div class="recipe-info">
+                            <div class="recipe-stat">
+                                <div class="recipe-stat-value">{{ recipe.calories }}ккал</div>
+                                <div class="recipe-stat-label">Калории</div>
+                            </div>
+                            <div class="recipe-stat">
+                                <div class="recipe-stat-value">{{ recipe.preparation_time }}мин</div>
+                                <div class="recipe-stat-label">Время</div>
+                            </div>
+                        </div>
+                        <div class="recipe-info">
+                            <div class="recipe-stat">
+                                <div class="recipe-stat-value">{{ recipe.protein }}г</div>
+                                <div class="recipe-stat-label">Белки</div>
+                            </div>
+                            <div class="recipe-stat">
+                                <div class="recipe-stat-value">{{ recipe.carbs }}г</div>
+                                <div class="recipe-stat-label">Углеводы</div>
+                            </div>
+                            <div class="recipe-stat">
+                                <div class="recipe-stat-value">{{ recipe.fat }}г</div>
+                                <div class="recipe-stat-label">Жиры</div>
+                            </div>
+                        </div>
+                        <a href="{{ recipe.get_absolute_url }}" class="btn recipe-view-btn mt-3">Посмотреть рецепт</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Pagination -->
+            {% include 'weightloss/includes/pagination.html' %}
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-utensils fa-4x text-muted mb-4"></i>
+                <h3 class="mb-3">Пока нет рецептов</h3>
+                <p class="text-muted">Будьте первым, кто добавит вкусный и полезный рецепт!</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Call to action for non-authenticated users -->
+    {% if not user.is_authenticated %}
+    <div class="join-card">
+        <i class="fas fa-user-plus join-icon"></i>
+        <h3 class="join-title">Присоединяйтесь к сообществу ЗдоровыйВес</h3>
+        <p class="join-text">Зарегистрируйтесь или войдите, чтобы делиться своими любимыми рецептами и находить новые идеи для здорового питания</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'register' %}" class="btn btn-primary join-btn">Регистрация</a>
+            <a href="{% url 'login' %}" class="btn btn-outline-primary join-btn">Вход</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

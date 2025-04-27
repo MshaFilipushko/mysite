@@ -1,0 +1,437 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* Глобальное скрытие всех чекбоксов на странице */
+    input[type="checkbox"] {
+        display: none !important;
+    }
+    
+    /* Улучшенные стили для категорий */
+    .category-card {
+        list-style-type: none;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        position: relative;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-card .card-header {
+        background: linear-gradient(to right, #e8f5e9, #f1f8e9);
+        padding: 18px 20px;
+        border-bottom: 3px solid #4caf50;
+    }
+    
+    .category-card .card-header .category-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .category-card .card-header .category-title a {
+        color: #2e7d32;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+    }
+    
+    .category-card .card-header .category-title a i {
+        font-size: 1.5rem;
+        margin-right: 10px;
+        color: #4caf50;
+    }
+    
+    .category-description {
+        padding: 15px 20px;
+        font-style: italic;
+        color: #666;
+        background-color: #f9f9f9;
+        border-bottom: 1px solid #eee;
+    }
+    
+    /* Стили для секции тем внутри категории */
+    .latest-topics {
+        background-color: white;
+    }
+    
+    /* Скрываем чекбоксы и другие маркеры */
+    .category-card h4.category-title::before,
+    .category-title input[type="checkbox"] {
+        display: none !important;
+    }
+    .forum-header {
+        background: linear-gradient(to right, #4caf50, #8bc34a);
+        padding: 40px 0;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .forum-header h1 {
+        color: white;
+        font-weight: 700;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    .forum-description {
+        color: rgba(255, 255, 255, 0.9);
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    .forum-stats {
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+    }
+    .forum-stats .stat-item {
+        text-align: center;
+        padding: 15px 10px;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+    }
+    .forum-stats .stat-item:hover {
+        background-color: rgba(255, 255, 255, 0.8);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+    .forum-stats .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #4caf50;
+        margin-bottom: 5px;
+        text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+    }
+    .forum-stats .stat-label {
+        font-size: 14px;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 500;
+    }
+    .forum-stats .stat-icon {
+        font-size: 24px;
+        color: #4caf50;
+        margin-bottom: 5px;
+        opacity: 0.8;
+    }
+    .topic-item {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+        cursor: pointer;
+        padding: 16px 20px;
+        border-bottom: 1px solid #eee;
+        background-color: white;
+    }
+    .topic-item:last-child {
+        border-bottom: none;
+    }
+    .topic-item:hover {
+        border-left: 4px solid #4caf50;
+        background-color: #f9f9f9;
+        padding-left: 24px;
+    }
+    .topic-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 8px;
+        transition: color 0.2s ease;
+    }
+    .topic-item:hover .topic-title {
+        color: #2e7d32;
+    }
+    .topic-meta {
+        color: #6c757d;
+        font-size: 13px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .topic-meta i {
+        width: 16px;
+        height: 16px;
+        text-align: center;
+        margin-right: 4px;
+        color: #4caf50;
+    }
+    .topic-meta span {
+        margin-right: 15px;
+        display: flex;
+        align-items: center;
+    }
+    .btn-new-topic {
+        border-radius: 30px;
+        font-weight: 600;
+        padding: 10px 25px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .forum-action-row {
+        margin-bottom: 30px;
+    }
+    .search-form .form-control {
+        border-radius: 30px;
+        padding-left: 20px;
+    }
+    .search-form .btn {
+        border-radius: 30px;
+    }
+    /* Стили для секций Нет тем */
+    .no-topics {
+        padding: 30px 20px;
+        text-align: center;
+        background-color: white;
+    }
+    
+    .no-topics i {
+        font-size: 3rem;
+        color: #e0e0e0;
+        margin-bottom: 15px;
+    }
+    
+    .no-topics p {
+        color: #757575;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="forum-header text-center py-4">
+        <h1 class="mb-3">Форум здорового питания</h1>
+        <p class="forum-description">Обсуждайте вопросы здорового питания, похудения, делитесь опытом и получайте поддержку единомышленников. Наш форум - это место, где каждый может найти ответы на вопросы о правильном питании и здоровом образе жизни.</p>
+    </div>
+
+    <div class="forum-action-row d-flex justify-content-between align-items-center">
+        <div>
+            {% if user.is_authenticated %}
+                <a href="{% url 'create_topic' %}" class="btn btn-success btn-new-topic">
+                    <i class="fas fa-plus-circle me-2"></i>Новая тема
+                </a>
+            {% endif %}
+        </div>
+        <div>
+            <form method="get" action="{% url 'forum_search' %}" class="d-flex search-form">
+                <input type="text" name="q" class="form-control me-2" placeholder="Поиск по форуму...">
+                <button type="submit" class="btn btn-outline-success">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="forum-stats mb-4">
+        <div class="row">
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="stat-value">{{ topic_count }}</div>
+                    <div class="stat-label">Тем</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-reply"></i>
+                    </div>
+                    <div class="stat-value">{{ reply_count }}</div>
+                    <div class="stat-label">Ответов</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-value">{{ member_count }}</div>
+                    <div class="stat-label">Участников</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="stat-value newest-member">{{ latest_member.username|default:"Нет" }}</div>
+                    <div class="stat-label">Новый участник</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mb-4">Категории форума</h3>
+    
+    <div class="forum-announcement mb-4">
+        <div class="card border-warning">
+            <div class="card-header bg-warning bg-opacity-10">
+                <h5 class="mb-0">
+                    <i class="fas fa-bullhorn me-2"></i>Важно!
+                </h5>
+            </div>
+            <div class="card-body">
+                <p>Какой-то вопросик перед общими вопросами. Это важное объявление для посетителей форума. Здесь можно разместить правила, рекомендации или актуальную информацию.</p>
+                <a href="#" class="btn btn-sm btn-outline-warning">Подробнее</a>
+            </div>
+        </div>
+    </div>
+    
+    {% for category in categories %}
+        <div class="category-card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="category-title">
+                        <a href="{% url 'forum_category' category.slug %}" class="text-decoration-none">
+                            <i class="{% if category.icon %}{{ category.icon }}{% else %}fas fa-folder{% endif %} me-2"></i>
+                            {{ category.name }}
+                        </a>
+                    </h4>
+                    <div class="category-stats d-none d-md-flex">
+                        <span class="badge bg-success rounded-pill me-2" title="Количество тем">
+                            <i class="fas fa-comments me-1"></i> {{ category.topics.count }}
+                        </span>
+                        <span class="badge bg-info rounded-pill" title="Последнее обновление">
+                            <i class="fas fa-clock me-1"></i> 
+                            {% if category.last_topic %}
+                                {{ category.last_topic.updated_on|date:"j M" }}
+                            {% else %}
+                                Нет тем
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if category.description %}
+                    <div class="category-description">
+                        {{ category.description }}
+                    </div>
+                {% endif %}
+                
+                {% if category.topics.exists %}
+                    <div class="latest-topics">
+                        {% for topic in category.topics.all|slice:":3" %}
+                            <div class="topic-item">
+                                <div class="topic-title">
+                                    <a href="{{ topic.get_absolute_url }}" class="text-decoration-none text-dark">
+                                        {{ topic.title }}
+                                    </a>
+                                </div>
+                                <div class="topic-meta">
+                                    <span class="me-3"><i class="fas fa-user"></i> {{ topic.author.username }}</span>
+                                    <span class="me-3"><i class="fas fa-clock"></i> {{ topic.created_on|date:"j M Y, H:i" }}</span>
+                                    <span class="me-3"><i class="fas fa-comments"></i> {{ topic.forum_posts.count|default:"0" }} {% if topic.forum_posts.count == 1 %}ответ{% else %}ответов{% endif %}</span>
+                                    <span><i class="fas fa-eye"></i> {{ topic.views }} {% if topic.views == 1 %}просмотр{% else %}просмотров{% endif %}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        {% if category.topics.count > 3 %}
+                            <div class="text-center py-3">
+                                <a href="{% url 'forum_category' category.slug %}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-list me-1"></i> Показать все темы ({{ category.topics.count }})
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="no-topics">
+                        <i class="fas fa-comments fa-2x mb-3 opacity-50"></i>
+                        <p>В этой категории пока нет тем.</p>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'create_topic' %}?category={{ category.id }}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-plus me-1"></i> Создать первую тему
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>Пока нет созданных категорий форума.
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Удаление всех чекбоксов на странице
+    document.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox) {
+        checkbox.remove();
+    });
+    
+    // Удаление всех элементов с классом .selector-checkbox
+    document.querySelectorAll('.selector-checkbox').forEach(function(el) {
+        el.remove();
+    });
+    
+    // Удаление любых псевдоэлементов, которые могут выглядеть как чекбоксы
+    const style = document.createElement('style');
+    style.textContent = `
+        label::before, 
+        .category-title::before, 
+        h4::before,
+        .forum-announcement::before {
+            display: none !important;
+            content: none !important;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Анимация счетчиков
+    function animateValue(element, start, end, duration) {
+        if (start === end) return;
+        const range = end - start;
+        let current = start;
+        const increment = end > start ? 1 : -1;
+        const stepTime = Math.abs(Math.floor(duration / range));
+        const timer = setInterval(function() {
+            current += increment;
+            element.textContent = current;
+            if (current == end) {
+                clearInterval(timer);
+            }
+        }, stepTime);
+    }
+    
+    // Анимируем числовые счетчики
+    document.querySelectorAll('.stat-value').forEach(function(counter) {
+        if (!isNaN(parseInt(counter.textContent))) {
+            const value = parseInt(counter.textContent);
+            counter.textContent = '0';
+            animateValue(counter, 0, value, 1500);
+        }
+    });
+    
+    // Обработка клика по блоку темы
+    document.querySelectorAll('.topic-item').forEach(function(topic) {
+        topic.addEventListener('click', function(e) {
+            // Если клик был не по ссылке, а по самому блоку
+            if (!e.target.closest('a')) {
+                // Находим ссылку на тему
+                const link = this.querySelector('.topic-title a');
+                if (link) {
+                    window.location.href = link.getAttribute('href');
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

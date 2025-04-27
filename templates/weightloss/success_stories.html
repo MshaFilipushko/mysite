@@ -1,0 +1,102 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}Истории успеха - ЗдоровыйВес{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Истории успеха</h1>
+    
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="row g-4">
+        {% if stories %}
+            {% for story in stories %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow">
+                    <div class="row g-0">
+                        <div class="col-md-5">
+                            <div class="position-relative h-100">
+                                <img src="{{ story.image_before.url }}" alt="До" class="img-fluid rounded-start" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.6;">
+                                <img src="{{ story.image_after.url }}" alt="После" class="img-fluid rounded-start" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);">
+                                <div class="position-absolute bottom-0 start-0 bg-dark bg-opacity-75 text-white p-2">
+                                    <div><small>До и после</small></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="card-body d-flex flex-column h-100">
+                                <h5 class="card-title">{{ story.title }}</h5>
+                                <p class="card-text">{{ story.person_name }}</p>
+                                <div class="mb-3">
+                                    <span class="badge bg-success">-{{ story.weight_lost }} кг</span>
+                                    <span class="badge bg-info ms-2">{{ story.time_period }}</span>
+                                </div>
+                                <a href="{{ story.get_absolute_url }}" class="btn btn-primary mt-auto">Читать историю</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if is_paginated %}
+            <div class="pagination-container mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">&laquo; Первая</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Следующая</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <p class="mb-0">Истории успеха еще не добавлены. Пожалуйста, загляните позже!</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="mt-5 p-4 bg-light rounded-3 shadow">
+        <div class="text-center">
+            <h3>У вас есть история успеха?</h3>
+            <p class="lead">Мы будем рады поделиться вашим опытом с нашими читателями!</p>
+            <p>Напишите нам на <a href="mailto:success@healthyweight.com">success@healthyweight.com</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

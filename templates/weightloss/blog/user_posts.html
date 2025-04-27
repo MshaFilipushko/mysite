@@ -1,0 +1,254 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}Мои статьи - ЗдоровыйВес{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'blog_list' %}">Блог</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Мои статьи</li>
+        </ol>
+    </nav>
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Мои статьи</h1>
+        <a href="{% url 'create_post' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle me-2"></i>Написать новую статью
+        </a>
+    </div>
+    
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-lg-9">
+            <!-- Вкладки со статьями разных статусов -->
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item">
+                    <a class="nav-link active" id="all-tab" data-bs-toggle="tab" href="#all" role="tab">Все статьи ({{ posts.count }})</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="published-tab" data-bs-toggle="tab" href="#published" role="tab">Опубликованные ({{ published_posts.count }})</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pending-tab" data-bs-toggle="tab" href="#pending" role="tab">На модерации ({{ pending_posts.count }})</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="draft-tab" data-bs-toggle="tab" href="#draft" role="tab">Черновики ({{ draft_posts.count }})</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="rejected-tab" data-bs-toggle="tab" href="#rejected" role="tab">Отклоненные ({{ rejected_posts.count }})</a>
+                </li>
+            </ul>
+            
+            <div class="tab-content">
+                <!-- Все статьи -->
+                <div class="tab-pane fade show active" id="all" role="tabpanel">
+                    {% if posts %}
+                    <div class="list-group">
+                        {% for post in posts %}
+                        <div class="list-group-item list-group-item-action p-4">
+                            <div class="d-flex w-100 justify-content-between mb-2">
+                                <h5 class="mb-1">{{ post.title }}</h5>
+                                <small class="text-muted">{{ post.created_on|date:"d.m.Y" }}</small>
+                            </div>
+                            <p class="mb-2">Категория: {{ post.category.name }}</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if post.status == 'published' %}
+                                    <span class="badge bg-success">Опубликовано</span>
+                                    {% elif post.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark">На модерации</span>
+                                    {% elif post.status == 'draft' %}
+                                    <span class="badge bg-secondary">Черновик</span>
+                                    {% elif post.status == 'rejected' %}
+                                    <span class="badge bg-danger">Отклонено</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="btn-group" role="group">
+                                    {% if post.status == 'published' %}
+                                    <a href="{% url 'post_detail' post.slug %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
+                                    {% elif post.status != 'published' %}
+                                    <a href="{% url 'edit_post' post.slug %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <p>У вас пока нет статей.</p>
+                        <a href="{% url 'create_post' %}" class="btn btn-primary">Написать первую статью</a>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Опубликованные статьи -->
+                <div class="tab-pane fade" id="published" role="tabpanel">
+                    {% if published_posts %}
+                    <div class="list-group">
+                        {% for post in published_posts %}
+                        <div class="list-group-item list-group-item-action p-4">
+                            <div class="d-flex w-100 justify-content-between mb-2">
+                                <h5 class="mb-1">{{ post.title }}</h5>
+                                <small class="text-muted">{{ post.created_on|date:"d.m.Y" }}</small>
+                            </div>
+                            <p class="mb-2">Категория: {{ post.category.name }}</p>
+                            
+                            <div class="d-flex justify-content-end">
+                                <a href="{% url 'post_detail' post.slug %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info text-center">
+                        <p class="mb-0">У вас пока нет опубликованных статей.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Статьи на модерации -->
+                <div class="tab-pane fade" id="pending" role="tabpanel">
+                    {% if pending_posts %}
+                    <div class="list-group">
+                        {% for post in pending_posts %}
+                        <div class="list-group-item list-group-item-action p-4">
+                            <div class="d-flex w-100 justify-content-between mb-2">
+                                <h5 class="mb-1">{{ post.title }}</h5>
+                                <small class="text-muted">{{ post.created_on|date:"d.m.Y" }}</small>
+                            </div>
+                            <p class="mb-2">Категория: {{ post.category.name }}</p>
+                            <div class="alert alert-warning py-2">
+                                <small class="mb-0">Ваша статья находится на рассмотрении модератором. Обычно проверка занимает от 1 до 3 дней.</small>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end">
+                                <a href="{% url 'edit_post' post.slug %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info text-center">
+                        <p class="mb-0">У вас нет статей на модерации.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Черновики -->
+                <div class="tab-pane fade" id="draft" role="tabpanel">
+                    {% if draft_posts %}
+                    <div class="list-group">
+                        {% for post in draft_posts %}
+                        <div class="list-group-item list-group-item-action p-4">
+                            <div class="d-flex w-100 justify-content-between mb-2">
+                                <h5 class="mb-1">{{ post.title }}</h5>
+                                <small class="text-muted">{{ post.created_on|date:"d.m.Y" }}</small>
+                            </div>
+                            <p class="mb-2">Категория: {{ post.category.name }}</p>
+                            
+                            <div class="d-flex justify-content-end">
+                                <a href="{% url 'edit_post' post.slug %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info text-center">
+                        <p class="mb-0">У вас нет черновиков.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Отклоненные статьи -->
+                <div class="tab-pane fade" id="rejected" role="tabpanel">
+                    {% if rejected_posts %}
+                    <div class="list-group">
+                        {% for post in rejected_posts %}
+                        <div class="list-group-item list-group-item-action p-4">
+                            <div class="d-flex w-100 justify-content-between mb-2">
+                                <h5 class="mb-1">{{ post.title }}</h5>
+                                <small class="text-muted">{{ post.created_on|date:"d.m.Y" }}</small>
+                            </div>
+                            <p class="mb-2">Категория: {{ post.category.name }}</p>
+                            <div class="alert alert-danger py-2">
+                                <small class="mb-0">Статья была отклонена модератором. Просмотрите правила и исправьте содержание.</small>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end">
+                                <a href="{% url 'edit_post' post.slug %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info text-center">
+                        <p class="mb-0">У вас нет отклоненных статей.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3">
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Правила публикации</h5>
+                </div>
+                <div class="card-body">
+                    <ol class="ps-3 mb-0">
+                        <li class="mb-2">Публикуйте только уникальный контент.</li>
+                        <li class="mb-2">Используйте достоверные источники информации.</li>
+                        <li class="mb-2">Не размещайте рекламу и спам.</li>
+                        <li class="mb-2">Следите за грамматикой и пунктуацией.</li>
+                        <li class="mb-0">Уважайте читателей и других авторов.</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Статистика</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span>Всего статей:</span>
+                            <span class="fw-bold">{{ posts.count }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span>Опубликовано:</span>
+                            <span class="fw-bold">{{ published_posts.count }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span>На модерации:</span>
+                            <span class="fw-bold">{{ pending_posts.count }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span>Черновики:</span>
+                            <span class="fw-bold">{{ draft_posts.count }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-2">
+                            <span>Отклонено:</span>
+                            <span class="fw-bold">{{ rejected_posts.count }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

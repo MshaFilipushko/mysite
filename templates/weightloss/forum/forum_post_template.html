@@ -1,0 +1,83 @@
+{% load weight_filters %}
+{% load static %}
+
+{% comment %}
+    Шаблон для рекурсивного отображения ответов на форуме любой глубины.
+    Параметры:
+    - post: объект сообщения
+    - topic: объект темы (для формирования URL)
+    - level: глубина вложенности (опционально)
+{% endcomment %}
+
+<div class="comment-reply {% if level > 1 %}nested-level-{{ level }}{% endif %}" id="post-{{ post.id }}">
+    <div class="comment-reply-container">
+        <div class="comment-reply-header">
+            <div class="comment-author-pic">
+                {% if post.author.profile.avatar %}
+                    <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}" class="rounded-circle author-avatar">
+                {% else %}
+                    <img src="/static/weightloss/images/default-avatar.png" alt="{{ post.author.username }}" class="rounded-circle author-avatar">
+                {% endif %}
+            </div>
+            <div class="comment-reply-meta">
+                <div class="comment-author-name">
+                    <span class="fw-bold">{{ post.author.username }}</span>
+                    {% if post.author.is_staff %}
+                    <span class="badge bg-danger">Admin</span>
+                    {% endif %}
+                </div>
+                <div class="comment-time text-muted">
+                    {{ post.created_on|date:"d.m.Y H:i" }}
+                </div>
+            </div>
+            
+            {% if user.is_authenticated and user.id == post.author.id or user.is_staff %}
+            <div class="comment-reply-actions dropdown">
+                <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a href="#" class="dropdown-item delete-post" data-post-id="{{ post.id }}">
+                            <i class="fas fa-trash-alt text-danger"></i> Удалить
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="comment-reply-body">
+            <div class="comment-content">
+                {% if post.parent and level > 1 %}
+                <p class="reply-indicator">Ответ пользователю <strong>{{ post.parent.author.username }}</strong>:</p>
+                {% endif %}
+                {{ post.content|safe }}
+            </div>
+        </div>
+        
+        <div class="comment-reply-footer">
+            {% if user.is_authenticated and not topic.is_closed %}
+            <a href="#" class="reply-link" data-post-id="{{ post.id }}">
+                <i class="fas fa-reply"></i> Ответить
+            </a>
+            {% endif %}
+            
+            {% if post.total_replies_count > 0 %}
+            <span class="reply-count ms-2">
+                <i class="fas fa-comments"></i> {{ post.total_replies_count }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if post.replies.exists %}
+    <div class="nested-reply {% if level > 1 %}deeper-level-{{ level|add:"1" }}{% endif %}">
+        {% for reply in post.replies.all %}
+            {% with 'weightloss/forum/forum_post_template.html' as template_path %}
+                {% include template_path with post=reply topic=topic level=level|default:1|add:1 %}
+            {% endwith %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div> 

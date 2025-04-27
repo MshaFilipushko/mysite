@@ -1,0 +1,114 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block title %}Ответ на комментарий - {{ post.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ck-editor__editable {
+        min-height: 200px !important;
+        max-height: 500px;
+        border-radius: 0 0 4px 4px !important;
+    }
+    .ck-toolbar {
+        border-radius: 4px 4px 0 0 !important;
+    }
+    .parent-comment {
+        background-color: rgba(0,123,255,0.05);
+        border-left: 4px solid #007bff;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+    .parent-comment-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .parent-comment-content {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'blog_list' %}">Блог</a></li>
+            <li class="breadcrumb-item"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></li>
+            <li class="breadcrumb-item active">Ответить на комментарий</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h1 class="h5 mb-0">Ответить на комментарий к статье "{{ post.title }}"</h1>
+        </div>
+        <div class="card-body">
+            <!-- Parent comment display -->
+            <div class="parent-comment mb-4">
+                <div class="parent-comment-header">
+                    <div>
+                        <span class="fw-bold">{{ parent_comment.author.username }}</span>
+                        <small class="text-muted ms-2">{{ parent_comment.created_on|date:"d.m.Y H:i" }}</small>
+                    </div>
+                </div>
+                <div class="parent-comment-content small">
+                    {{ parent_comment.content|safe }}
+                </div>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <div class="mb-4">
+                    <label for="{{ form.content.id_for_label }}" class="form-label fw-bold mb-2">Ваш ответ</label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.content.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ post.get_absolute_url }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>Отмена
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i>Отправить ответ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ form.media }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait for CKEditor to initialize
+        setTimeout(function() {
+            // Add focus to the editor
+            if (window.editors && window.editors['{{ form.content.auto_id }}']) {
+                window.editors['{{ form.content.auto_id }}'].focus();
+            }
+        }, 500);
+    });
+</script>
+{% endblock %} 

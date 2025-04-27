@@ -1,0 +1,66 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}Регистрация - ЗдоровыйВес{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-4">Создать аккаунт</h2>
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <p>Пожалуйста, исправьте следующие ошибки:</p>
+                        <ul>
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Имя пользователя</label>
+                            <input type="text" name="username" id="id_username" class="form-control" required>
+                            <small class="text-muted">Обязательное поле. 150 символов или меньше. Только буквы, цифры и символы @/./+/-/_.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">Email</label>
+                            <input type="email" name="email" id="id_email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_password1" class="form-label">Пароль</label>
+                            <input type="password" name="password1" id="id_password1" class="form-control" required>
+                            <small class="text-muted">
+                                <ul>
+                                    <li>Пароль не должен быть похож на другую вашу личную информацию.</li>
+                                    <li>Ваш пароль должен содержать как минимум 8 символов.</li>
+                                    <li>Пароль не может состоять только из цифр.</li>
+                                </ul>
+                            </small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_password2" class="form-label">Подтверждение пароля</label>
+                            <input type="password" name="password2" id="id_password2" class="form-control" required>
+                            <small class="text-muted">Для подтверждения введите пароль ещё раз.</small>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4 text-center">
+                        <p>Уже есть аккаунт? <a href="{% url 'login' %}" class="text-primary">Войти</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

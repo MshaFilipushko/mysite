@@ -1,0 +1,300 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+{% load weight_filters %}
+
+{% block title %}{% if parent_post %}Ответ на комментарий{% else %}Ответ в теме{% endif %} "{{ topic.title }}"{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ck-editor__editable {
+        min-height: 300px !important;
+        max-height: 600px;
+        border-radius: 0 0 4px 4px !important;
+    }
+    .ck-toolbar {
+        border-radius: 4px 4px 0 0 !important;
+    }
+    .ck-word-count {
+        margin-top: 8px;
+        text-align: right;
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+    
+    /* Modern Blog Comment Reply Form */
+    .blog-container {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+    
+    .blog-breadcrumb {
+        margin-bottom: 30px;
+    }
+    
+    .blog-breadcrumb .breadcrumb-item a {
+        color: #4caf50;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .blog-breadcrumb .breadcrumb-item a:hover {
+        color: #2e7d32;
+        text-decoration: underline;
+    }
+    
+    .reply-page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 30px;
+    }
+    
+    .parent-comment-card {
+        border-radius: 12px;
+        background-color: #fff;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+        border-left: 4px solid #4caf50;
+    }
+    
+    .parent-comment-header {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        background: linear-gradient(135deg, #f9f9f9, #f2f2f2);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .parent-comment-author-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 15px;
+        border: 3px solid white;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    
+    .parent-comment-author-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .parent-comment-author-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        color: white;
+        font-weight: 700;
+        font-size: 1rem;
+        margin-right: 15px;
+        border: 3px solid white;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    
+    .parent-comment-author-info {
+        flex-grow: 1;
+    }
+    
+    .parent-comment-author {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 2px;
+    }
+    
+    .parent-comment-date {
+        color: #95a5a6;
+        font-size: 0.85rem;
+    }
+    
+    .parent-comment-body {
+        padding: 20px;
+    }
+    
+    .parent-comment-content {
+        line-height: 1.7;
+        color: #34495e;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    .comment-form-card {
+        background-color: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        margin-bottom: 40px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .comment-form-header {
+        padding: 15px 20px;
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        color: white;
+    }
+    
+    .comment-form-title {
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin: 0;
+    }
+    
+    .comment-form-body {
+        padding: 20px;
+    }
+    
+    .comment-input-group {
+        margin-bottom: 20px;
+    }
+    
+    .comment-input-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    .comment-submit-btn {
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 30px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+    }
+    
+    .comment-submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+    }
+    
+    .cancel-btn {
+        padding: 12px 25px;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        background-color: #f1f1f1;
+        color: #7f8c8d;
+    }
+    
+    .cancel-btn:hover {
+        background-color: #e0e0e0;
+        color: #34495e;
+        transform: translateY(-3px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container blog-container mt-4 mb-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="blog-breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'forum_home' %}">Форум</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'forum_category' topic.category.slug %}">{{ topic.category.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ topic.get_absolute_url }}">{{ topic.title }}</a></li>
+            <li class="breadcrumb-item active">{% if parent_post %}Ответить на комментарий{% else %}Ответить{% endif %}</li>
+        </ol>
+    </nav>
+
+    <h1 class="reply-page-title">{% if parent_post %}Ответ на комментарий{% else %}Ответ в теме{% endif %} "{{ topic.title }}"</h1>
+    
+    {% if parent_post %}
+    <div class="parent-comment-card">
+        <div class="parent-comment-header">
+            {% if parent_post.author.profile.profile_pic %}
+            <div class="parent-comment-author-avatar">
+                <img src="{{ parent_post.author.profile.profile_pic.url }}" alt="{{ parent_post.author.username }}">
+            </div>
+            {% else %}
+            <div class="parent-comment-author-placeholder">
+                {{ parent_post.author.username|first|upper }}
+            </div>
+            {% endif %}
+            <div class="parent-comment-author-info">
+                <div class="parent-comment-author">
+                    {{ parent_post.author.username }}
+                </div>
+                <div class="parent-comment-date">
+                    {{ parent_post.created_on|date:"d.m.Y" }} в {{ parent_post.created_on|date:"H:i" }}
+                </div>
+            </div>
+        </div>
+        <div class="parent-comment-body">
+            <div class="parent-comment-content">
+                {{ parent_post.content|safe }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="comment-form-card">
+        <div class="comment-form-header">
+            <h4 class="comment-form-title">{% if parent_post %}Ответить на комментарий{% else %}Ответить в теме{% endif %}</h4>
+        </div>
+        <div class="comment-form-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <div class="comment-input-group">
+                    <label for="{{ form.content.id_for_label }}">Ваше сообщение</label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.content.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ topic.get_absolute_url }}" class="cancel-btn">
+                        <i class="fas fa-times me-1"></i>Отмена
+                    </a>
+                    <button type="submit" class="comment-submit-btn">
+                        <i class="fas fa-paper-plane me-1"></i>Опубликовать ответ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ form.media }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait for CKEditor to initialize
+        setTimeout(function() {
+            // Add focus to the editor
+            if (window.editors && window.editors['{{ form.content.auto_id }}']) {
+                window.editors['{{ form.content.auto_id }}'].focus();
+            }
+        }, 500);
+    });
+</script>
+{% endblock %} 

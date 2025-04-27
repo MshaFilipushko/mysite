@@ -1,0 +1,571 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}Калькуляторы для похудения - ЗдоровыйВес{% endblock %}
+
+{% block content %}
+    <!-- Header -->
+    <div class="bg-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="fw-bold">Калькуляторы для похудения</h1>
+                    <p class="lead">Используйте наши калькуляторы для расчета индивидуальных показателей и достижения ваших целей</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculators Section -->
+    <div class="container py-5">
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs mb-5" id="calculatorTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="bmi-tab" data-bs-toggle="tab" data-bs-target="#bmi" type="button" role="tab" aria-controls="bmi" aria-selected="true">
+                    <i class="fas fa-weight me-2"></i>Калькулятор ИМТ
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="calories-tab" data-bs-toggle="tab" data-bs-target="#calories" type="button" role="tab" aria-controls="calories" aria-selected="false">
+                    <i class="fas fa-fire me-2"></i>Калькулятор калорий
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="macros-tab" data-bs-toggle="tab" data-bs-target="#macros" type="button" role="tab" aria-controls="macros" aria-selected="false">
+                    <i class="fas fa-drumstick-bite me-2"></i>Калькулятор БЖУ
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="water-tab" data-bs-toggle="tab" data-bs-target="#water" type="button" role="tab" aria-controls="water" aria-selected="false">
+                    <i class="fas fa-tint me-2"></i>Калькулятор воды
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="calculatorTabContent">
+            <!-- BMI Calculator -->
+            <div class="tab-pane fade show active" id="bmi" role="tabpanel" aria-labelledby="bmi-tab">
+                <div class="row">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <h3 class="mb-4">Индекс массы тела (ИМТ)</h3>
+                        <p>Индекс массы тела (ИМТ) — величина, позволяющая оценить соответствие массы человека и его роста и определить, является ли масса недостаточной, нормальной или избыточной.</p>
+                        <p>ИМТ рассчитывается по формуле: вес (кг) / рост² (м²)</p>
+                        
+                        <div class="card border-0 shadow-sm mt-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Интерпретация результатов</h5>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>ИМТ</th>
+                                            <th>Категория</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Менее 18.5</td>
+                                            <td>Недостаточный вес</td>
+                                        </tr>
+                                        <tr>
+                                            <td>18.5 - 24.9</td>
+                                            <td>Нормальный вес</td>
+                                        </tr>
+                                        <tr>
+                                            <td>25.0 - 29.9</td>
+                                            <td>Избыточный вес</td>
+                                        </tr>
+                                        <tr>
+                                            <td>30.0 и более</td>
+                                            <td>Ожирение</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow">
+                            <div class="card-body p-4">
+                                <h4 class="card-title mb-4">Рассчитать ИМТ</h4>
+                                <form id="bmiForm">
+                                    <div class="mb-3">
+                                        <label for="bmiWeight" class="form-label">Вес (кг)</label>
+                                        <input type="number" step="0.1" min="30" max="300" class="form-control" id="bmiWeight" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="bmiHeight" class="form-label">Рост (см)</label>
+                                        <input type="number" step="1" min="100" max="250" class="form-control" id="bmiHeight" required>
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100" onclick="calculateBMI()">Рассчитать</button>
+                                </form>
+                                
+                                <div class="mt-4 p-4 rounded text-center d-none" id="bmiResults">
+                                    <h3 class="mb-3">Результат</h3>
+                                    <div class="display-4 fw-bold mb-3" id="bmiValue"></div>
+                                    <h5 class="mb-0" id="bmiCategory"></h5>
+                                    <div class="progress mt-4">
+                                        <div class="progress-bar bg-info" style="width: 25%" role="progressbar" aria-label="Недостаточный вес"></div>
+                                        <div class="progress-bar bg-success" style="width: 25%" role="progressbar" aria-label="Нормальный вес"></div>
+                                        <div class="progress-bar bg-warning" style="width: 25%" role="progressbar" aria-label="Избыточный вес"></div>
+                                        <div class="progress-bar bg-danger" style="width: 25%" role="progressbar" aria-label="Ожирение"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <small>Недостаточный</small>
+                                        <small>Нормальный</small>
+                                        <small>Избыточный</small>
+                                        <small>Ожирение</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calories Calculator -->
+            <div class="tab-pane fade" id="calories" role="tabpanel" aria-labelledby="calories-tab">
+                <div class="row">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <h3 class="mb-4">Калькулятор калорий</h3>
+                        <p>Расчет дневной нормы калорий позволяет определить, сколько энергии вам нужно потреблять для достижения ваших целей: поддержания веса, похудения или набора мышечной массы.</p>
+                        <p>Расчет основан на вашем базовом метаболизме (BMR) и уровне физической активности.</p>
+                        
+                        <div class="card border-0 shadow-sm mt-4">
+                            <div class="card-body">
+                                <h5 class="card-title">О расчете калорий</h5>
+                                <p>Для расчёта используется формула Миффлина-Сан Жеора, которая считается одной из самых точных:</p>
+                                <ul>
+                                    <li>Для мужчин: BMR = 10 × вес (кг) + 6.25 × рост (см) - 5 × возраст + 5</li>
+                                    <li>Для женщин: BMR = 10 × вес (кг) + 6.25 × рост (см) - 5 × возраст - 161</li>
+                                </ul>
+                                <p>Затем BMR умножается на коэффициент активности для получения общего расхода энергии.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow">
+                            <div class="card-body p-4">
+                                <h4 class="card-title mb-4">Рассчитать калории</h4>
+                                <form id="caloriesForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Пол</label>
+                                        <div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="gender" id="genderMale" value="male" checked>
+                                                <label class="form-check-label" for="genderMale">Мужчина</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="female">
+                                                <label class="form-check-label" for="genderFemale">Женщина</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="calAge" class="form-label">Возраст</label>
+                                        <input type="number" min="18" max="100" class="form-control" id="calAge" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="calWeight" class="form-label">Вес (кг)</label>
+                                        <input type="number" step="0.1" min="30" max="300" class="form-control" id="calWeight" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="calHeight" class="form-label">Рост (см)</label>
+                                        <input type="number" step="1" min="100" max="250" class="form-control" id="calHeight" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="activityLevel" class="form-label">Уровень активности</label>
+                                        <select class="form-select" id="activityLevel" required>
+                                            <option value="1.2">Сидячий (минимум или отсутствие физической активности)</option>
+                                            <option value="1.375">Легкая активность (1-3 раза в неделю)</option>
+                                            <option value="1.55" selected>Умеренная активность (3-5 раз в неделю)</option>
+                                            <option value="1.725">Высокая активность (6-7 раз в неделю)</option>
+                                            <option value="1.9">Очень высокая активность (профессиональный спорт)</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="goal" class="form-label">Цель</label>
+                                        <select class="form-select" id="goal" required>
+                                            <option value="lose">Похудение</option>
+                                            <option value="maintain" selected>Поддержание веса</option>
+                                            <option value="gain">Набор массы</option>
+                                        </select>
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100" onclick="calculateCalories()">Рассчитать</button>
+                                </form>
+                                
+                                <div class="mt-4 p-4 rounded text-center d-none" id="caloriesResults">
+                                    <h3 class="mb-3">Ваша норма калорий</h3>
+                                    <div class="display-4 fw-bold mb-3" id="caloriesValue"></div>
+                                    <p class="mb-0" id="caloriesDescription"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Macros Calculator -->
+            <div class="tab-pane fade" id="macros" role="tabpanel" aria-labelledby="macros-tab">
+                <div class="row">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <h3 class="mb-4">Калькулятор БЖУ</h3>
+                        <p>Расчет оптимального соотношения белков, жиров и углеводов (БЖУ) поможет вам правильно распределить калории для достижения ваших целей.</p>
+                        <p>Правильное соотношение БЖУ важно для:</p>
+                        <ul>
+                            <li>Похудения без потери мышечной массы</li>
+                            <li>Энергии в течение дня</li>
+                            <li>Гормонального баланса</li>
+                            <li>Насыщения и отсутствия чувства голода</li>
+                        </ul>
+                        
+                        <div class="card border-0 shadow-sm mt-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Стандартные соотношения БЖУ</h5>
+                                <p>В зависимости от целей используются разные соотношения:</p>
+                                <ul>
+                                    <li><strong>Похудение:</strong> Белки 30-35%, Жиры 25-30%, Углеводы 35-45%</li>
+                                    <li><strong>Поддержание веса:</strong> Белки 20-25%, Жиры 25-35%, Углеводы 45-55%</li>
+                                    <li><strong>Набор массы:</strong> Белки 25-30%, Жиры 15-25%, Углеводы 45-60%</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow">
+                            <div class="card-body p-4">
+                                <h4 class="card-title mb-4">Рассчитать БЖУ</h4>
+                                <form id="macrosForm">
+                                    <div class="mb-3">
+                                        <label for="dailyCalories" class="form-label">Дневная норма калорий</label>
+                                        <input type="number" min="1000" max="5000" class="form-control" id="dailyCalories" required>
+                                        <div class="form-text">Используйте калькулятор калорий или введите ваше текущее значение</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="macroGoal" class="form-label">Цель</label>
+                                        <select class="form-select" id="macroGoal" required>
+                                            <option value="lose">Похудение</option>
+                                            <option value="maintain" selected>Поддержание веса</option>
+                                            <option value="gain">Набор массы</option>
+                                        </select>
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100" onclick="calculateMacros()">Рассчитать</button>
+                                </form>
+                                
+                                <div class="mt-4 rounded d-none" id="macrosResults">
+                                    <h3 class="mb-3 text-center">Ваша норма БЖУ</h3>
+                                    <div class="row text-center mb-4">
+                                        <div class="col-4">
+                                            <div class="p-3 bg-light rounded">
+                                                <h5>Белки</h5>
+                                                <div class="fw-bold" id="proteinGrams"></div>
+                                                <div class="small text-muted" id="proteinCals"></div>
+                                                <div class="small text-muted" id="proteinPercent"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="p-3 bg-light rounded">
+                                                <h5>Жиры</h5>
+                                                <div class="fw-bold" id="fatGrams"></div>
+                                                <div class="small text-muted" id="fatCals"></div>
+                                                <div class="small text-muted" id="fatPercent"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="p-3 bg-light rounded">
+                                                <h5>Углеводы</h5>
+                                                <div class="fw-bold" id="carbGrams"></div>
+                                                <div class="small text-muted" id="carbCals"></div>
+                                                <div class="small text-muted" id="carbPercent"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <canvas id="macrosChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Water Calculator -->
+            <div class="tab-pane fade" id="water" role="tabpanel" aria-labelledby="water-tab">
+                <div class="row">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <h3 class="mb-4">Калькулятор воды</h3>
+                        <p>Расчет индивидуальной нормы потребления воды поможет вам поддерживать правильный водный баланс в организме.</p>
+                        <p>Достаточное потребление воды важно для:</p>
+                        <ul>
+                            <li>Регулирования температуры тела</li>
+                            <li>Выведения токсинов</li>
+                            <li>Улучшения пищеварения</li>
+                            <li>Поддержания здоровья кожи</li>
+                            <li>Повышения эффективности тренировок</li>
+                            <li>Нормализации обмена веществ</li>
+                        </ul>
+                        
+                        <div class="card border-0 shadow-sm mt-4">
+                            <div class="card-body">
+                                <h5 class="card-title">О потреблении воды</h5>
+                                <p>Общая рекомендация - 30 мл на 1 кг веса тела. Однако норма может меняться в зависимости от:</p>
+                                <ul>
+                                    <li>Уровня физической активности</li>
+                                    <li>Погодных условий</li>
+                                    <li>Возраста</li>
+                                    <li>Состояния здоровья</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow">
+                            <div class="card-body p-4">
+                                <h4 class="card-title mb-4">Рассчитать норму воды</h4>
+                                <form id="waterForm">
+                                    <div class="mb-3">
+                                        <label for="waterWeight" class="form-label">Вес (кг)</label>
+                                        <input type="number" step="0.1" min="30" max="300" class="form-control" id="waterWeight" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="waterActivity" class="form-label">Уровень активности</label>
+                                        <select class="form-select" id="waterActivity" required>
+                                            <option value="sedentary">Сидячий образ жизни</option>
+                                            <option value="light" selected>Легкая активность</option>
+                                            <option value="moderate">Умеренная активность</option>
+                                            <option value="high">Высокая активность</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="climate" class="form-label">Климат</label>
+                                        <select class="form-select" id="climate" required>
+                                            <option value="normal" selected>Умеренный</option>
+                                            <option value="hot">Жаркий</option>
+                                            <option value="cold">Холодный</option>
+                                        </select>
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100" onclick="calculateWater()">Рассчитать</button>
+                                </form>
+                                
+                                <div class="mt-4 p-4 rounded text-center d-none" id="waterResults">
+                                    <h3 class="mb-3">Ваша норма воды</h3>
+                                    <div class="row align-items-center">
+                                        <div class="col-6">
+                                            <div class="display-4 fw-bold mb-2" id="waterValue"></div>
+                                            <p class="mb-0" id="waterInGlasses"></p>
+                                        </div>
+                                        <div class="col-6">
+                                            <i class="fas fa-tint fa-5x text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <div class="alert alert-info mt-3">
+                                        <p class="mb-0 small">Распределите потребление воды равномерно в течение дня. Пейте больше воды при повышенной физической активности или в жаркую погоду.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disclaimer Section -->
+    <div class="bg-light py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 mx-auto">
+                    <div class="alert alert-warning mb-0">
+                        <h5><i class="fas fa-exclamation-triangle me-2"></i>Важная информация</h5>
+                        <p class="mb-0">Результаты калькуляторов являются приблизительными и предназначены только для информационных целей. Перед началом любой программы по снижению веса или изменению питания проконсультируйтесь с врачом. Индивидуальные потребности могут отличаться.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // BMI Calculator
+    function calculateBMI() {
+        const weight = parseFloat(document.getElementById('bmiWeight').value);
+        const height = parseFloat(document.getElementById('bmiHeight').value) / 100; // convert cm to m
+        
+        if (weight > 0 && height > 0) {
+            const bmi = (weight / (height * height)).toFixed(1);
+            document.getElementById('bmiValue').textContent = bmi;
+            
+            let category = '';
+            let bgColor = '';
+            
+            if (bmi < 18.5) {
+                category = 'Недостаточный вес';
+                bgColor = 'bg-info';
+            } else if (bmi >= 18.5 && bmi < 25) {
+                category = 'Нормальный вес';
+                bgColor = 'bg-success';
+            } else if (bmi >= 25 && bmi < 30) {
+                category = 'Избыточный вес';
+                bgColor = 'bg-warning';
+            } else {
+                category = 'Ожирение';
+                bgColor = 'bg-danger';
+            }
+            
+            document.getElementById('bmiCategory').textContent = category;
+            document.getElementById('bmiResults').classList.remove('d-none');
+            document.getElementById('bmiResults').className = document.getElementById('bmiResults').className.replace(/bg-\w+/g, '').trim() + ' ' + bgColor;
+        }
+    }
+    
+    // Calories Calculator
+    function calculateCalories() {
+        const gender = document.querySelector('input[name="gender"]:checked').value;
+        const age = parseInt(document.getElementById('calAge').value);
+        const weight = parseFloat(document.getElementById('calWeight').value);
+        const height = parseFloat(document.getElementById('calHeight').value);
+        const activityLevel = parseFloat(document.getElementById('activityLevel').value);
+        const goal = document.getElementById('goal').value;
+        
+        if (age > 0 && weight > 0 && height > 0) {
+            // Миффлин-Сан Жеор формула
+            let bmr = 0;
+            if (gender === 'male') {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+            
+            // Total Daily Energy Expenditure (TDEE)
+            let tdee = bmr * activityLevel;
+            let calories = 0;
+            let description = '';
+            
+            // Adjust for goal
+            if (goal === 'lose') {
+                calories = tdee - 500; // Deficit of 500 calories
+                description = 'Для похудения примерно на 0.5 кг в неделю';
+            } else if (goal === 'maintain') {
+                calories = tdee;
+                description = 'Для поддержания текущего веса';
+            } else if (goal === 'gain') {
+                calories = tdee + 500; // Surplus of 500 calories
+                description = 'Для набора веса примерно на 0.5 кг в неделю';
+            }
+            
+            document.getElementById('caloriesValue').textContent = Math.round(calories) + ' ккал';
+            document.getElementById('caloriesDescription').textContent = description;
+            document.getElementById('caloriesResults').classList.remove('d-none');
+        }
+    }
+    
+    // Macros Calculator
+    function calculateMacros() {
+        const calories = parseInt(document.getElementById('dailyCalories').value);
+        const goal = document.getElementById('macroGoal').value;
+        
+        if (calories > 0) {
+            let proteinPct = 0;
+            let fatPct = 0;
+            let carbPct = 0;
+            
+            // Set macros percentages based on goal
+            if (goal === 'lose') {
+                proteinPct = 0.35; // 35%
+                fatPct = 0.3; // 30%
+                carbPct = 0.35; // 35%
+            } else if (goal === 'maintain') {
+                proteinPct = 0.25; // 25%
+                fatPct = 0.3; // 30%
+                carbPct = 0.45; // 45%
+            } else if (goal === 'gain') {
+                proteinPct = 0.25; // 25%
+                fatPct = 0.2; // 20%
+                carbPct = 0.55; // 55%
+            }
+            
+            // Calculate grams
+            const proteinCals = calories * proteinPct;
+            const fatCals = calories * fatPct;
+            const carbCals = calories * carbPct;
+            
+            const proteinGrams = Math.round(proteinCals / 4); // 4 calories per gram
+            const fatGrams = Math.round(fatCals / 9); // 9 calories per gram
+            const carbGrams = Math.round(carbCals / 4); // 4 calories per gram
+            
+            // Update results
+            document.getElementById('proteinGrams').textContent = proteinGrams + ' г';
+            document.getElementById('proteinCals').textContent = Math.round(proteinCals) + ' ккал';
+            document.getElementById('proteinPercent').textContent = Math.round(proteinPct * 100) + '%';
+            
+            document.getElementById('fatGrams').textContent = fatGrams + ' г';
+            document.getElementById('fatCals').textContent = Math.round(fatCals) + ' ккал';
+            document.getElementById('fatPercent').textContent = Math.round(fatPct * 100) + '%';
+            
+            document.getElementById('carbGrams').textContent = carbGrams + ' г';
+            document.getElementById('carbCals').textContent = Math.round(carbCals) + ' ккал';
+            document.getElementById('carbPercent').textContent = Math.round(carbPct * 100) + '%';
+            
+            document.getElementById('macrosResults').classList.remove('d-none');
+            
+            // Create chart
+            const ctx = document.getElementById('macrosChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Белки', 'Жиры', 'Углеводы'],
+                    datasets: [{
+                        data: [Math.round(proteinPct * 100), Math.round(fatPct * 100), Math.round(carbPct * 100)],
+                        backgroundColor: ['#4caf50', '#ff9800', '#2196f3']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+    }
+    
+    // Water Calculator
+    function calculateWater() {
+        const weight = parseFloat(document.getElementById('waterWeight').value);
+        const activity = document.getElementById('waterActivity').value;
+        const climate = document.getElementById('climate').value;
+        
+        if (weight > 0) {
+            // Base calculation: 30ml per kg
+            let waterAmount = weight * 30;
+            
+            // Adjust for activity
+            if (activity === 'sedentary') {
+                waterAmount *= 0.9; // 10% less for sedentary
+            } else if (activity === 'moderate') {
+                waterAmount *= 1.1; // 10% more for moderate activity
+            } else if (activity === 'high') {
+                waterAmount *= 1.2; // 20% more for high activity
+            }
+            
+            // Adjust for climate
+            if (climate === 'hot') {
+                waterAmount *= 1.1; // 10% more for hot climate
+            } else if (climate === 'cold') {
+                waterAmount *= 0.95; // 5% less for cold climate
+            }
+            
+            // Calculate glasses (approx 250ml per glass)
+            const glasses = Math.round(waterAmount / 250);
+            
+            document.getElementById('waterValue').textContent = Math.round(waterAmount / 1000 * 10) / 10 + ' л';
+            document.getElementById('waterInGlasses').textContent = 'Примерно ' + glasses + ' стаканов';
+            document.getElementById('waterResults').classList.remove('d-none');
+        }
+    }
+</script>
+{% endblock %} 

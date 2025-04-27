@@ -1,0 +1,560 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}{{ category.name }} - ЗдоровыйВес{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+<style>
+    /* Стили для раздела категорий */
+    .category-header {
+        background: linear-gradient(135deg, #4ac29a, #bdfff3);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+        transform: translateY(0);
+        transition: all 0.3s ease;
+    }
+
+    .category-header:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .category-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .category-title span {
+        color: #4ac29a;
+        position: relative;
+    }
+
+    .category-title span::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #4ac29a;
+        transition: width 0.3s ease;
+    }
+
+    .category-description {
+        font-size: 1.2rem;
+        color: #34495e;
+        margin-bottom: 20px;
+        max-width: 800px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .category-shape {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        z-index: 1;
+    }
+
+    .shape-1 {
+        width: 200px;
+        height: 200px;
+        top: -50px;
+        right: -50px;
+        animation: float 8s ease-in-out infinite;
+    }
+
+    .shape-2 {
+        width: 100px;
+        height: 100px;
+        bottom: -30px;
+        left: 10%;
+        animation: float 6s ease-in-out infinite 1s;
+    }
+
+    @keyframes float {
+        0% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+        100% { transform: translateY(0) rotate(0deg); }
+    }
+
+    .breadcrumb {
+        background-color: transparent;
+        padding: 10px 0;
+        margin-bottom: 20px;
+    }
+
+    .breadcrumb-item a {
+        color: #4ac29a;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #34495e;
+        text-decoration: none;
+    }
+
+    .breadcrumb-item.active {
+        color: #7f8c8d;
+    }
+
+    /* Стили для карточек постов */
+    .post-card {
+        background: #fff;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transform: translateY(0);
+    }
+
+    .post-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-image-container {
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .post-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .post-card:hover .post-image {
+        transform: scale(1.05);
+    }
+
+    .post-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        color: #aaa;
+        font-size: 2rem;
+    }
+
+    .post-content {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .post-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #2c3e50;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 3em; /* Фиксированная высота для заголовка */
+    }
+
+    .post-title a {
+        color: #2c3e50;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .post-title a:hover {
+        color: #4ac29a;
+    }
+
+    .post-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    .post-author {
+        display: flex;
+        align-items: center;
+    }
+
+    .post-author-avatar {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+
+    .post-excerpt {
+        color: #7f8c8d;
+        margin-bottom: 15px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex-grow: 1;
+        height: 4.5em; /* Фиксированная высота для описания */
+    }
+
+    .post-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-read-more {
+        background: linear-gradient(135deg, #4ac29a, #bdfff3);
+        color: #fff;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-read-more:hover {
+        background: linear-gradient(135deg, #3da386, #a0f3e4);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(74, 194, 154, 0.2);
+        color: #fff;
+    }
+
+    .post-date {
+        color: #95a5a6;
+        font-size: 0.85rem;
+    }
+
+    /* Стили для бокового меню */
+    .sidebar-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #2c3e50;
+        position: relative;
+        padding-bottom: 10px;
+    }
+
+    .sidebar-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(135deg, #4ac29a, #bdfff3);
+    }
+
+    .category-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .category-item {
+        margin-bottom: 10px;
+    }
+
+    .category-link {
+        display: block;
+        padding: 10px 15px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        color: #34495e;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .category-link:hover, .category-link.active {
+        background: linear-gradient(135deg, #4ac29a, #bdfff3);
+        color: #fff;
+        transform: translateX(5px);
+    }
+
+    .category-link i {
+        margin-right: 8px;
+    }
+
+    .btn-new-article {
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        background: linear-gradient(135deg, #4ac29a, #bdfff3);
+        color: #fff;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-new-article:hover {
+        background: linear-gradient(135deg, #3da386, #a0f3e4);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(74, 194, 154, 0.3);
+        color: #fff;
+    }
+
+    .btn-new-article i {
+        margin-right: 8px;
+    }
+
+    /* Анимации для элементов при прокрутке */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .no-posts {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .no-posts i {
+        font-size: 3rem;
+        color: #95a5a6;
+        margin-bottom: 15px;
+    }
+
+    .no-posts h4 {
+        color: #34495e;
+        margin-bottom: 10px;
+    }
+
+    .no-posts p {
+        color: #7f8c8d;
+        margin-bottom: 20px;
+    }
+
+    /* Стили для пустого контента */
+    .empty-category {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, rgba(74, 194, 154, 0.1), rgba(189, 255, 243, 0.1));
+        border-radius: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .empty-category-icon {
+        font-size: 4rem;
+        color: #4ac29a;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    
+    .empty-category-title {
+        font-size: 1.8rem;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+    
+    .empty-category-text {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto 25px;
+    }
+    
+    .btn-empty-action {
+        background: linear-gradient(135deg, #4ac29a, #bdfff3);
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-decoration: none;
+    }
+    
+    .btn-empty-action:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(74, 194, 154, 0.2);
+        color: #fff;
+    }
+</style>
+
+<!-- Хлебные крошки -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'blog_list' %}">Блог</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+        </ol>
+    </nav>
+    
+<div class="category-header fade-in mb-4">
+    <div class="category-shape shape-1"></div>
+    <div class="category-shape shape-2"></div>
+    <h1 class="category-title">Публикации в категории <span>{{ category.name }}</span></h1>
+    <p class="category-description">
+        Просмотрите все статьи в категории {{ category.name }}. Здесь вы найдете полезные советы и информацию о {{ category.name | lower }}, которые помогут вам достичь ваших целей по снижению веса.
+    </p>
+</div>
+
+{% if messages %}
+    <div class="messages-container mb-4">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="row g-4">
+        <div class="col-lg-8">
+            {% if posts %}
+                <div class="row g-4">
+                    {% for post in posts %}
+                    <div class="col-md-6 fade-in">
+                        <div class="post-card h-100">
+                            <div class="post-image-container">
+                            {% if post.featured_image %}
+                                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-image">
+                            {% else %}
+                                    <div class="post-placeholder">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="post-content d-flex flex-column">
+                                <h2 class="post-title">
+                                    <a href="{% url 'post_detail' post.slug %}">{{ post.title }}</a>
+                                </h2>
+                                <div class="post-meta">
+                                    <div class="post-author">
+                                        {% if post.author.userprofile.profile_pic %}
+                                            <img src="{{ post.author.userprofile.profile_pic.url }}" alt="{{ post.author.username }}" class="post-author-avatar">
+                                        {% else %}
+                                            <i class="fas fa-user-circle me-1"></i>
+                            {% endif %}
+                                        {{ post.author.username }}
+                                    </div>
+                                </div>
+                                <div class="post-excerpt">
+                                    {{ post.content|striptags|truncatechars:150 }}
+                                </div>
+                                <div class="post-footer mt-auto">
+                                    <a href="{% url 'post_detail' post.slug %}" class="btn-read-more">
+                                        <i class="fas fa-book-reader me-1"></i>Читать
+                                    </a>
+                                    <span class="post-date">
+                                        <i class="far fa-calendar-alt me-1"></i>{{ post.created_on|date:"d.m.Y" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+            <!-- Pagination -->
+            {% include 'weightloss/includes/pagination.html' %}
+        {% else %}
+            <div class="empty-category fade-in">
+                <div class="empty-category-icon">
+                    <i class="far fa-folder-open"></i>
+                </div>
+                <h2 class="empty-category-title">В этой категории пока нет статей</h2>
+                <p class="empty-category-text">Будьте первым, кто напишет полезную статью в категории "{{ category.name }}"</p>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'create_post' %}" class="btn-empty-action">
+                        <i class="fas fa-pen me-2"></i>Написать первую статью
+                    </a>
+                {% else %}
+                    <p class="empty-category-text">Войдите или зарегистрируйтесь, чтобы создать статью</p>
+                    <a href="{% url 'login' %}?next={% url 'create_post' %}" class="btn-empty-action">
+                        <i class="fas fa-sign-in-alt me-2"></i>Войти
+                    </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        
+    <!-- Боковая панель -->
+        <div class="col-lg-4">
+        <div class="sidebar mb-4 fade-in sticky-top" style="top: 90px;">
+            <h3 class="sidebar-title">Категории</h3>
+            <ul class="category-list">
+                        {% for cat in categories %}
+                    <li class="category-item">
+                        <a href="{% url 'category_detail' cat.slug %}" class="category-link {% if cat.id == category.id %}active{% endif %}">
+                            <i class="fas fa-folder"></i> {{ cat.name }} 
+                            <span class="badge bg-secondary float-end">{{ cat.post_count }}</span>
+                        </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+            
+                    {% if user.is_authenticated %}
+                <a href="{% url 'create_post' %}" class="btn-new-article">
+                    <i class="fas fa-pen"></i> Написать статью в этой категории
+                </a>
+                    {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript для анимаций при прокрутке -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Функция проверки видимости элемента
+        function isElementInViewport(el) {
+            const rect = el.getBoundingClientRect();
+            return (
+                rect.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.8
+            );
+        }
+        
+        // Функция анимации элементов при прокрутке
+        function handleScroll() {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(function(element) {
+                if (isElementInViewport(element)) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // Добавляем обработчик события скролла
+        window.addEventListener('scroll', handleScroll);
+        
+        // Вызываем один раз для первой загрузки страницы
+        handleScroll();
+    });
+</script>
+</div>
+{% endblock %} 

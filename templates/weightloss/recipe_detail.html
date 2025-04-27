@@ -1,0 +1,290 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block title %}{{ recipe.title }} | Рецепты для похудения{% endblock %}
+
+{% block extra_css %}
+<style>
+    .comment-section {
+        margin-top: 40px;
+    }
+    
+    .comment-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 25px;
+    }
+    
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .comment-author {
+        font-weight: 600;
+        color: #4caf50;
+    }
+    
+    .comment-date {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .comment-content {
+        margin-bottom: 15px;
+    }
+    
+    .comment-reply {
+        margin-left: 40px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-left: 3px solid #4caf50;
+        border-radius: 0.25rem;
+    }
+    
+    .comment-item {
+        margin-bottom: 30px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .comment-item:hover {
+        box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .reply-link {
+        color: #4caf50;
+        text-decoration: none;
+        font-size: 0.875rem;
+        padding: 6px 15px;
+        border-radius: 20px;
+        background-color: rgba(76, 175, 80, 0.1);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .reply-link:hover {
+        color: white;
+        background-color: #4caf50;
+        text-decoration: none;
+        box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+    }
+    
+    .reply-link i {
+        margin-right: 5px;
+    }
+    
+    .no-comments {
+        text-align: center;
+        padding: 40px 20px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .no-comments i {
+        font-size: 3rem;
+        color: #dee2e6;
+        margin-bottom: 15px;
+    }
+    
+    .comment-form {
+        margin-top: 30px;
+    }
+    
+    .comment-form-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+    
+    .comment-login-prompt {
+        text-align: center;
+        padding: 30px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+    
+    .comment-login-prompt p {
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                {% if recipe.image %}
+                    <img src="{{ recipe.image.url }}" class="card-img-top" alt="{{ recipe.title }}">
+                {% else %}
+                    <img src="{% static 'images/default_recipe.jpg' %}" class="card-img-top" alt="{{ recipe.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h1 class="card-title">{{ recipe.title }}</h1>
+                    
+                    <div class="d-flex justify-content-between my-3">
+                        <div class="nutrition-info">
+                            <span class="badge bg-primary me-2">{{ recipe.calories }} калорий</span>
+                            <span class="badge bg-success me-2">{{ recipe.protein }}г белка</span>
+                            <span class="badge bg-info me-2">{{ recipe.carbs }}г углеводов</span>
+                            <span class="badge bg-warning">{{ recipe.fat }}г жиров</span>
+                        </div>
+                        <div class="prep-time">
+                            <i class="fas fa-clock"></i> {{ recipe.preparation_time }} минут
+                        </div>
+                    </div>
+                    
+                    <h4>Ингредиенты</h4>
+                    <div class="ingredients mb-4">
+                        {{ recipe.ingredients|safe }}
+                    </div>
+                    
+                    <h4>Инструкция по приготовлению</h4>
+                    <div class="instructions mb-4">
+                        {{ recipe.instructions|safe }}
+                    </div>
+                    
+                    <h6 class="mb-0">Автор: <a href="{% url 'user_profile' recipe.author.username %}" class="text-decoration-none">{{ recipe.author.username }}</a></h6>
+                </div>
+            </div>
+            
+            <!-- Comments Section -->
+            <div class="comment-section">
+                <h3 class="comment-title">Комментарии ({{ comments|length }})</h3>
+                
+                {% if messages %}
+                <div class="messages mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} shadow-sm">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% if comments %}
+                <div class="comments-list">
+                    {% for comment in comments %}
+                    <div class="comment-item" id="comment-{{ comment.id }}">
+                        <div class="comment-header">
+                            <div class="comment-author">
+                                <a href="{% url 'user_profile' comment.author.username %}">{{ comment.author.username }}</a>
+                            </div>
+                            <span class="comment-date">{{ comment.created_on|date:"d.m.Y H:i" }}</span>
+                        </div>
+                        <div class="comment-content">
+                            {{ comment.content|safe }}
+                        </div>
+                        
+                        {% if user.is_authenticated %}
+                        <div>
+                            <a href="{% url 'recipe_comment_reply' recipe.slug comment.id %}" class="reply-link">
+                                <i class="fas fa-reply"></i> Ответить
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Comment Replies -->
+                        {% for reply in comment.replies.all %}
+                        <div class="comment-reply" id="comment-{{ reply.id }}">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <span class="fw-bold">{{ reply.author.username }}</span>
+                                    <span class="text-muted ms-2 small">{{ reply.created_on|date:"d.m.Y H:i" }}</span>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                {{ reply.content|safe }}
+                            </div>
+                            
+                            {% if user.is_authenticated %}
+                            <div>
+                                <a href="{% url 'recipe_comment_reply' recipe.slug reply.id %}" class="reply-link small">
+                                    <i class="fas fa-reply"></i> Ответить
+                                </a>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Nested replies to this reply -->
+                            {% for nested_reply in reply.replies.all %}
+                            <div class="comment-reply" id="comment-{{ nested_reply.id }}">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <span class="fw-bold">{{ nested_reply.author.username }}</span>
+                                        <span class="text-muted ms-2 small">{{ nested_reply.created_on|date:"d.m.Y H:i" }}</span>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    {{ nested_reply.content|safe }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="no-comments">
+                    <i class="far fa-comment-dots"></i>
+                    <p>Пока нет комментариев. Будьте первым, кто оставит комментарий!</p>
+                </div>
+                {% endif %}
+                
+                <!-- Comment Form -->
+                {% if user.is_authenticated %}
+                <div class="comment-form">
+                    <h4 class="comment-form-title">Оставить комментарий</h4>
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        {{ comment_form.media }}
+                        {{ comment_form.as_p }}
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane me-2"></i>Отправить
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="comment-login-prompt">
+                    <p>Чтобы оставить комментарий, пожалуйста, войдите или зарегистрируйтесь</p>
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary me-2">Войти</a>
+                    <a href="{% url 'register' %}" class="btn btn-outline-primary">Регистрация</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Похожие рецепты</h4>
+                </div>
+                <div class="card-body">
+                    {% if related_recipes %}
+                        <ul class="list-group list-group-flush">
+                            {% for related in related_recipes %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'recipe_detail' related.slug %}">{{ related.title }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Похожих рецептов не найдено.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

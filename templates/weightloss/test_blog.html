@@ -1,0 +1,94 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block title %}Тестовая страница блога - ЗдоровыйВес{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h1 class="h4 mb-0">Тестовая страница блога</h1>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h2 class="h5">Диагностическая информация:</h2>
+                        <p>Всего постов в базе: <strong>{{ all_posts.count }}</strong></p>
+                        <p>Опубликованных постов: <strong>{{ published_posts.count }}</strong></p>
+                    </div>
+                    
+                    <h2 class="h5 mt-4">Все посты в базе данных:</h2>
+                    <table class="table table-striped table-bordered">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Заголовок</th>
+                                <th>Статус</th>
+                                <th>Категория</th>
+                                <th>Автор</th>
+                                <th>Дата создания</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for post in all_posts %}
+                            <tr>
+                                <td>{{ post.id }}</td>
+                                <td>{{ post.title }}</td>
+                                <td>{{ post.status }}</td>
+                                <td>{{ post.category.name }}</td>
+                                <td>{{ post.author.username }}</td>
+                                <td>{{ post.created_on|date:"d.m.Y H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">Нет постов в базе данных</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    <h2 class="h5 mt-4">Опубликованные посты (status='published'):</h2>
+                    <table class="table table-striped table-bordered table-success">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Заголовок</th>
+                                <th>Статус</th>
+                                <th>Категория</th>
+                                <th>Автор</th>
+                                <th>Дата создания</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for post in published_posts %}
+                            <tr>
+                                <td>{{ post.id }}</td>
+                                <td>{{ post.title }}</td>
+                                <td>{{ post.status }}</td>
+                                <td>{{ post.category.name }}</td>
+                                <td>{{ post.author.username }}</td>
+                                <td>{{ post.created_on|date:"d.m.Y H:i" }}</td>
+                                <td>
+                                    <a href="{{ post.get_absolute_url }}" class="btn btn-sm btn-primary">Перейти</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">Нет опубликованных постов</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'blog_list' %}" class="btn btn-primary me-2">Перейти на страницу блога</a>
+                        <a href="?format=json" class="btn btn-secondary" target="_blank">Данные в JSON</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
