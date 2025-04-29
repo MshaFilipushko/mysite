@@ -5,6 +5,9 @@ from django_ckeditor_5.fields import CKEditor5Field
 from django.utils.text import slugify
 import random
 import string
+from django.utils import timezone
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -318,3 +321,66 @@ class ForumPost(models.Model):
             
         # Возвращаем сумму прямых и вложенных ответов
         return direct_replies + nested_replies
+
+# Модель для уведомлений пользователя
+class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('comment', 'Комментарий'),
+        ('reply', 'Ответ'),
+        ('like', 'Лайк'),
+        ('forum_reply', 'Ответ на форуме'),
+        ('mention', 'Упоминание'),
+        ('status_update', 'Обновление статуса'),
+        ('weight_goal', 'Достижение цели по весу'),
+        ('system', 'Системное уведомление'),
+    )
+    
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications', null=True, blank=True)
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=100)
+    message = models.TextField()
+    
+    # Для связи с любой моделью (Post, Comment, ForumTopic и т.д.)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+    
+    url = models.CharField(max_length=255, blank=True)  # URL для перехода при клике на уведомление
+    is_read = models.BooleanField(default=False)  # Прочитано ли уведомление
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['recipient', 'is_read', 'created_at']),
+            models.Index(fields=['content_type', 'object_id']),
+        ]
+    
+    def __str__(self):
+        return f"Уведомление для {self.recipient.username}: {self.title}"
+    
+    def mark_as_read(self):
+        self.is_read = True
+        self.save()
+    
+    @classmethod
+    def create_notification(cls, recipient, notification_type, title, message, 
+                          sender=None, content_object=None, url=None):
+        """
+        Создает новое уведомление
+        """
+        notification = cls(
+            recipient=recipient,
+            notification_type=notification_type,
+            title=title,
+            message=message,
+            sender=sender,
+            url=url
+        )
+        
+        if content_object:
+            notification.content_object = content_object
+            
+        notification.save()
+        return notification

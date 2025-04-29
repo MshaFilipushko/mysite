@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, TemplateView, CreateView, UpdateView, DeleteView, FormView, View
-from .models import Category, Post, Recipe, Challenge, UserProfile, ForumCategory, ForumTopic, ForumPost, Comment, RecipeComment
+from .models import Category, Post, Recipe, Challenge, UserProfile, ForumCategory, ForumTopic, ForumPost, Comment, RecipeComment, Notification
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetDoneView
 from django.db.models import Q, Count, Max, F
@@ -21,6 +21,21 @@ from django_ratelimit.decorators import ratelimit
 from django.template.loader import render_to_string
 import time
 from unidecode import unidecode
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.utils.decorators import method_decorator
+from django.core.exceptions import PermissionDenied
+from django.contrib.contenttypes.models import ContentType
+
+# Создаем контекстный процессор для уведомлений
+def notifications_processor(request):
+    context = {}
+    if request.user.is_authenticated:
+        context['unread_notifications_count'] = Notification.objects.filter(
+            recipient=request.user, 
+            is_read=False
+        ).count()
+    return context
 
 # Create your views here.
 
@@ -1197,3 +1212,55 @@ class ForumPostDeleteView(LoginRequiredMixin, View):
             return JsonResponse({
                 'status': 'success'
             })
+
+# Представления для уведомлений
+class NotificationListView(LoginRequiredMixin, ListView):
+    model = Notification
+    template_name = 'weightloss/notifications/notification_list.html'
+    context_object_name = 'notifications'
+    paginate_by = 20
+    
+    def get_queryset(self):
+        return Notification.objects.filter(recipient=self.request.user).order_by('-created_at')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Отмечаем все уведомления как прочитанные при просмотре списка
+        Notification.objects.filter(recipient=self.request.user, is_read=False).update(is_read=True)
+        return context
+
+@login_required
+def mark_notification_as_read(request, pk):
+    try:
+        notification = Notification.objects.get(pk=pk, recipient=request.user)
+        notification.mark_as_read()
+        
+        # Если передан URL для перенаправления, перенаправляем туда
+        next_url = request.GET.get('next')
+        if next_url and notification.url:
+            return HttpResponseRedirect(notification.url)
+        elif next_url:
+            return HttpResponseRedirect(next_url)
+        else:
+            return HttpResponseRedirect(reverse('notifications'))
+    except Notification.DoesNotExist:
+        raise Http404("Уведомление не найдено")
+
+@login_required
+def mark_all_notifications_read(request):
+    Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+    
+    next_url = request.GET.get('next')
+    if next_url:
+        return HttpResponseRedirect(next_url)
+    else:
+        return HttpResponseRedirect(reverse('notifications'))
+
+@login_required
+def get_unread_notifications_count(request):
+    """
+    API-метод для получения количества непрочитанных уведомлений
+    через AJAX
+    """
+    count = Notification.objects.filter(recipient=request.user, is_read=False).count()
+    return JsonResponse({'count': count})

@@ -240,6 +240,14 @@
                     
                     <!-- Auth Buttons -->
                     {% if user.is_authenticated %}
+                        <!-- Notification Button -->
+                        <a href="{% url 'notifications' %}" class="btn btn-outline-secondary position-relative me-2">
+                            <i class="fas fa-bell"></i>
+                            <span id="notifications-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger {% if not unread_notifications_count %}d-none{% endif %}">
+                                {{ unread_notifications_count }}
+                            </span>
+                        </a>
+                        
                         <div class="dropdown">
                             <button class="btn btn-outline-success dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user me-2"></i>
@@ -359,6 +367,26 @@
                 localStorage.setItem('cookieConsent', 'necessary');
                 cookieConsentBanner.style.display = 'none';
             });
+            
+            // Проверка непрочитанных уведомлений каждые 60 секунд
+            {% if user.is_authenticated %}
+            function updateNotificationsCount() {
+                fetch("{% url 'api_notifications_count' %}")
+                    .then(response => response.json())
+                    .then(data => {
+                        const badge = document.getElementById('notifications-count');
+                        if (data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.classList.remove('d-none');
+                        } else {
+                            badge.classList.add('d-none');
+                        }
+                    });
+            }
+            
+            // Обновление счетчика каждую минуту
+            setInterval(updateNotificationsCount, 60000);
+            {% endif %}
         });
     </script>
     

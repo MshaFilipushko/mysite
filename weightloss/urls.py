@@ -92,4 +92,10 @@ urlpatterns = [
          ), 
          name='password_reset_complete'),
     path('edit-profile/', views.EditProfileView.as_view(), name='edit_profile'),
+    
+    # Уведомления
+    path('notifications/', views.NotificationListView.as_view(), name='notifications'),
+    path('notifications/mark-read/<int:pk>/', views.mark_notification_as_read, name='mark_notification_read'),
+    path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
+    path('api/notifications/count/', views.get_unread_notifications_count, name='api_notifications_count'),
 ] 
