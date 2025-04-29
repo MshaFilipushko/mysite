@@ -19,6 +19,8 @@ from django.db import connection
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django_ratelimit.decorators import ratelimit
 from django.template.loader import render_to_string
+import time
+from unidecode import unidecode
 
 # Create your views here.
 
@@ -424,11 +426,26 @@ class UserPostCreateView(LoginRequiredMixin, CreateView):
         form.instance.status = 'pending'  # Устанавливаем статус "на модерации"
         
         # Создаем уникальный slug
-        base_slug = slugify(form.instance.title)
+        title = form.instance.title.strip()
+        base_slug = slugify(title)
         if not base_slug:
             # Если slugify вернул пустую строку (например, для кириллицы)
-            random_string = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
-            base_slug = f"post-{random_string}"
+            # Транслитерация кириллицы на латиницу (примитивная)
+            try:
+                # Попытка использовать unidecode если он доступен
+                transliterated = unidecode(title)
+                base_slug = slugify(transliterated)
+            except ImportError:
+                # Если модуля нет, используем простой вариант со случайной строкой
+                import random
+                import string
+                random_string = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
+                base_slug = f"post-{random_string}"
+            
+            # Если всё ещё пустой slug, используем timestamp
+            if not base_slug:
+                import time
+                base_slug = f"post-{int(time.time())}"
         
         unique_slug = base_slug
         counter = 1
@@ -565,6 +582,7 @@ class ForumTopicDetailView(DetailView):
             posts = paginator.page(paginator.num_pages)
         
         context['posts'] = posts
+        context['total_posts_count'] = posts_list.count()  # Добавляем общее количество постов
         context['form'] = ForumPostForm()
         
         # Добавляем все категории форума для отображения в боковой панели

@@ -829,7 +829,7 @@
                             {% endif %}
                             
                             <div class="author-info">
-                                <h6 class="mb-0">Автор: <a href="{% url 'public_profile' topic.author.username %}" class="text-decoration-none">{{ topic.author.username }}</a>
+                                <h6 class="mb-0">Автор: <a href="{% url 'user_profile' topic.author.username %}" class="text-decoration-none">{{ topic.author.username }}</a>
                                 {% if topic.author|is_admin %}
                                 <span class="admin-badge">admin</span>
                                 {% endif %}
@@ -865,7 +865,7 @@
             <!-- Comments Section -->
             <div class="comments-section">
                 <h3 class="comments-title">
-                    Комментарии <span class="count-badge">{{ posts.count }}</span>
+                    Комментарии <span class="count-badge">{{ total_posts_count }}</span>
                 </h3>
                 
                 {% if messages %}
@@ -896,7 +896,7 @@
                                 
                                 <div class="comment-author-info">
                                     <div class="comment-author">
-                                        <a href="{% url 'public_profile' post.author.username %}">{{ post.author.username }}</a>
+                                        <a href="{% url 'user_profile' post.author.username %}">{{ post.author.username }}</a>
                                         {% if post.author|is_admin %}
                                         <span class="admin-badge">admin</span>
                                         {% endif %}
@@ -915,7 +915,7 @@
                             
                             <div class="comment-footer">
                                 {% if user.is_authenticated and not topic.is_closed %}
-                                <a href="{% url 'forum_post_create' topic.category.slug topic.slug %}?reply_to={{ post.id }}" class="reply-link">
+                                <a href="{% url 'create_post_reply' topic.category.slug topic.slug %}?reply_to={{ post.id }}" class="reply-link">
                                     <i class="fas fa-reply"></i> Ответить
                                 </a>
                                 {% if user == post.author or user.is_staff %}
@@ -968,7 +968,7 @@
                 {% if user.is_authenticated and not topic.is_closed %}
                 <div class="comment-form">
                     <h4 class="comment-form-title mt-4">Оставить комментарий</h4>
-                    <form method="post" action="{% url 'forum_post_create' topic.category.slug topic.slug %}">
+                    <form method="post" action="{% url 'create_post_reply' topic.category.slug topic.slug %}">
                         {% csrf_token %}
                         {{ form.media }}
                         {{ form.as_p }}
@@ -1003,7 +1003,7 @@
                                 <i class="fas fa-eye text-muted me-2"></i> Просмотров: <strong>{{ topic.views }}</strong>
                             </li>
                             <li>
-                                <i class="fas fa-comments text-muted me-2"></i> Комментариев: <strong>{{ posts.count }}</strong>
+                                <i class="fas fa-comments text-muted me-2"></i> Комментариев: <strong>{{ total_posts_count }}</strong>
                             </li>
                             <li>
                                 <i class="fas fa-calendar-alt text-muted me-2"></i> Создано: <strong>{{ topic.created_on|date:"d.m.Y" }}</strong>
@@ -1029,7 +1029,7 @@
                         </div>
                         {% endif %}
                         <div class="ms-3">
-                            <h5 class="mb-1"><a href="{% url 'public_profile' topic.author.username %}" class="text-decoration-none">{{ topic.author.username }}</a></h5>
+                            <h5 class="mb-1"><a href="{% url 'user_profile' topic.author.username %}" class="text-decoration-none">{{ topic.author.username }}</a></h5>
                             <p class="text-muted mb-0 small">
                                 <i class="fas fa-pen-alt me-1"></i> Темы: {{ topic.author.forum_topics.count }}
                             </p>
@@ -1065,15 +1065,17 @@
                     <h4 class="widget-title">Похожие темы</h4>
                     <div class="widget-content">
                         <ul>
-                            {% with recent_topics=topic.category.topics.all|exclude:topic|slice:":5" %}
+                            {% with recent_topics=topic.category.topics.all|slice:":6" %}
                             {% if recent_topics %}
                                 {% for recent_topic in recent_topics %}
-                                <li>
-                                    <a href="{% url 'forum_topic_detail' recent_topic.category.slug recent_topic.slug %}">
-                                        {{ recent_topic.title }}
-                                        <span class="badge bg-light text-dark float-end">{{ recent_topic.forum_posts.count }}</span>
-                                    </a>
-                                </li>
+                                    {% if recent_topic != topic %}
+                                    <li>
+                                        <a href="{% url 'forum_topic_detail' recent_topic.category.slug recent_topic.slug %}">
+                                            {{ recent_topic.title }}
+                                            <span class="badge bg-light text-dark float-end">{{ recent_topic.forum_posts.count }}</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
                                 {% endfor %}
                             {% else %}
                                 <li>Нет других тем в этой категории</li>

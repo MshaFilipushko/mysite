@@ -79,7 +79,7 @@
                                 <div class="btn-group" role="group">
                                     {% if post.status == 'published' %}
                                     <a href="{% url 'post_detail' post.slug %}" class="btn btn-sm btn-outline-primary">Просмотр</a>
-                                    {% elif post.status != 'published' %}
+                                    {% elif post.status != 'published' and post.slug %}
                                     <a href="{% url 'edit_post' post.slug %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
                                     {% endif %}
                                 </div>
@@ -136,7 +136,9 @@
                             </div>
                             
                             <div class="d-flex justify-content-end">
+                                {% if post.slug %}
                                 <a href="{% url 'edit_post' post.slug %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}
@@ -161,7 +163,9 @@
                             <p class="mb-2">Категория: {{ post.category.name }}</p>
                             
                             <div class="d-flex justify-content-end">
+                                {% if post.slug %}
                                 <a href="{% url 'edit_post' post.slug %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}
@@ -189,7 +193,9 @@
                             </div>
                             
                             <div class="d-flex justify-content-end">
+                                {% if post.slug %}
                                 <a href="{% url 'edit_post' post.slug %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}

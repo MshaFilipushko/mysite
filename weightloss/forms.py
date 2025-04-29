@@ -70,7 +70,7 @@ class UserPostForm(forms.ModelForm):
     
     def save(self, commit=True, user=None):
         post = super().save(commit=False)
-        post.status = 'draft'  # Все пользовательские статьи сначала в статусе черновика
+        post.status = 'pending'  # Все пользовательские статьи сначала в статусе "на модерации"
         
         if user:
             post.author = user

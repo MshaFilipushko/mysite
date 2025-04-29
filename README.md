@@ -1,135 +1,72 @@
-# ЗдоровыйВес - Платформа Здорового Питания и Снижения Веса
+# ЗдоровыйВес - Health & Weight Management Platform
 
-Веб-приложение на Django для поддержки здорового образа жизни, контроля веса и правильного питания.
+A Django-based web application for health and weight management, featuring blog posts, recipes, challenges, and a community forum.
 
-## Содержание
-- [Обзор](#обзор)
-- [Функциональность](#функциональность)
-- [Технологии](#технологии)
-- [Установка](#установка)
-- [Структура проекта](#структура-проекта)
-- [Использование](#использование)
-- [Безопасность](#безопасность)
-- [Лицензия](#лицензия)
+## Features
 
-## Обзор
+- User Profiles with BMI Calculator and Weight Progress Tracking
+- Blog System with Categories and Comments
+- Recipe Management with Nutritional Information
+- Community Forum with Threaded Comments
+- Weight Loss Challenges
+- Administrative Dashboard for Content Moderation
 
-ЗдоровыйВес - это комплексная платформа, разработанная для помощи пользователям в поддержании здорового образа жизни и достижении целей по снижению веса. Сайт предоставляет доступ к рецептам здорового питания, информационным статьям, инструментам для отслеживания прогресса и активному сообществу единомышленников.
+## Technical Stack
 
-## Функциональность
+- Django 4.2.20
+- Django CKEditor 5 for Rich Text Editing
+- Bootstrap 5 for Frontend
+- SQLite Database
+- AJAX for Dynamic Interactions
+- Responsive Design
 
-### Для пользователей
-- **Аутентификация и профили**: регистрация, вход, редактирование профиля, просмотр профилей других пользователей
-- **Блог**: просмотр статей о здоровом питании и образе жизни
-- **Рецепты**: доступ к базе данных здоровых рецептов с информацией о калориях и макронутриентах
-- **Форум**: обсуждение вопросов здорового питания и снижения веса с другими пользователями
-- **Комментарии**: возможность комментировать статьи и рецепты
-- **Калькуляторы**: расчет ИМТ, суточной нормы калорий и других показателей
-- **Челленджи**: участие в вызовах по снижению веса и изменению образа жизни
+## Installation
 
-### Для авторизованных пользователей
-- **Создание контента**: возможность создавать собственные статьи и рецепты
-- **Отслеживание прогресса**: ведение дневника снижения веса
-- **Социальные функции**: взаимодействие с другими пользователями через форум и комментарии
+1. Clone the repository:
+   ```
+   git clone https://github.com/MshaFilipushko/mysite.git
+   cd mysite
+   ```
 
-### Для администраторов
-- **Модерация контента**: проверка и публикация пользовательских статей и рецептов
-- **Управление пользователями**: административные функции для управления аккаунтами
-- **Аналитика**: доступ к статистике использования платформы
+2. Create and activate a virtual environment:
+   ```
+   python -m venv venv
+   # On Windows
+   venv\Scripts\activate
+   # On macOS/Linux
+   source venv/bin/activate
+   ```
 
-## Технологии
+3. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
 
-- **Бэкенд**: Django 3.2+, Python 3.8+
-- **База данных**: PostgreSQL (SQLite для разработки)
-- **Фронтенд**: HTML, CSS, JavaScript, Bootstrap 5
-- **Безопасность**: django-ratelimit, django-cors-headers
-- **Редактор контента**: CKEditor
-- **Загрузка изображений**: django-imagekit
-- **Управление зависимостями**: pip, requirements.txt
+4. Run migrations:
+   ```
+   python manage.py migrate
+   ```
 
-## Установка
+5. Create a superuser:
+   ```
+   python manage.py createsuperuser
+   ```
 
-1. Клонируйте репозиторий:
-```bash
-git clone <repository-url>
-cd ЗдоровыйВес
-```
+6. Run the development server:
+   ```
+   python manage.py runserver
+   ```
 
-2. Создайте и активируйте виртуальное окружение:
-```bash
-python -m venv venv
-source venv/bin/activate  # На Windows: venv\Scripts\activate
-```
+7. Access the site at http://127.0.0.1:8000/
 
-3. Установите зависимости:
-```bash
-pip install -r requirements.txt
-```
+## Project Structure
 
-4. Настройте переменные окружения в файле `.env`:
-```
-SECRET_KEY=your_secret_key
-DEBUG=True
-DATABASE_URL=sqlite:///db.sqlite3
-```
+- `weightloss/` - Main application with models, views, and templates
+- `djangoProject10/` - Project settings
+- `templates/` - HTML templates
+- `static/` - CSS, JS, and media files
+- `media/` - User-uploaded content
 
-5. Выполните миграции и создайте суперпользователя:
-```bash
-python manage.py migrate
-python manage.py createsuperuser
-```
+## License
 
-6. Запустите сервер разработки:
-```bash
-python manage.py runserver
-```
-
-## Структура проекта
-
-```
-djangoProject10/
-├── manage.py
-├── djangoProject10/  # Основной проект
-│   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── weightloss/  # Основное приложение
-│   ├── migrations/
-│   ├── models.py
-│   ├── views.py
-│   ├── urls.py
-│   ├── forms.py
-│   └── admin.py
-├── templates/
-│   └── weightloss/
-│       ├── base.html
-│       ├── home.html
-│       └── ...
-├── static/
-└── media/
-```
-
-## Использование
-
-После запуска сервера:
-
-1. Админ-панель: `http://localhost:8000/admin/`
-2. Главная страница: `http://localhost:8000/`
-3. Список рецептов: `http://localhost:8000/recipes/`
-4. Блог: `http://localhost:8000/blog/`
-5. Форум: `http://localhost:8000/forum/`
-
-## Безопасность
-
-Проект включает следующие меры безопасности:
-
-- Ограничение частоты запросов (rate limiting) для защиты от атак перебором
-- CORS настройки для предотвращения межсайтовых запросов
-- Хранение конфиденциальных данных в переменных окружения
-- Защита от SQL-инъекций через ORM Django
-- Проверка прав доступа на уровне представлений
-
-## Лицензия
-
-© 2025 ЗдоровыйВес. Все права защищены. 
+This project is licensed under the MIT License - see the LICENSE file for details. 

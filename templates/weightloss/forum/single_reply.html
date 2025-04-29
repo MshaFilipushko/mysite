@@ -16,7 +16,7 @@
             
             <div class="comment-author-info">
                 <div class="comment-author">
-                    <a href="{% url 'public_profile' reply.author.username %}">{{ reply.author.username }}</a>
+                    <a href="{% url 'user_profile' reply.author.username %}">{{ reply.author.username }}</a>
                     {% if reply.author|is_admin %}
                     <span class="admin-badge">admin</span>
                     {% endif %}
@@ -41,7 +41,7 @@
         
         <div class="comment-reply-footer">
             {% if user.is_authenticated and not reply.topic.is_closed %}
-            <a href="{% url 'forum_post_create' reply.topic.category.slug reply.topic.slug %}?reply_to={{ reply.id }}" class="reply-link">
+            <a href="{% url 'create_post_reply' reply.topic.category.slug reply.topic.slug %}?reply_to={{ reply.id }}" class="reply-link">
                 <i class="fas fa-reply"></i> Ответить
             </a>
             {% if user == reply.author or user.is_staff %}

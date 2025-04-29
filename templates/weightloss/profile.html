@@ -377,9 +377,6 @@
                     <div class="profile-content">
                         <h4 class="profile-section-title">Индекс массы тела (ИМТ)</h4>
                         
-                        {% with height_m=profile.height|div:100 %}
-                        {% with bmi=profile.current_weight|div:height_m|div:height_m %}
-                        
                         <div class="bmi-container text-center">
                             <div class="bmi-value">{{ bmi|floatformat:1 }}</div>
                             
@@ -399,16 +396,16 @@
                                 <div class="bmi-label">Избыточный 25-29.9</div>
                                 <div class="bmi-label">Ожирение &gt;30</div>
                             </div>
+                            
+                            <div class="mt-4 text-muted">
+                                <small>ИМТ = Вес (кг) / Рост² (м)</small>
+                            </div>
                         </div>
                         
-                        {% with bmi_category=bmi|bmi_category %}
-                        <div class="alert {% if bmi_category == 'Недостаточный' %}alert-success{% elif bmi_category == 'Нормальный' %}alert-info{% elif bmi_category == 'Избыточный' %}alert-warning{% else %}alert-danger{% endif %} mt-4 shadow-sm">
+                        <div class="alert alert-info mt-4 shadow-sm">
                             <i class="fas fa-info-circle me-2"></i>
-                            Ваш текущий ИМТ: <strong>{{ bmi|floatformat:1 }}</strong> - {{ bmi_category }} вес
+                            Ваш текущий ИМТ: <strong>{{ bmi|floatformat:1 }}</strong> - {{ bmi|bmi_category }} вес
                         </div>
-                        {% endwith %}
-                        {% endwith %}
-                        {% endwith %}
                     </div>
                 </div>
                 {% endif %}
