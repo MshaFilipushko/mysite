@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Post, Recipe, Challenge, UserProfile, ForumCategory, ForumTopic, ForumPost, Notification
+from .models import Category, Post, Recipe, Challenge, UserProfile, ForumCategory, ForumTopic, ForumPost, Notification, VIPPost, VIPComment
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -36,8 +36,37 @@ class ChallengeAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'current_weight', 'height', 'goal_weight', 'bmi')
+    list_display = ('user', 'current_weight', 'height', 'goal_weight', 'bmi', 'is_vip', 'vip_expires_at', 'vip_status')
     search_fields = ('user__username', 'user__email', 'bio')
+    list_filter = ('is_vip',)
+    fieldsets = (
+        (None, {
+            'fields': ('user', 'bio', 'profile_pic')
+        }),
+        ('Информация о весе', {
+            'fields': ('starting_weight', 'current_weight', 'goal_weight', 'height')
+        }),
+        ('VIP статус', {
+            'fields': ('is_vip', 'vip_expires_at'),
+            'description': 'Управление VIP статусом пользователя. Если срок не указан, VIP статус будет бессрочным.'
+        }),
+    )
+    
+    def bmi(self, obj):
+        return obj.bmi()
+    bmi.short_description = 'ИМТ'
+    
+    def vip_status(self, obj):
+        if not obj.is_vip:
+            return "Нет VIP"
+        if obj.vip_expires_at:
+            from django.utils import timezone
+            if obj.vip_expires_at > timezone.now():
+                return f"До {obj.vip_expires_at.strftime('%d.%m.%Y')}"
+            else:
+                return "Истек"
+        return "Бессрочный"
+    vip_status.short_description = 'Статус VIP'
 
 @admin.register(ForumCategory)
 class ForumCategoryAdmin(admin.ModelAdmin):
@@ -78,3 +107,16 @@ class NotificationAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} уведомлений отмечено как прочитанные.')
     
     mark_as_read.short_description = "Отметить выбранные уведомления как прочитанные"
+
+@admin.register(VIPPost)
+class VIPPostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'created_on')
+    search_fields = ('title', 'content', 'author__username')
+    prepopulated_fields = {'slug': ('title',)}
+    list_filter = ('created_on', 'author')
+    
+@admin.register(VIPComment)
+class VIPCommentAdmin(admin.ModelAdmin):
+    list_display = ('post', 'author', 'created_on')
+    search_fields = ('content', 'author__username', 'post__title')
+    list_filter = ('created_on', 'author')

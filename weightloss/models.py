@@ -203,6 +203,8 @@ class UserProfile(models.Model):
     current_weight = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     goal_weight = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     height = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    is_vip = models.BooleanField(default=False, verbose_name="VIP статус")
+    vip_expires_at = models.DateTimeField(blank=True, null=True, verbose_name="Срок действия VIP статуса")
     
     def __str__(self):
         return f'{self.user.username} Profile'
@@ -222,6 +224,14 @@ class UserProfile(models.Model):
             if total_goal > 0:
                 return round((total_loss / total_goal) * 100, 2)
         return 0
+    
+    def has_active_vip(self):
+        """Проверяет, активен ли VIP-статус пользователя"""
+        if not self.is_vip:
+            return False
+        if self.vip_expires_at is None:
+            return True  # Бессрочный VIP
+        return self.vip_expires_at > timezone.now()
 
 # Новые модели для форума
 class ForumCategory(models.Model):
@@ -384,3 +394,43 @@ class Notification(models.Model):
             
         notification.save()
         return notification
+
+# VIP раздел
+class VIPPost(models.Model):
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
+    content = CKEditor5Field('Содержание', config_name='default')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vip_posts')
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_on']
+        verbose_name = "VIP статья"
+        verbose_name_plural = "VIP статьи"
+    
+    def __str__(self):
+        return self.title
+    
+    def get_absolute_url(self):
+        return reverse('vip_detail', args=[self.slug])
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+class VIPComment(models.Model):
+    post = models.ForeignKey(VIPPost, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vip_comments')
+    content = CKEditor5Field('Содержание', config_name='default')
+    created_on = models.DateTimeField(auto_now_add=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+    
+    class Meta:
+        ordering = ['created_on']
+        verbose_name = "VIP комментарий"
+        verbose_name_plural = "VIP комментарии"
+    
+    def __str__(self):
+        return f'Комментарий от {self.author.username} к {self.post.title}'

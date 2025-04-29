@@ -1,0 +1,79 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block title %}Доступ к VIP-разделу | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card vip-card shadow-sm">
+                <div class="card-header">
+                    <h1 class="h3 mb-0"><i class="fas fa-crown vip-crown-icon"></i> Доступ к VIP-разделу</h1>
+                </div>
+                <div class="card-body">
+                    {% if request.user.is_authenticated and request.user.profile.is_vip and request.user.profile.vip_expires_at %}
+                        {% if request.user.profile.vip_expires_at < now %}
+                            <div class="alert alert-warning mb-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-circle mr-3" style="font-size: 1.5rem;"></i>
+                                    <div>
+                                        <strong>Ваш VIP-статус истёк!</strong>
+                                        <p class="mb-0">Срок действия вашего VIP-статуса закончился {{ request.user.profile.vip_expires_at|date:"d.m.Y" }}.</p>
+                                        <p class="mb-0">Для продления доступа свяжитесь с администратором.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    
+                    <div class="text-center mb-4">
+                        <div class="mb-4 mt-2">
+                            <i class="fas fa-lock fa-4x text-warning"></i>
+                        </div>
+                        <h2 class="h4 mb-3">Для доступа к VIP-статьям свяжитесь с администратором через Telegram:</h2>
+                        <a href="https://t.me/mishagoddame" target="_blank" class="btn btn-warning btn-lg">
+                            <i class="fab fa-telegram-plane mr-2"></i> @mishagoddame
+                        </a>
+                    </div>
+                    
+                    <div class="alert alert-light">
+                        <h3 class="h5 vip-section-header">Что включает VIP-статус:</h3>
+                        <ul class="vip-privileges-list mb-0">
+                            <li><i class="fas fa-check-circle"></i> Эксклюзивные статьи о похудении, недоступные обычным пользователям</li>
+                            <li><i class="fas fa-check-circle"></i> Профессиональные советы и рекомендации от экспертов</li>
+                            <li><i class="fas fa-check-circle"></i> Специальные меню и программы тренировок</li>
+                            <li><i class="fas fa-check-circle"></i> Приоритетная поддержка и персональные консультации</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-gem text-warning mr-2"></i> Премиум доступ</h5>
+                                    <p class="card-text">Получите доступ к эксклюзивным материалам, созданным профессиональными диетологами и фитнес-тренерами.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-star text-warning mr-2"></i> Персонализация</h5>
+                                    <p class="card-text">Получайте рекомендации, адаптированные под ваши индивидуальные цели и потребности.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{% url 'home' %}" class="btn btn-outline-warning">
+                            <i class="fas fa-home mr-2"></i> Вернуться на главную
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

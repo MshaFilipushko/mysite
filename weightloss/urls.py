@@ -16,6 +16,14 @@ urlpatterns = [
     path('blog/<slug:slug>/comment/<int:comment_id>/reply/', views.CommentReplyView.as_view(), name='comment_reply'),
     path('category/<slug:slug>/', views.CategoryDetailView.as_view(), name='category_detail'),
     
+    # VIP раздел
+    path('vip/', views.VIPListView.as_view(), name='vip_list'),
+    path('vip/create/', views.VIPPostCreateView.as_view(), name='vip_post_create'),
+    path('vip/edit/<slug:slug>/', views.VIPPostUpdateView.as_view(), name='vip_post_update'),
+    path('vip/delete/<slug:slug>/', views.VIPPostDeleteView.as_view(), name='vip_post_delete'),
+    path('vip/<slug:slug>/', views.VIPDetailView.as_view(), name='vip_detail'),
+    path('vip/<slug:slug>/comment/<int:comment_id>/reply/', views.VIPCommentReplyView.as_view(), name='vip_comment_reply'),
+    
     # FAQ
     # path('faq/', views.FAQListView.as_view(), name='faq'),
     

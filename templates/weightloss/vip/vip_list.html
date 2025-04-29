@@ -1,0 +1,124 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block title %}VIP-раздел | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 vip-section-header">
+            <i class="fas fa-crown vip-crown-icon"></i> VIP-раздел
+        </h1>
+        {% if is_admin %}
+        <a href="{% url 'vip_post_create' %}" class="btn btn-warning">
+            <i class="fas fa-plus-circle mr-2"></i> Создать VIP-статью
+        </a>
+        {% endif %}
+    </div>
+    
+    {% if is_admin %}
+    <div class="alert alert-warning mb-4 d-flex align-items-center">
+        <i class="fas fa-info-circle mr-3" style="font-size: 1.5rem;"></i>
+        <div>
+            <strong>Режим администратора:</strong> 
+            Вы можете создавать, редактировать и удалять VIP-статьи. Эти статьи будут доступны только пользователям с VIP-статусом.
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-lg-8">
+            {% if vip_posts %}
+                <div class="row">
+                    {% for post in vip_posts %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card vip-card h-100 shadow-sm">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span class="badge badge-warning"><i class="fas fa-crown"></i> VIP</span>
+                                    <small>{{ post.created_on|date:"d.m.Y" }}</small>
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">{{ post.title }}</h5>
+                                    <p class="card-text text-muted">
+                                        <small><i class="fas fa-user mr-1"></i> {{ post.author.username }}</small>
+                                    </p>
+                                    <div class="card-text mb-4">
+                                        {{ post.content|truncatewords:30|safe }}
+                                    </div>
+                                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                                        <a href="{% url 'vip_detail' post.slug %}" class="btn btn-warning">
+                                            <i class="fas fa-book-reader mr-1"></i> Читать
+                                        </a>
+                                        {% if is_admin %}
+                                        <div class="btn-group">
+                                            <a href="{% url 'vip_post_update' post.slug %}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'vip_post_delete' post.slug %}" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                        {% else %}
+                                        <span class="text-muted">
+                                            <i class="far fa-comment"></i> {{ post.comments.count }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    <p class="mb-0"><i class="fas fa-info-circle mr-2"></i> В настоящее время в VIP-разделе нет статей.</p>
+                    {% if is_admin %}
+                    <div class="mt-3">
+                        <a href="{% url 'vip_post_create' %}" class="btn btn-warning">
+                            <i class="fas fa-plus-circle mr-2"></i> Создать первую VIP-статью
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card vip-card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-crown vip-crown-icon"></i> VIP-привилегии</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled vip-privileges-list">
+                        <li><i class="fas fa-check-circle"></i> Эксклюзивные материалы</li>
+                        <li><i class="fas fa-check-circle"></i> Персональные консультации</li>
+                        <li><i class="fas fa-check-circle"></i> Профессиональные советы</li>
+                        <li><i class="fas fa-check-circle"></i> Специальные программы тренировок</li>
+                    </ul>
+                    <hr>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-crown vip-crown-icon mr-2" style="font-size: 1.2rem;"></i>
+                        <div>
+                            <strong>Ваш статус:</strong><br>
+                            <span class="badge badge-warning" style="font-size: 0.9rem;">VIP-пользователь</span>
+                            {% if request.user.profile.vip_expires_at %}
+                            <div class="text-muted small mt-1">
+                                <i class="far fa-clock mr-1"></i> Доступ до: {{ request.user.profile.vip_expires_at|date:"d.m.Y" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Что такое VIP-статус?</h5>
+                    <p class="card-text">VIP-статус даёт вам доступ к эксклюзивному контенту, созданному профессиональными диетологами и фитнес-тренерами.</p>
+                    <p class="card-text">Здесь вы найдете материалы, которые помогут вам достичь ваших целей в похудении и поддержании здорового образа жизни.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

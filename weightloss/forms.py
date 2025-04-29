@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import UserProfile, Post, ForumTopic, ForumPost, Category, Comment, Recipe, RecipeComment
+from .models import UserProfile, Post, ForumTopic, ForumPost, Category, Comment, Recipe, RecipeComment, VIPPost
 from django.utils.text import slugify
 import random
 import string
@@ -229,4 +229,44 @@ class UserRecipeForm(forms.ModelForm):
             'image': 'Загрузите качественное фото готового блюда. Рекомендуемый размер: 800x600 пикселей',
             'ingredients': 'Перечислите все ингредиенты с указанием количества',
             'instructions': 'Подробно опишите процесс приготовления блюда шаг за шагом',
-        } 
+        }
+
+# Форма для VIP-статей
+class VIPPostForm(forms.ModelForm):
+    class Meta:
+        model = VIPPost
+        fields = ('title', 'content')
+        labels = {
+            'title': 'Заголовок',
+            'content': 'Содержание статьи',
+        }
+        help_texts = {
+            'title': 'Название вашей VIP-статьи',
+            'content': 'Содержание вашей VIP-статьи',
+        }
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'django_ckeditor_5'})
+        }
+    
+    def save(self, commit=True, user=None):
+        post = super().save(commit=False)
+        
+        if user:
+            post.author = user
+        
+        # Генерация уникального slug из заголовка
+        base_slug = slugify(post.title)
+        unique_slug = base_slug
+        counter = 1
+        
+        while VIPPost.objects.filter(slug=unique_slug).exists():
+            random_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
+            unique_slug = f"{base_slug}-{random_suffix}"
+            counter += 1
+        
+        post.slug = unique_slug
+        
+        if commit:
+            post.save()
+        
+        return post 

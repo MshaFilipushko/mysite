@@ -1,10 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, TemplateView, CreateView, UpdateView, DeleteView, FormView, View
-from .models import Category, Post, Recipe, Challenge, UserProfile, ForumCategory, ForumTopic, ForumPost, Comment, RecipeComment, Notification
+from .models import Category, Post, Recipe, Challenge, UserProfile, ForumCategory, ForumTopic, ForumPost, Comment, RecipeComment, Notification, VIPPost, VIPComment
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetDoneView
 from django.db.models import Q, Count, Max, F
-from .forms import CustomUserCreationForm as UserRegisterForm, UserProfileForm, UserPostForm, ForumTopicForm, ForumPostForm, CommentForm, UserRecipeForm, RecipeCommentForm
+from .forms import CustomUserCreationForm as UserRegisterForm, UserProfileForm, UserPostForm, ForumTopicForm, ForumPostForm, CommentForm, UserRecipeForm, RecipeCommentForm, VIPPostForm
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth import login
 from django.contrib import messages
@@ -35,6 +35,10 @@ def notifications_processor(request):
             recipient=request.user, 
             is_read=False
         ).count()
+    
+    # Добавляем текущую дату и время
+    context['now'] = timezone.now()
+    
     return context
 
 # Create your views here.
@@ -1264,3 +1268,150 @@ def get_unread_notifications_count(request):
     """
     count = Notification.objects.filter(recipient=request.user, is_read=False).count()
     return JsonResponse({'count': count})
+
+# VIP Views
+class VIPUserRequired(UserPassesTestMixin):
+    """Миксин для проверки, что пользователь имеет VIP-статус"""
+    def test_func(self):
+        return self.request.user.is_authenticated and hasattr(self.request.user, 'profile') and self.request.user.profile.has_active_vip()
+
+    def handle_no_permission(self):
+        return render(self.request, 'weightloss/vip/vip_access_denied.html')
+
+class VIPListView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        # Проверяем, есть ли у пользователя доступ VIP
+        if hasattr(request.user, 'profile') and request.user.profile.has_active_vip():
+            vip_posts = VIPPost.objects.all().order_by('-created_on')
+            return render(request, 'weightloss/vip/vip_list.html', {
+                'vip_posts': vip_posts,
+                'is_admin': request.user.is_staff  # Добавляем флаг админа в контекст
+            })
+        else:
+            # Если нет доступа VIP, показываем страницу с информацией о получении доступа
+            return render(request, 'weightloss/vip/vip_access_denied.html')
+
+class VIPDetailView(LoginRequiredMixin, View):
+    def get(self, request, slug, *args, **kwargs):
+        # Проверяем, есть ли у пользователя доступ VIP
+        if hasattr(request.user, 'profile') and request.user.profile.has_active_vip():
+            vip_post = get_object_or_404(VIPPost, slug=slug)
+            comments = vip_post.comments.filter(parent=None).order_by('created_on')
+            return render(request, 'weightloss/vip/vip_detail.html', {
+                'post': vip_post,
+                'comments': comments,
+                'comment_form': CommentForm()
+            })
+        else:
+            # Если нет доступа VIP, показываем страницу с информацией о получении доступа
+            return render(request, 'weightloss/vip/vip_access_denied.html')
+    
+    def post(self, request, slug, *args, **kwargs):
+        # Проверяем, есть ли у пользователя доступ VIP
+        if hasattr(request.user, 'profile') and request.user.profile.has_active_vip():
+            vip_post = get_object_or_404(VIPPost, slug=slug)
+            form = CommentForm(request.POST)
+            
+            if form.is_valid():
+                new_comment = VIPComment(
+                    post=vip_post,
+                    author=request.user,
+                    content=form.cleaned_data['content']
+                )
+                new_comment.save()
+                
+                # Создаем уведомление для автора статьи
+                if request.user != vip_post.author:
+                    Notification.objects.create(
+                        recipient=vip_post.author,
+                        sender=request.user,
+                        content_object=vip_post,
+                        notification_type='comment',
+                        message=f'{request.user.username} оставил(а) комментарий к вашей VIP-статье "{vip_post.title}"'
+                    )
+                
+                return redirect('vip_detail', slug=slug)
+            
+            comments = vip_post.comments.filter(parent=None).order_by('created_on')
+            return render(request, 'weightloss/vip/vip_detail.html', {
+                'post': vip_post,
+                'comments': comments,
+                'comment_form': form
+            })
+        else:
+            # Если нет доступа VIP, показываем страницу с информацией о получении доступа
+            return render(request, 'weightloss/vip/vip_access_denied.html')
+
+class VIPCommentReplyView(LoginRequiredMixin, VIPUserRequired, View):
+    def post(self, request, slug, comment_id, *args, **kwargs):
+        vip_post = get_object_or_404(VIPPost, slug=slug)
+        parent_comment = get_object_or_404(VIPComment, id=comment_id)
+        form = CommentForm(request.POST)
+        
+        if form.is_valid():
+            new_comment = VIPComment(
+                post=vip_post,
+                author=request.user,
+                content=form.cleaned_data['content'],
+                parent=parent_comment
+            )
+            new_comment.save()
+            
+            # Создаем уведомление для автора родительского комментария
+            if request.user != parent_comment.author:
+                Notification.objects.create(
+                    recipient=parent_comment.author,
+                    sender=request.user,
+                    content_object=vip_post,
+                    notification_type='reply',
+                    message=f'{request.user.username} ответил(а) на ваш комментарий к VIP-статье "{vip_post.title}"'
+                )
+            
+            return redirect('vip_detail', slug=slug)
+        
+        return redirect('vip_detail', slug=slug)
+
+class VIPPostCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = VIPPost
+    form_class = VIPPostForm
+    template_name = 'weightloss/vip/vip_post_form.html'
+    
+    def test_func(self):
+        return self.request.user.is_staff
+    
+    def handle_no_permission(self):
+        return redirect('vip_list')
+    
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        messages.success(self.request, 'VIP-статья успешно создана.')
+        return reverse('vip_list')
+
+class VIPPostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = VIPPost
+    form_class = VIPPostForm
+    template_name = 'weightloss/vip/vip_post_form.html'
+    
+    def test_func(self):
+        return self.request.user.is_staff
+    
+    def handle_no_permission(self):
+        return redirect('vip_list')
+    
+    def get_success_url(self):
+        messages.success(self.request, 'VIP-статья успешно обновлена.')
+        return reverse('vip_list')
+
+class VIPPostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = VIPPost
+    template_name = 'weightloss/vip/vip_post_confirm_delete.html'
+    success_url = reverse_lazy('vip_list')
+    
+    def test_func(self):
+        return self.request.user.is_staff
+    
+    def handle_no_permission(self):
+        return redirect('vip_list')

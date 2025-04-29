@@ -1,0 +1,16 @@
+<li class="nav-item {% if request.path == '/recipes/' %}active{% endif %}">
+    <a class="nav-link" href="{% url 'recipe_list' %}">Рецепты</a>
+</li>
+
+<li class="nav-item {% if request.path == '/vip/' %}active{% endif %}">
+    <a class="nav-link" href="{% url 'vip_list' %}">
+        VIP-раздел
+        {% if user.is_authenticated and user.profile.is_vip %}
+            <span class="badge badge-warning">VIP</span>
+        {% endif %}
+    </a>
+</li>
+
+<li class="nav-item {% if request.path == '/forum/' %}active{% endif %}">
+    <a class="nav-link" href="{% url 'forum_home' %}">Форум</a>
+</li> 

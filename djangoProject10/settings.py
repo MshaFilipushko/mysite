@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'django_ckeditor_5',
     'debug_toolbar',
     'corsheaders',
+    'crispy_forms',
+    'crispy_bootstrap4',
 ]
 
 MIDDLEWARE = [
@@ -231,3 +233,6 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
+
+# Crispy Forms settings
+CRISPY_TEMPLATE_PACK = 'bootstrap4'

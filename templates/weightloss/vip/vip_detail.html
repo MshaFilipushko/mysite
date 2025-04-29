@@ -1,0 +1,195 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} | VIP | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <article class="card vip-card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="badge badge-warning"><i class="fas fa-crown"></i> VIP</span>
+                    <small>{{ post.created_on|date:"d.m.Y H:i" }}</small>
+                </div>
+                <div class="card-body">
+                    <h1 class="h2 mb-3 vip-section-header">{{ post.title }}</h1>
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="d-flex align-items-center mr-3">
+                            <i class="fas fa-user-circle mr-2 text-muted"></i>
+                            <span>{{ post.author.username }}</span>
+                            {% if post.author.profile.is_vip %}
+                                <span class="badge badge-warning ml-2">VIP</span>
+                            {% endif %}
+                        </div>
+                        {% if post.updated_on != post.created_on %}
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-edit mr-2 text-muted"></i>
+                                <span>Обновлено: {{ post.updated_on|date:"d.m.Y H:i" }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="post-content mb-4 vip-content">
+                        {{ post.content|safe }}
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'vip_list' %}" class="btn btn-outline-warning">
+                            <i class="fas fa-arrow-left mr-2"></i> К списку VIP-статей
+                        </a>
+                        
+                        <div class="d-flex align-items-center">
+                            <span class="mr-2">Поделиться:</span>
+                            <a href="#" class="text-muted mx-1"><i class="fab fa-facebook"></i></a>
+                            <a href="#" class="text-muted mx-1"><i class="fab fa-telegram"></i></a>
+                            <a href="#" class="text-muted mx-1"><i class="fab fa-vk"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            
+            <!-- Комментарии -->
+            <section class="card shadow-sm mt-4 mb-5">
+                <div class="card-header bg-light">
+                    <h3 class="h5 mb-0"><i class="far fa-comments mr-2"></i> Комментарии ({{ comments.count }})</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'vip_detail' post.slug %}" class="mb-4">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ comment_form.content }}
+                        </div>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="far fa-paper-plane mr-2"></i> Отправить комментарий
+                        </button>
+                    </form>
+                    
+                    {% if comments %}
+                        <div class="comments-list">
+                            {% for comment in comments %}
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ comment.author.username }}</strong>
+                                            {% if comment.author.profile.is_vip %}
+                                                <span class="badge badge-warning ml-2">VIP</span>
+                                            {% endif %}
+                                        </div>
+                                        <small>{{ comment.created_on|date:"d.m.Y H:i" }}</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="card-text">{{ comment.content }}</p>
+                                        <button class="btn btn-sm btn-outline-secondary reply-btn" data-toggle="collapse" data-target="#reply-form-{{ comment.id }}">
+                                            <i class="fas fa-reply mr-1"></i> Ответить
+                                        </button>
+                                        
+                                        <div class="collapse mt-3" id="reply-form-{{ comment.id }}">
+                                            <form method="post" action="{% url 'vip_comment_reply' post.slug comment.id %}">
+                                                {% csrf_token %}
+                                                <div class="form-group">
+                                                    {{ comment_form.content }}
+                                                </div>
+                                                <button type="submit" class="btn btn-sm btn-warning">
+                                                    <i class="far fa-paper-plane mr-1"></i> Отправить ответ
+                                                </button>
+                                            </form>
+                                        </div>
+                                        
+                                        {% if comment.replies.all %}
+                                            <div class="replies mt-3 pl-4 border-left border-warning">
+                                                {% for reply in comment.replies.all %}
+                                                    <div class="card mb-2">
+                                                        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                                            <div>
+                                                                <strong>{{ reply.author.username }}</strong>
+                                                                {% if reply.author.profile.is_vip %}
+                                                                    <span class="badge badge-warning ml-2">VIP</span>
+                                                                {% endif %}
+                                                            </div>
+                                                            <small>{{ reply.created_on|date:"d.m.Y H:i" }}</small>
+                                                        </div>
+                                                        <div class="card-body py-2">
+                                                            <p class="card-text mb-0">{{ reply.content }}</p>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-light">
+                            <p class="mb-0 text-center">Будьте первым, кто оставит комментарий!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card vip-card mb-4 shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-crown vip-crown-icon"></i> VIP-привилегии</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled vip-privileges-list">
+                        <li><i class="fas fa-check-circle"></i> Эксклюзивные материалы</li>
+                        <li><i class="fas fa-check-circle"></i> Персональные консультации</li>
+                        <li><i class="fas fa-check-circle"></i> Профессиональные советы</li>
+                        <li><i class="fas fa-check-circle"></i> Специальные программы тренировок</li>
+                    </ul>
+                    <hr>
+                    {% if request.user.profile.vip_expires_at %}
+                    <div class="alert alert-warning small">
+                        <div class="d-flex align-items-center">
+                            <i class="far fa-clock mr-2" style="font-size: 1.2rem;"></i>
+                            <div>
+                                <strong>Срок действия VIP:</strong><br>
+                                {{ request.user.profile.vip_expires_at|date:"d.m.Y" }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <a href="{% url 'vip_list' %}" class="btn btn-warning btn-block">
+                        <i class="fas fa-crown mr-2"></i> Все VIP-статьи
+                    </a>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Рекомендуемые статьи</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">5 секретов быстрого похудения</h6>
+                                <span class="badge badge-warning">VIP</span>
+                            </div>
+                            <small class="text-muted">Автор: Татьяна Петрова</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Недельный план питания для снижения веса</h6>
+                                <span class="badge badge-warning">VIP</span>
+                            </div>
+                            <small class="text-muted">Автор: Александр Иванов</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Кардио или силовые - что выбрать?</h6>
+                                <span class="badge badge-warning">VIP</span>
+                            </div>
+                            <small class="text-muted">Автор: Мария Смирнова</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
