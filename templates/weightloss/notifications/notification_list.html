@@ -1,0 +1,169 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}Уведомления - Здоровый Вес{% endblock %}
+
+{% block extra_css %}
+<style>
+    .notification-container {
+        padding: 40px 0;
+    }
+    
+    .notification-header {
+        margin-bottom: 30px;
+    }
+    
+    .notification-title {
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .notification-card {
+        position: relative;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        border: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .notification-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .notification-card.unread {
+        border-left: 4px solid #4caf50;
+    }
+    
+    .notification-type {
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        color: white;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+    
+    .notification-type-comment { background-color: #2196f3; }
+    .notification-type-reply { background-color: #03a9f4; }
+    .notification-type-like { background-color: #e91e63; }
+    .notification-type-forum_reply { background-color: #9c27b0; }
+    .notification-type-mention { background-color: #673ab7; }
+    .notification-type-status_update { background-color: #ff9800; }
+    .notification-type-weight_goal { background-color: #4caf50; }
+    .notification-type-system { background-color: #607d8b; }
+    
+    .notification-date {
+        font-size: 12px;
+        color: #9e9e9e;
+        margin-top: 5px;
+    }
+    
+    .notification-sender {
+        font-weight: 600;
+    }
+    
+    .notification-empty {
+        text-align: center;
+        padding: 50px 20px;
+        color: #9e9e9e;
+    }
+    
+    .notification-empty i {
+        font-size: 4rem;
+        color: #e0e0e0;
+        margin-bottom: 20px;
+    }
+    
+    .notification-empty p {
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notification-container">
+    <div class="container">
+        <div class="notification-header d-flex justify-content-between align-items-center">
+            <h1 class="notification-title">Уведомления</h1>
+            
+            {% if notifications %}
+            <a href="{% url 'mark_all_notifications_read' %}" class="btn btn-outline-success">
+                <i class="fas fa-check-double me-2"></i>Отметить все как прочитанные
+            </a>
+            {% endif %}
+        </div>
+        
+        {% if notifications %}
+            <div class="row">
+                {% for notification in notifications %}
+                    <div class="col-12">
+                        <div class="notification-card card p-4 {% if not notification.is_read %}unread{% endif %}">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <span class="notification-type notification-type-{{ notification.notification_type }}">
+                                        {% if notification.notification_type == 'comment' %}
+                                            <i class="fas fa-comment me-1"></i>Комментарий
+                                        {% elif notification.notification_type == 'reply' %}
+                                            <i class="fas fa-reply me-1"></i>Ответ
+                                        {% elif notification.notification_type == 'like' %}
+                                            <i class="fas fa-heart me-1"></i>Лайк
+                                        {% elif notification.notification_type == 'forum_reply' %}
+                                            <i class="fas fa-comments me-1"></i>Ответ на форуме
+                                        {% elif notification.notification_type == 'mention' %}
+                                            <i class="fas fa-at me-1"></i>Упоминание
+                                        {% elif notification.notification_type == 'status_update' %}
+                                            <i class="fas fa-info-circle me-1"></i>Обновление статуса
+                                        {% elif notification.notification_type == 'weight_goal' %}
+                                            <i class="fas fa-weight me-1"></i>Цель по весу
+                                        {% else %}
+                                            <i class="fas fa-bell me-1"></i>Системное
+                                        {% endif %}
+                                    </span>
+                                    
+                                    <h5 class="card-title mb-2">{{ notification.title }}</h5>
+                                    <p class="card-text">{{ notification.message }}</p>
+                                    
+                                    {% if notification.sender %}
+                                        <div class="notification-sender">
+                                            <i class="fas fa-user me-1"></i>{{ notification.sender.username }}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="notification-date">
+                                        <i class="far fa-clock me-1"></i>{{ notification.created_at|date:"d.m.Y H:i" }}
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    {% if notification.url %}
+                                        <a href="{% url 'mark_notification_read' notification.id %}?next={{ notification.url }}" class="btn btn-primary">
+                                            <i class="fas fa-external-link-alt me-1"></i>Перейти
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'mark_notification_read' notification.id %}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-check me-1"></i>Прочитано
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            {% include "weightloss/includes/pagination.html" with page=page_obj %}
+            
+        {% else %}
+            <div class="notification-empty">
+                <i class="fas fa-bell-slash d-block"></i>
+                <p>У вас нет уведомлений</p>
+                <a href="{% url 'home' %}" class="btn btn-outline-success mt-3">
+                    <i class="fas fa-home me-2"></i>Вернуться на главную
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

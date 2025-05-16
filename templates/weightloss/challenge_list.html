@@ -1,0 +1,323 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}Челленджи - Здоровый Вес{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Современный дизайн челленджей */
+    .challenge-container {
+        padding: 40px 0;
+    }
+    
+    .challenge-header {
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        border-radius: 15px;
+        padding: 40px;
+        margin-bottom: 40px;
+        position: relative;
+        color: white;
+        box-shadow: 0 10px 30px rgba(76, 175, 80, 0.2);
+        overflow: hidden;
+    }
+    
+    .challenge-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 300px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath fill='%23ffffff' fill-opacity='0.05' d='M34.5,-59.2C45.9,-51.7,57.3,-44.5,65.9,-33.4C74.5,-22.3,80.3,-7.4,78.9,6.8C77.5,21,68.9,34.4,58.4,44.3C47.9,54.1,35.4,60.4,22.1,65.2C8.8,70.1,-5.4,73.5,-18.2,70.5C-31,67.5,-42.4,58.1,-51.1,46.6C-59.8,35.1,-65.9,21.6,-68.6,7.1C-71.3,-7.3,-70.7,-22.7,-64.3,-35.4C-58,-48.1,-46,-58,-33.3,-64.6C-20.6,-71.2,-7.2,-74.6,3.4,-79.8C14,-85.1,28,-85.3,34.5,-73.2C41,-61.1,41,-46.7,34.5,-59.2Z' transform='translate(100 100)'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        opacity: 0.6;
+        z-index: 0;
+    }
+    
+    .challenge-header-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .challenge-title {
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: white;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .challenge-description {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 80%;
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+    
+    .info-icon {
+        font-size: 3.5rem;
+        color: #4caf50;
+        margin-bottom: 20px;
+        background: rgba(76, 175, 80, 0.1);
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+    }
+    
+    .info-title {
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 15px;
+    }
+    
+    .info-text {
+        color: #7f8c8d;
+        line-height: 1.6;
+    }
+    
+    .challenge-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+    
+    .challenge-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .challenge-img-container {
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .challenge-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s ease;
+    }
+    
+    .challenge-card:hover .challenge-img {
+        transform: scale(1.05);
+    }
+    
+    .challenge-card-body {
+        padding: 25px;
+    }
+    
+    .challenge-card-title {
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: #2c3e50;
+        font-size: 1.3rem;
+    }
+    
+    .challenge-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 15px;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.15);
+    }
+    
+    .challenge-badge i {
+        margin-right: 5px;
+    }
+    
+    .challenge-text {
+        color: #7f8c8d;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+    
+    .challenge-btn {
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        border: none;
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .challenge-btn i {
+        margin-left: 8px;
+    }
+    
+    .challenge-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.2);
+        color: white;
+    }
+    
+    .no-challenges {
+        text-align: center;
+        padding: 50px 0;
+    }
+    
+    .no-challenges-icon {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+    
+    .animate-delay-1 {
+        animation-delay: 0.2s;
+        opacity: 0;
+    }
+    
+    .animate-delay-2 {
+        animation-delay: 0.4s;
+        opacity: 0;
+    }
+    
+    .animate-delay-3 {
+        animation-delay: 0.6s;
+        opacity: 0;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Анимация при скролле
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        document.querySelectorAll('.challenge-card, .info-card').forEach(element => {
+            observer.observe(element);
+        });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container challenge-container">
+    <div class="challenge-header text-center">
+        <div class="challenge-header-content">
+            <h1 class="challenge-title">Челленджи для достижения здорового веса</h1>
+            <p class="challenge-description">Присоединяйтесь к нашим вызовам и достигайте результатов вместе с единомышленниками</p>
+        </div>
+    </div>
+    
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} shadow-sm">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="info-card text-center mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <div class="info-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <h3 class="info-title">Что такое челлендж?</h3>
+                <p class="info-text">Челлендж — это вызов, который помогает вам достичь конкретной цели за определенный период времени. Наши челленджи разработаны экспертами и помогут вам создать здоровые привычки, улучшить питание и увеличить физическую активность.</p>
+                <p class="info-text mb-0">Присоединяйтесь к любому из наших челленджей и вы заметите улучшения уже через несколько недель!</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        {% if challenges %}
+        {% for challenge in challenges %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="challenge-card h-100">
+                <div class="challenge-img-container">
+                    {% if challenge.image %}
+                    <img src="{{ challenge.image.url }}" class="challenge-img" alt="{{ challenge.title }}">
+                    {% else %}
+                    <div class="placeholder-img d-flex align-items-center justify-content-center bg-light text-muted">
+                        <i class="fas fa-image fa-3x"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="challenge-card-body d-flex flex-column">
+                    <h3 class="challenge-card-title">{{ challenge.title }}</h3>
+                    <div class="challenge-badge">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>{{ challenge.duration }} дней</span>
+                    </div>
+                    <p class="challenge-text">{{ challenge.description|safe|truncatewords:20 }}</p>
+                    <a href="{{ challenge.get_absolute_url }}" class="challenge-btn mt-auto">
+                        Подробнее <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="col-12 no-challenges">
+            <div class="no-challenges-icon">
+                <i class="far fa-calendar-check"></i>
+            </div>
+            <h3>Нет активных челленджей</h3>
+            <p class="text-muted">В данный момент нет активных челленджей. Заходите позже или подпишитесь на нашу рассылку, чтобы узнать о новых челленджах первыми!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

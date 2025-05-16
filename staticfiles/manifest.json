@@ -1,0 +1,58 @@
+{
+  "name": "ЗдоровоеПитание - платформа для здорового образа жизни",
+  "short_name": "ЗдоровоеПитание",
+  "description": "Сообщество людей, стремящихся к здоровому образу жизни. Рецепты здорового питания, советы по снижению веса, поддержка единомышленников.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4caf50",
+  "orientation": "any",
+  "scope": "/",
+  "categories": ["health", "food", "lifestyle", "fitness"],
+  "lang": "ru-RU",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/static/images/favicon/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/favicon/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/favicon/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/favicon/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/favicon/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/images/screenshots/home.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "platform": "wide",
+      "label": "Главная страница ЗдоровоеПитание"
+    },
+    {
+      "src": "/static/images/screenshots/recipes.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "platform": "wide",
+      "label": "Рецепты здорового питания"
+    }
+  ]
+} 

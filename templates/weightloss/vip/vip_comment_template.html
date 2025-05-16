@@ -1,0 +1,49 @@
+{% comment %}
+    Шаблон для рекурсивного отображения комментариев любой глубины в VIP-разделе.
+    Параметры:
+    - comment: объект комментария
+    - post: объект VIP-публикации (для формирования URL)
+    - level: глубина вложенности (опционально)
+{% endcomment %}
+
+<div class="comment-card {% if level > 1 %}deeper-comment level-{{ level }}{% endif %}" id="comment-{{ comment.id }}">
+    <div class="comment-header">
+        <div class="comment-author">
+            <div class="comment-avatar">
+                <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, #f1c40f 0%, #e67e22 100%); color:white; font-weight:700;">
+                    {{ comment.author.username|first }}
+                </div>
+            </div>
+            <div>
+                <div class="comment-author-name">{{ comment.author.username }}</div>
+                <div class="comment-date">{{ comment.created_on|date:"d.m.Y H:i" }}</div>
+                {% if level > 1 %}
+                <span class="badge bg-warning text-white mt-1">уровень {{ level }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="comment-content">
+        {% if comment.parent and level > 1 %}
+        <p class="reply-indicator" style="color: #95a5a6; font-style: italic; margin-bottom: 10px;">
+            Ответ пользователю <strong>{{ comment.parent.author.username }}</strong>:
+        </p>
+        {% endif %}
+        {{ comment.content|safe }}
+    </div>
+    <div class="comment-actions">
+        <a href="{% url 'vip_comment_reply_form' post.slug comment.id %}" class="comment-action">
+            <i class="fas fa-reply"></i> Ответить
+        </a>
+    </div>
+    
+    {% if comment.replies.exists %}
+    <div class="comment-replies" style="margin-left: 30px; margin-top: 15px; padding-left: 15px; border-left: 3px solid #f1c40f;">
+        {% for reply in comment.replies.all %}
+            {% with 'weightloss/vip/vip_comment_template.html' as template_path %}
+                {% include template_path with comment=reply post=post level=level|default:1|add:1 %}
+            {% endwith %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div> 

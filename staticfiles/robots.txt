@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /ckeditor5/
+Disallow: /profile/
+Disallow: /edit-profile/
+Disallow: /login/
+Disallow: /logout/
+Disallow: /register/
+Disallow: /password-reset/
+Disallow: /api/
+Disallow: /*?*
+Disallow: /search/?q=*
+
+Sitemap: https://здоровоепитание.рф/sitemap.xml 

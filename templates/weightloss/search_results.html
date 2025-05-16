@@ -1,0 +1,94 @@
+{% extends "weightloss/base.html" %}
+{% load static %}
+
+{% block title %}Результаты поиска{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Результаты поиска</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            <h1 class="mb-4">Результаты поиска: "{{ results.query }}"</h1>
+
+            {% if results.total_posts == 0 and results.total_recipes == 0 %}
+                <div class="alert alert-info">
+                    <p>По вашему запросу ничего не найдено. Попробуйте изменить поисковый запрос или воспользуйтесь советами ниже.</p>
+                </div>
+            {% else %}
+                <p class="lead">Найдено: {{ results.total_posts }} статей и {{ results.total_recipes }} рецептов</p>
+            {% endif %}
+
+            {% if results.posts %}
+                <h2 class="mt-4 mb-3">Статьи</h2>
+                <div class="list-group mb-4">
+                    {% for post in results.posts %}
+                        <a href="{% url 'post_detail' post.slug %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ post.title }}</h5>
+                                <small>{{ post.created_on|date:"d.m.Y" }}</small>
+                            </div>
+                            <p class="mb-1">{{ post.content|striptags|truncatewords:30 }}</p>
+                            <small>Категория: {{ post.category.name }}</small>
+                        </a>
+                    {% endfor %}
+                </div>
+                
+                {% include "weightloss/includes/pagination.html" %}
+            {% endif %}
+
+            {% if results.recipes %}
+                <h2 class="mt-4 mb-3">Рецепты</h2>
+                <div class="list-group mb-4">
+                    {% for recipe in results.recipes %}
+                        <a href="{% url 'recipe_detail' recipe.slug %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ recipe.title }}</h5>
+                                <small>Калорий: {{ recipe.calories }}</small>
+                            </div>
+                            <p class="mb-1">{{ recipe.description|truncatewords:30 }}</p>
+                            <small>Время приготовления: {{ recipe.cooking_time }} мин.</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Советы по поиску</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">Используйте короткие и точные запросы</li>
+                        <li class="mb-2">Проверьте правильность написания слов</li>
+                        <li class="mb-2">Попробуйте использовать синонимы</li>
+                        <li class="mb-2">Поиск чувствителен к регистру</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Популярные запросы</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{% url 'search_results' %}?q=похудение" class="list-group-item list-group-item-action">похудение</a>
+                        <a href="{% url 'search_results' %}?q=правильное питание" class="list-group-item list-group-item-action">правильное питание</a>
+                        <a href="{% url 'search_results' %}?q=рецепты" class="list-group-item list-group-item-action">рецепты</a>
+                        <a href="{% url 'search_results' %}?q=диета" class="list-group-item list-group-item-action">диета</a>
+                        <a href="{% url 'search_results' %}?q=калории" class="list-group-item list-group-item-action">калории</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,84 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}Редактирование профиля - Здоровый Вес{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow">
+                <div class="card-body p-5">
+                    <h2 class="mb-4">Редактирование профиля</h2>
+                    
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.profile_pic.id_for_label }}" class="form-label">{{ form.profile_pic.label }}</label>
+                            {% if form.instance.profile_pic %}
+                            <div class="mb-3">
+                                <img src="{{ form.instance.profile_pic.url }}" alt="Текущее фото профиля" class="img-thumbnail mb-2" style="max-width: 200px;">
+                                <p class="text-muted small">Текущее фото профиля</p>
+                            </div>
+                            {% endif %}
+                            {{ form.profile_pic.errors }}
+                            <input type="{{ form.profile_pic.field.widget.input_type }}" name="{{ form.profile_pic.name }}" id="{{ form.profile_pic.id_for_label }}" class="form-control">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.bio.id_for_label }}" class="form-label">{{ form.bio.label }}</label>
+                            {{ form.bio.errors }}
+                            <textarea name="{{ form.bio.name }}" id="{{ form.bio.id_for_label }}" rows="4" class="form-control">{{ form.bio.value|default:'' }}</textarea>
+                            {% if form.bio.help_text %}
+                            <div class="form-text">{{ form.bio.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label for="{{ form.starting_weight.id_for_label }}" class="form-label">{{ form.starting_weight.label }}</label>
+                                {{ form.starting_weight.errors }}
+                                <input type="number" name="{{ form.starting_weight.name }}" id="{{ form.starting_weight.id_for_label }}" value="{{ form.starting_weight.value|default:'' }}" step="0.1" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.current_weight.id_for_label }}" class="form-label">{{ form.current_weight.label }}</label>
+                                {{ form.current_weight.errors }}
+                                <input type="number" name="{{ form.current_weight.name }}" id="{{ form.current_weight.id_for_label }}" value="{{ form.current_weight.value|default:'' }}" step="0.1" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.goal_weight.id_for_label }}" class="form-label">{{ form.goal_weight.label }}</label>
+                                {{ form.goal_weight.errors }}
+                                <input type="number" name="{{ form.goal_weight.name }}" id="{{ form.goal_weight.id_for_label }}" value="{{ form.goal_weight.value|default:'' }}" step="0.1" class="form-control">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.height.id_for_label }}" class="form-label">{{ form.height.label }}</label>
+                            {{ form.height.errors }}
+                            <input type="number" name="{{ form.height.name }}" id="{{ form.height.id_for_label }}" value="{{ form.height.value|default:'' }}" step="0.1" class="form-control">
+                            {% if form.height.help_text %}
+                            <div class="form-text">{{ form.height.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary">Отмена</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

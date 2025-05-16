@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!-- Базовые мета-теги -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ seo.title }}{% endblock %}</title>
+    <meta name="description" content="{% block description %}{{ seo.description }}{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}{{ seo.keywords }}{% endblock %}">
+    <meta name="author" content="ЗдоровоеПитание">
+
+    <!-- Канонический URL -->
+    <link rel="canonical" href="{{ seo.canonical_url }}">
+    
+    <!-- Open Graph метатеги для соцсетей -->
+    <meta property="og:title" content="{% block og_title %}{{ seo.title }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ seo.description }}{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ seo.canonical_url }}">
+    <meta property="og:site_name" content="{{ seo.site_name }}">
+    <meta property="og:image" content="{% block og_image %}{{ seo.og_image }}{% endblock %}">
+    <meta property="og:locale" content="ru_RU">
+    
+    <!-- Twitter метатеги -->
+    <meta name="twitter:card" content="{{ seo.twitter_card }}">
+    <meta name="twitter:creator" content="{{ seo.twitter_creator }}">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ seo.title }}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{{ seo.description }}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ seo.og_image }}{% endblock %}">
+    
+    <!-- Структурированные данные Schema.org -->
+    <script type="application/ld+json">{{ schema_org.website|safe }}</script>
+    <script type="application/ld+json">{{ schema_org.organization|safe }}</script>
+    {% block structured_data %}{% endblock %}
+    
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    
+    <!-- Предзагрузка критических ресурсов -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    {% block extra_meta %}{% endblock %}
+    {% block stylesheets %}{% endblock %}
+    {% block head_scripts %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+    
+    {% block footer_scripts %}{% endblock %}
+</body>
+</html> 

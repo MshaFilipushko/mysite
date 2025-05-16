@@ -1,0 +1,867 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}Здоровый Вес - Достигни своей цели!{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modern Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        position: relative;
+        padding: 120px 0 160px;
+        color: white;
+        overflow: hidden;
+        margin-bottom: 60px;
+        border-radius: 0 0 30% 30% / 80px;
+        box-shadow: 0 15px 40px rgba(76, 175, 80, 0.2);
+    }
+    
+    .hero-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    .hero-shape {
+        position: absolute;
+        opacity: 0.2;
+        z-index: 0;
+    }
+    
+    .hero-shape-1 {
+        top: -50px;
+        right: -50px;
+        width: 400px;
+        height: 400px;
+        border-radius: 58% 42% 38% 62% / 42% 55% 45% 58%;
+        background: white;
+        animation: morph 15s linear infinite alternate;
+    }
+    
+    .hero-shape-2 {
+        bottom: -100px;
+        left: -100px;
+        width: 500px;
+        height: 500px;
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        background: white;
+        animation: morph 10s linear infinite alternate-reverse;
+    }
+    
+    .hero-shape-3 {
+        top: 20%;
+        left: 20%;
+        width: 150px;
+        height: 150px;
+        border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+        background: white;
+        animation: morph 12s linear infinite alternate;
+    }
+    
+    @keyframes morph {
+        0% {
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        }
+        50% {
+            border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+        }
+        100% {
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        }
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        margin-bottom: 30px;
+        text-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        opacity: 0;
+        animation: fadeInUp 1s ease forwards 0.3s;
+        line-height: 1.2;
+    }
+    
+    .hero-highlight {
+        color: #ffffcc;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .hero-highlight::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 5px;
+        width: 100%;
+        height: 12px;
+        background-color: rgba(255,255,255,0.2);
+        z-index: -1;
+        border-radius: 10px;
+    }
+    
+    .hero-description {
+        font-size: 1.5rem;
+        font-weight: 400;
+        margin-bottom: 40px;
+        opacity: 0;
+        animation: fadeInUp 1s ease forwards 0.6s;
+        max-width: 700px;
+        line-height: 1.6;
+    }
+    
+    .hero-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        opacity: 0;
+        animation: fadeInUp 1s ease forwards 0.9s;
+    }
+    
+    .hero-btn {
+        padding: 15px 35px;
+        font-weight: 700;
+        border-radius: 50px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .hero-btn-primary {
+        background-color: white;
+        color: #4caf50;
+        border: none;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .hero-btn-primary:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        color: #2e7d32;
+    }
+    
+    .hero-btn-secondary {
+        background-color: transparent;
+        color: white;
+        border: 2px solid white;
+    }
+    
+    .hero-btn-secondary:hover {
+        background-color: white;
+        color: #4caf50;
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+    
+    .hero-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: all 0.6s;
+        z-index: -1;
+    }
+    
+    .hero-btn:hover::before {
+        left: 100%;
+    }
+    
+    .hero-stats {
+        display: flex;
+        justify-content: center;
+        margin-top: 60px;
+        opacity: 0;
+        animation: fadeInUp 1s ease forwards 1.2s;
+    }
+    
+    .hero-stat {
+        text-align: center;
+        margin: 0 30px;
+        position: relative;
+    }
+    
+    .hero-stat::after {
+        content: '';
+        position: absolute;
+        top: 10%;
+        right: -30px;
+        width: 1px;
+        height: 80%;
+        background-color: rgba(255,255,255,0.3);
+    }
+    
+    .hero-stat:last-child::after {
+        display: none;
+    }
+    
+    .hero-stat-value {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+    
+    .hero-stat-label {
+        font-size: 1rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .hero-scroll {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: bounce 2s infinite;
+        opacity: 0;
+        animation-fill-mode: forwards;
+        animation-delay: 1.5s;
+    }
+    
+    .hero-scroll-icon {
+        color: white;
+        font-size: 2rem;
+        opacity: 0.7;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0) translateX(-50%);
+        }
+        40% {
+            transform: translateY(-20px) translateX(-50%);
+        }
+        60% {
+            transform: translateY(-10px) translateX(-50%);
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .hero-title {
+            font-size: 3.2rem;
+        }
+        
+        .hero-stats {
+            flex-wrap: wrap;
+        }
+        
+        .hero-stat {
+            margin: 15px 20px;
+        }
+        
+        .hero-stat::after {
+            display: none;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .hero-description {
+            font-size: 1.3rem;
+        }
+        
+        .hero-buttons {
+            justify-content: center;
+        }
+    }
+    
+    /* Features section styles */
+    .features-section {
+        padding: 80px 0;
+        background-color: #fff;
+    }
+    
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: #2c3e50;
+    }
+    
+    .section-subtitle {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        margin-bottom: 50px;
+    }
+    
+    .feature-card {
+        background-color: #fff;
+        border-radius: 15px;
+        padding: 40px 30px;
+        transition: all 0.3s ease;
+        height: 100%;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 25px;
+        color: #4caf50;
+        background: rgba(76, 175, 80, 0.1);
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+    
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #2c3e50;
+    }
+    
+    .feature-description {
+        color: #7f8c8d;
+        line-height: 1.6;
+    }
+    
+    /* Content sections */
+    .content-section {
+        padding: 80px 0;
+        position: relative;
+    }
+    
+    .content-section.light {
+        background-color: #f8f9fa;
+    }
+    
+    .content-section .section-header {
+        margin-bottom: 50px;
+    }
+    
+    /* Cards styles */
+    .content-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+    
+    .content-card:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+    
+    .content-card .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .content-card .card-body {
+        padding: 25px;
+    }
+    
+    .content-card .card-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+    
+    .content-card .card-footer {
+        background: transparent;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        padding: 15px 25px;
+    }
+    
+    .btn-round {
+        border-radius: 30px;
+        padding: 10px 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-round:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* Calculator section */
+    .calculator-section {
+        position: relative;
+        padding: 80px 0;
+    }
+    
+    .calculator-card {
+        border-radius: 15px;
+        border: none;
+        overflow: hidden;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+    }
+    
+    .calculator-card .card-body {
+        padding: 30px;
+    }
+    
+    .form-control {
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        border-color: #4caf50;
+    }
+    
+    /* FAQ section */
+    .faq-section {
+        padding: 80px 0;
+        background-color: #fff;
+    }
+    
+    .accordion-item {
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        border: 1px solid rgba(0,0,0,0.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .accordion-button {
+        padding: 20px;
+        font-weight: 600;
+        background-color: #fff;
+        color: #2c3e50;
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: #f8f9fa;
+        color: #4caf50;
+    }
+    
+    .accordion-body {
+        padding: 20px;
+        background-color: #fff;
+    }
+    
+    /* Newsletter section */
+    .newsletter-section {
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        padding: 80px 0;
+        color: white;
+        border-radius: 15px;
+        margin: 0 20px 80px;
+    }
+    
+    .newsletter-title {
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+    
+    .newsletter-form .form-control {
+        height: 60px;
+        font-size: 1.1rem;
+    }
+    
+    .newsletter-form .btn {
+        height: 60px;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-background">
+        <div class="hero-shape hero-shape-1"></div>
+        <div class="hero-shape hero-shape-2"></div>
+        <div class="hero-shape hero-shape-3"></div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="hero-content text-center">
+                    <h1 class="hero-title">Ваш путь к <span class="hero-highlight">здоровому весу</span> начинается здесь</h1>
+                    <p class="hero-description mx-auto">Научно обоснованные методы похудения, здоровое питание и поддержка на каждом шаге вашего пути</p>
+                    <div class="hero-buttons justify-content-center">
+                        <a href="{% url 'register' %}" class="btn hero-btn hero-btn-primary">Начать сейчас</a>
+                        <a href="{% url 'calculators' %}" class="btn hero-btn hero-btn-secondary">Расcчитать ИМТ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#features" class="hero-scroll">
+        <i class="fas fa-chevron-down hero-scroll-icon"></i>
+    </a>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features-section">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="section-title">Почему выбирают нас</h2>
+                <p class="section-subtitle">Комплексный подход к здоровому похудению и поддержанию веса</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3 class="feature-title">Здоровые рецепты</h3>
+                    <p class="feature-description">Коллекция вкусных и полезных рецептов, которые помогут вам питаться правильно и достигать целей без отказа от вкусной еды.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3 class="feature-title">Умные калькуляторы</h3>
+                    <p class="feature-description">Рассчитайте свой ИМТ, потребность в калориях и энергетические потребности с помощью наших детальных калькуляторов.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title">Сообщество</h3>
+                    <p class="feature-description">Присоединяйтесь к активному сообществу единомышленников, где можно делиться опытом, задавать вопросы и получать поддержку.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Blog Posts -->
+<section class="content-section light">
+    <div class="container">
+        <div class="section-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="section-title">Полезные статьи</h2>
+                <p class="text-muted">Актуальные темы о здоровом образе жизни</p>
+            </div>
+            <a href="{% url 'blog_list' %}" class="btn btn-success btn-round">Все статьи</a>
+        </div>
+        <div class="row g-4">
+            {% if featured_posts %}
+            {% for post in featured_posts %}
+            <div class="col-md-4 h-100">
+                <div class="blog-card h-100">
+                    <div class="blog-img-container" style="height: 200px;">
+                        {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" class="blog-card-img" alt="{{ post.title }}" style="height: 100%; width: 100%; object-fit: cover;">
+                        {% else %}
+                        <div class="placeholder-img" style="height: 100%;">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body d-flex flex-column" style="height: 220px;">
+                        <span class="blog-category mb-2">{{ post.category.name }}</span>
+                        <h5 class="card-title mb-3" style="height: 50px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">{{ post.title }}</h5>
+                        <div class="blog-meta mb-3">
+                            <div class="blog-meta-item">
+                                <i class="fas fa-user me-1"></i>
+                                <span>{{ post.author.username }}</span>
+                            </div>
+                            <div class="blog-meta-item">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                <span>{{ post.created_on|date:"d.m.Y" }}</span>
+                            </div>
+                        </div>
+                        <a href="{{ post.get_absolute_url }}" class="btn btn-outline-success mt-auto">Читать далее</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-5">
+            <a href="{% url 'blog_list' %}" class="btn btn-success btn-lg">Все статьи</a>
+        </div>
+        {% else %}
+        <div class="text-center">
+            <p>Статьи скоро появятся!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Recipes Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="section-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="section-title">Полезные рецепты</h2>
+                <p class="text-muted">Вкусно, полезно и для похудения</p>
+            </div>
+            <a href="{% url 'recipe_list' %}" class="btn btn-success btn-round">Все рецепты</a>
+        </div>
+        <div class="row g-4">
+            {% if featured_recipes %}
+                {% for recipe in featured_recipes %}
+                <div class="col-md-4 h-100">
+                    <div class="content-card h-100">
+                        <div style="height: 200px; overflow: hidden;">
+                            {% if recipe.image %}
+                            <img src="{{ recipe.image.url }}" class="card-img-top" alt="{{ recipe.title }}" style="height: 100%; width: 100%; object-fit: cover;">
+                            {% else %}
+                            <img src="https://via.placeholder.com/350x200" class="card-img-top" alt="{{ recipe.title }}" style="height: 100%; width: 100%; object-fit: cover;">
+                            {% endif %}
+                        </div>
+                        <div class="card-body" style="height: 180px;">
+                            <h5 class="card-title" style="height: 50px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"><a href="{{ recipe.get_absolute_url }}" class="text-decoration-none text-dark">{{ recipe.title }}</a></h5>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="badge bg-success">{{ recipe.calories }} ккал</span>
+                                <span><i class="far fa-clock text-muted me-1"></i> {{ recipe.preparation_time }} мин.</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small p-2 bg-light rounded">
+                                <span>Б: {{ recipe.protein }}г</span>
+                                <span>Ж: {{ recipe.fat }}г</span>
+                                <span>У: {{ recipe.carbs }}г</span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ recipe.get_absolute_url }}" class="btn btn-outline-success btn-round w-100">Посмотреть рецепт</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center">
+                    <p>Скоро здесь появятся вкусные и полезные рецепты!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Calculator Promo Section -->
+<section class="calculator-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="section-title mb-4">Полезные калькуляторы для достижения цели</h2>
+                <p class="lead mb-4">Воспользуйтесь нашими калькуляторами для расчета индивидуальных показателей:</p>
+                <ul class="list-unstyled mb-5">
+                    <li class="mb-3 d-flex align-items-center">
+                        <div class="me-3" style="width: 8px; height: 8px; background-color: #4caf50; border-radius: 50%;"></div>
+                        <span>Калькулятор дневной нормы калорий</span>
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <div class="me-3" style="width: 8px; height: 8px; background-color: #4caf50; border-radius: 50%;"></div>
+                        <span>Расчет ИМТ (индекса массы тела)</span>
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <div class="me-3" style="width: 8px; height: 8px; background-color: #4caf50; border-radius: 50%;"></div>
+                        <span>Расчет нормы БЖУ (белки, жиры, углеводы)</span>
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <div class="me-3" style="width: 8px; height: 8px; background-color: #4caf50; border-radius: 50%;"></div>
+                        <span>Расчет нормы воды в день</span>
+                    </li>
+                </ul>
+                <a href="{% url 'calculators' %}" class="btn btn-primary btn-round">Перейти к калькуляторам</a>
+            </div>
+            <div class="col-lg-6">
+                <div class="calculator-card shadow">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Калькулятор ИМТ</h4>
+                        <form>
+                            <div class="mb-3">
+                                <label for="weight" class="form-label">Вес (кг)</label>
+                                <input type="number" class="form-control" id="weight" placeholder="Например, 70">
+                            </div>
+                            <div class="mb-3">
+                                <label for="height" class="form-label">Рост (см)</label>
+                                <input type="number" class="form-control" id="height" placeholder="Например, 170">
+                            </div>
+                            <button type="button" class="btn btn-primary btn-round w-100" onclick="calculateBMI()">Рассчитать</button>
+                            <div class="mt-4 p-3 bg-light rounded d-none" id="bmiResult">
+                                <h5 class="mb-2">Ваш ИМТ: <span id="bmiValue"></span></h5>
+                                <p class="mb-0 text-muted" id="bmiCategory"></p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Challenges Section -->
+<section class="content-section light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Актуальные челленджи</h2>
+            <p class="section-subtitle">Присоединяйтесь к нашим вызовам для достижения лучших результатов</p>
+        </div>
+        <div class="row g-4">
+            {% for challenge in challenges %}
+            <div class="col-md-6 mb-4">
+                <div class="content-card">
+                    {% if challenge.image %}
+                    <img src="{{ challenge.image.url }}" class="card-img-top" alt="{{ challenge.title }}">
+                    {% else %}
+                    <img src="https://via.placeholder.com/350x200" class="card-img-top" alt="{{ challenge.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">{{ challenge.title }}</h5>
+                            <span class="badge bg-warning text-dark">{{ challenge.duration }} дней</span>
+                        </div>
+                        <p class="card-text">{{ challenge.description|safe|truncatewords:25 }}</p>
+                        <a href="{{ challenge.get_absolute_url }}" class="btn btn-outline-warning btn-round w-100">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p>Скоро здесь появятся интересные челленджи!</p>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'challenge_list' %}" class="btn btn-outline-primary btn-round">Все челленджи</a>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<div class="container">
+    <section class="newsletter-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="newsletter-title">Получайте полезные советы на почту</h2>
+                    <p class="mb-4">Подпишитесь на нашу рассылку и получайте эксклюзивные статьи, рецепты и советы по достижению здорового веса.</p>
+                    <form class="newsletter-form row g-3 justify-content-center">
+                        <div class="col-md-8">
+                            <input type="email" class="form-control" placeholder="Ваш email" required>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-light w-100">Подписаться</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+    
+    // Count up animation
+    function countUp() {
+        const counters = document.querySelectorAll('.count-up');
+        const speed = 200;
+        
+        counters.forEach(counter => {
+            const target = +counter.dataset.target;
+            const count = +counter.innerText;
+            const increment = target / speed;
+            
+            if (count < target) {
+                counter.innerText = Math.ceil(count + increment);
+                setTimeout(countUp, 1);
+            } else {
+                counter.innerText = target;
+            }
+        });
+    }
+    
+    // BMI Calculator
+    function calculateBMI() {
+        const weight = document.getElementById('weight').value;
+        const height = document.getElementById('height').value;
+        
+        if (!weight || !height) {
+            alert('Пожалуйста, введите вес и рост');
+            return;
+        }
+        
+        const bmi = (weight / Math.pow(height/100, 2)).toFixed(1);
+        const resultElement = document.getElementById('bmiResult');
+        const valueElement = document.getElementById('bmiValue');
+        const categoryElement = document.getElementById('bmiCategory');
+        
+        valueElement.innerText = bmi;
+        
+        let category = '';
+        let color = '';
+        
+        if (bmi < 18.5) {
+            category = 'Недостаточный вес';
+            color = '#17a2b8';
+        } else if (bmi >= 18.5 && bmi < 25) {
+            category = 'Нормальный вес';
+            color = '#28a745';
+        } else if (bmi >= 25 && bmi < 30) {
+            category = 'Избыточный вес';
+            color = '#ffc107';
+        } else {
+            category = 'Ожирение';
+            color = '#dc3545';
+        }
+        
+        categoryElement.innerText = category;
+        categoryElement.style.color = color;
+        valueElement.style.color = color;
+        
+        resultElement.classList.remove('d-none');
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Start count up animation
+        countUp();
+    });
+</script>
+{% endblock %} 

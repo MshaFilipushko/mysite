@@ -1,0 +1,1196 @@
+{% extends 'weightloss/base.html' %}
+{% load weight_filters %}
+{% load static %}
+{% load user_tags %}
+
+{% block title %}{{ topic.title }} - Здоровый Вес{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modern Blog Detail Page Styling */
+    .blog-container {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+    
+    .blog-breadcrumb {
+        margin-bottom: 30px;
+    }
+    
+    .blog-breadcrumb .breadcrumb-item a {
+        color: #4caf50;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .blog-breadcrumb .breadcrumb-item a:hover {
+        color: #2e7d32;
+        text-decoration: underline;
+    }
+    
+    .blog-header {
+        position: relative;
+        margin-bottom: 40px;
+    }
+    
+    .blog-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        line-height: 1.3;
+    }
+    
+    .blog-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+    
+    .blog-author {
+        display: flex;
+        align-items: center;
+        margin-right: 30px;
+    }
+    
+    .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 15px;
+        border: 3px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .author-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .author-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-right: 15px;
+        border: 3px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .author-info {
+        line-height: 1.3;
+    }
+    
+    .author-name {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1rem;
+    }
+    
+    .post-date {
+        color: #95a5a6;
+        font-size: 0.9rem;
+    }
+    
+    .blog-category {
+        display: inline-block;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        color: white;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .blog-category:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+        color: white;
+    }
+    
+    .featured-image-container {
+        position: relative;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 40px;
+        max-height: 500px;
+    }
+    
+    .featured-image {
+        width: 100%;
+        object-fit: cover;
+        transition: transform 0.8s ease;
+    }
+    
+    .featured-image:hover {
+        transform: scale(1.03);
+    }
+    
+    .blog-content {
+        line-height: 1.8;
+        color: #34495e;
+        font-size: 1.1rem;
+        margin-bottom: 50px;
+    }
+    
+    .blog-content p,
+    .blog-content ul, 
+    .blog-content ol {
+        margin-bottom: 1.5rem;
+    }
+    
+    .blog-content h2, 
+    .blog-content h3, 
+    .blog-content h4 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    
+    .blog-content img {
+        max-width: 100%;
+        border-radius: 10px;
+        margin: 20px 0;
+    }
+    
+    .blog-content a {
+        color: #4caf50;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(76, 175, 80, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .blog-content a:hover {
+        color: #2e7d32;
+        border-bottom-color: #2e7d32;
+    }
+    
+    .share-card {
+        background: linear-gradient(135deg, #f9f9f9 0%, #f2f2f2 100%);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 50px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .share-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+    
+    .share-title {
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        color: #2c3e50;
+    }
+    
+    .social-btn {
+        padding: 10px 20px;
+        border-radius: 30px;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+    
+    .social-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .vk-btn {
+        background-color: #4C75A3;
+        border-color: #4C75A3;
+        color: white;
+    }
+    
+    .vk-btn:hover {
+        background-color: #3d5f85;
+        border-color: #3d5f85;
+        color: white;
+    }
+    
+    .telegram-btn {
+        background-color: #0088cc;
+        border-color: #0088cc;
+        color: white;
+    }
+    
+    .telegram-btn:hover {
+        background-color: #0074ad;
+        border-color: #0074ad;
+        color: white;
+    }
+    
+    /* Sidebar Styling */
+    .blog-sidebar {
+        position: sticky;
+        top: 90px;
+    }
+    
+    .sidebar-widget {
+        background-color: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    
+    .widget-title {
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f2f2f2;
+        color: #2c3e50;
+    }
+    
+    .widget-content ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .widget-content ul li {
+        padding: 10px 0;
+        border-bottom: 1px solid #f2f2f2;
+    }
+    
+    .widget-content ul li:last-child {
+        border-bottom: none;
+    }
+    
+    .widget-content ul li a {
+        color: #34495e;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: block;
+    }
+    
+    .widget-content ul li a:hover {
+        color: #4caf50;
+        transform: translateX(5px);
+    }
+    
+    /* Social Icons Widget */
+    .social-icons {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .social-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin: 0 10px 10px 0;
+        background-color: #f1f1f1;
+        color: #7f8c8d;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .social-icon:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .social-icon.vk {
+        background-color: #4C75A3;
+        color: white;
+    }
+    
+    .social-icon.telegram {
+        background-color: #0088cc;
+        color: white;
+    }
+    
+    .social-icon.instagram {
+        background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+        color: white;
+    }
+    
+    .social-icon.youtube {
+        background-color: #FF0000;
+        color: white;
+    }
+    
+    /* Пользовательские стили для дополнительной анимации */
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+        }
+    }
+    
+    .pulse-effect:hover {
+        animation: pulse 1.5s infinite;
+    }
+    
+    /* Modern Forum-style Comments Section */
+    .comments-section {
+        margin-top: 50px;
+        margin-bottom: 50px;
+    }
+    
+    .comments-title {
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+        color: #2c3e50;
+        position: relative;
+        padding-bottom: 10px;
+    }
+    
+    .comments-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+    }
+    
+    .comments-title .count-badge {
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 5px 15px;
+        font-size: 0.9rem;
+        margin-left: 15px;
+        box-shadow: 0 3px 10px rgba(76, 175, 80, 0.2);
+    }
+    
+    .comment {
+        margin-bottom: 25px;
+        transition: all 0.3s ease;
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .comment-card {
+        border-radius: 12px;
+        background-color: #fff;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .comment-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        transform: translateY(-3px);
+    }
+    
+    .comment-header {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        background: linear-gradient(135deg, #f9f9f9, #f2f2f2);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .comment-author-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 15px;
+        border: 3px solid white;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    
+    .comment-author-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .comment-author-placeholder {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-right: 15px;
+        border: 3px solid white;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    
+    .comment-author-info {
+        flex-grow: 1;
+    }
+    
+    .comment-author {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 2px;
+    }
+    
+    .comment-author a {
+        color: #2c3e50;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .comment-author a:hover {
+        color: #4caf50;
+    }
+    
+    .comment-date {
+        color: #95a5a6;
+        font-size: 0.85rem;
+    }
+    
+    .comment-body {
+        padding: 20px;
+    }
+    
+    .comment-content {
+        color: #34495e;
+        line-height: 1.6;
+    }
+    
+    .comment-content p:last-child {
+        margin-bottom: 0;
+    }
+    
+    .comment-footer {
+        padding: 10px 20px;
+        background-color: #f8f9fa;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+    }
+    
+    .reply-link {
+        color: #4caf50;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .reply-link:hover {
+        color: #2e7d32;
+        text-decoration: underline;
+    }
+    
+    .comment-replies {
+        margin-left: 45px;
+        padding-left: 20px;
+        border-left: 3px solid #f0f0f0;
+        margin-top: 15px;
+    }
+    
+    .comment-replies-header {
+        color: #7f8c8d;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+    
+    .comment-replies-header:hover {
+        color: #4caf50;
+    }
+    
+    .comment-reply {
+        margin-bottom: 15px;
+    }
+    
+    .comment-reply:last-child {
+        margin-bottom: 0;
+    }
+    
+    .comment-replies-content {
+        transition: all 0.3s ease;
+        overflow: hidden;
+        max-height: 9999px;  /* Большое значение для развернутого состояния */
+    }
+    
+    .collapsed .comment-replies-content {
+        display: none;
+        max-height: 0;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+    }
+    
+    .comment-replies-toggle {
+        color: #4caf50;
+        font-size: 0.9rem;
+        cursor: pointer;
+        padding: 5px 0;
+        display: inline-block;
+        margin-top: 5px;
+    }
+    
+    .comment-replies-toggle:hover {
+        color: #2e7d32;
+        text-decoration: underline;
+    }
+    
+    .hidden-replies {
+        display: none;
+    }
+    
+    .comment-reply-card {
+        border-radius: 8px;
+        background-color: #fff;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.04);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .comment-reply-card:hover {
+        box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+    }
+    
+    .comment-reply-header {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        background: #f8f9fa;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .comment-reply-author-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 10px;
+        border: 2px solid white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .comment-reply-author-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .comment-reply-body {
+        padding: 15px;
+    }
+    
+    .comment-reply-footer {
+        padding: 8px 15px;
+        background-color: #f8f9fa;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    /* Comment Form */
+    .comment-form-card {
+        border-radius: 12px;
+        background-color: #fff;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        margin-bottom: 50px;
+    }
+    
+    .comment-form-header {
+        padding: 15px 20px;
+        background: linear-gradient(135deg, #f9f9f9, #f2f2f2);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .comment-form-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0;
+    }
+    
+    .comment-form-body {
+        padding: 20px;
+    }
+    
+    .auth-prompt {
+        text-align: center;
+        padding: 30px;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        margin-bottom: 50px;
+    }
+    
+    .auth-prompt-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+    }
+    
+    .auth-prompt-text {
+        color: #7f8c8d;
+        margin-bottom: 20px;
+    }
+    
+    .auth-btn {
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .auth-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .auth-btn-primary {
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        border: none;
+        color: white;
+    }
+    
+    .auth-btn-primary:hover {
+        background: linear-gradient(135deg, #43a047 0%, #7cb342 100%);
+    }
+    
+    .auth-btn-outline {
+        background-color: transparent;
+        border: 2px solid #4caf50;
+        color: #4caf50;
+    }
+    
+    .auth-btn-outline:hover {
+        background-color: #4caf50;
+        color: white;
+    }
+    
+    .admin-badge {
+        background-color: #dc3545;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 5px;
+        text-transform: uppercase;
+    }
+    
+    @media (max-width: 768px) {
+        .blog-title {
+            font-size: 2rem;
+        }
+        
+        .featured-image-container {
+            margin-left: -15px;
+            margin-right: -15px;
+            border-radius: 0;
+        }
+        
+        .comment-replies {
+            margin-left: 25px;
+            padding-left: 15px;
+        }
+    }
+    
+    .submit-btn {
+        background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+        color: white;
+        font-weight: 600;
+        padding: 10px 25px;
+        border-radius: 30px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .submit-btn:hover {
+        background: linear-gradient(135deg, #43a047 0%, #7cb342 100%);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .reply-indicator {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        padding: 5px 0;
+        margin-bottom: 5px;
+        border-left: 3px solid #4caf50;
+        padding-left: 10px;
+        background-color: rgba(76, 175, 80, 0.05);
+    }
+    
+    /* Стиль для вложенных ответов на ответы */
+    .nested-reply {
+        margin-left: 20px;
+        border-left: 2px dotted #e0e0e0;
+        padding-left: 15px;
+        margin-top: 10px;
+    }
+    
+    /* Стиль для более глубоких уровней вложенности */
+    .deeper-level {
+        margin-left: 15px;
+        border-left: 2px dotted #b3e5fc;
+        padding-left: 10px;
+        margin-top: 8px;
+        background-color: rgba(33, 150, 243, 0.02);
+    }
+    
+    /* Динамические стили для разных уровней вложенности */
+    .deeper-level-2 { border-left-color: #b3e5fc; background-color: rgba(33, 150, 243, 0.02); }
+    .deeper-level-3 { border-left-color: #ffcc80; background-color: rgba(255, 152, 0, 0.02); }
+    .deeper-level-4 { border-left-color: #ef9a9a; background-color: rgba(244, 67, 54, 0.02); }
+    .deeper-level-5 { border-left-color: #ce93d8; background-color: rgba(156, 39, 176, 0.02); }
+    .deeper-level-6 { border-left-color: #80cbc4; background-color: rgba(0, 150, 136, 0.02); }
+    
+    /* Классы для комментариев разного уровня */
+    .deeper-comment.level-2 { border-left: 2px solid #b3e5fc; }
+    .deeper-comment.level-3 { border-left: 2px solid #ffcc80; }
+    .deeper-comment.level-4 { border-left: 2px solid #ef9a9a; }
+    .deeper-comment.level-5 { border-left: 2px solid #ce93d8; }
+    .deeper-comment.level-6 { border-left: 2px solid #80cbc4; }
+    
+    /* Скрываем индикатор уровня */
+    .level-indicator {
+        display: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="blog-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="blog-breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'forum_home' %}">Форум</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'forum_category' topic.category.slug %}">{{ topic.category.name }}</a></li>
+            <li class="breadcrumb-item active">{{ topic.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <article class="blog-post">
+                <!-- Post Header -->
+                <div class="blog-header">
+                    <h1 class="blog-title">{{ topic.title }}</h1>
+                    
+                    <div class="blog-meta">
+                        <div class="blog-author">
+                            {% if topic.author.profile.profile_pic %}
+                            <div class="author-avatar">
+                                <img src="{{ topic.author.profile.profile_pic.url }}" alt="{{ topic.author.username }}">
+                            </div>
+                            {% else %}
+                            <div class="author-placeholder">
+                                {{ topic.author.username|first|upper }}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="author-info">
+                                <h6 class="mb-0">Автор: <a href="{% url 'user_profile' topic.author.username %}" class="text-decoration-none">{{ topic.author|user_display_name }}</a>
+                                {% if topic.author|is_admin %}
+                                <span class="admin-badge">admin</span>
+                                {% endif %}
+                                </h6>
+                            </div>
+                        </div>
+                        
+                        <a href="{% url 'forum_category' topic.category.slug %}" class="blog-category">
+                            {{ topic.category.name }}
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Post Content -->
+                <div class="blog-content">
+                    {{ topic.content|safe }}
+                </div>
+                
+                <!-- Share Card -->
+                <div class="share-card">
+                    <h5 class="share-title">Понравилась тема? Поделитесь с друзьями!</h5>
+                    <div class="social-share">
+                        <a href="https://vk.com/share.php?url={{ request.build_absolute_uri }}" target="_blank" class="btn social-btn vk-btn">
+                            <i class="fab fa-vk me-2"></i> ВКонтакте
+                        </a>
+                        <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}&text={{ topic.title }}" target="_blank" class="btn social-btn telegram-btn">
+                            <i class="fab fa-telegram me-2"></i> Telegram
+                        </a>
+                    </div>
+                </div>
+            </article>
+            
+            <!-- Comments Section -->
+            <div class="comments-section">
+                <h3 class="comments-title">
+                    Комментарии <span class="count-badge">{{ total_posts_count }}</span>
+                </h3>
+                
+                {% if messages %}
+                <div class="messages mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} shadow-sm">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% if posts %}
+                <div class="comments-list">
+                    {% for post in posts %}
+                    <div class="comment" id="post-{{ post.id }}">
+                        <div class="comment-card">
+                            <div class="comment-header">
+                                {% if post.author.profile.profile_pic %}
+                                <div class="comment-author-avatar">
+                                    <img src="{{ post.author.profile.profile_pic.url }}" alt="{{ post.author.username }}">
+                                </div>
+                                {% else %}
+                                <div class="comment-author-placeholder">
+                                    {{ post.author.username|first|upper }}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="comment-author-info">
+                                    <div class="comment-author">
+                                        <a href="{% url 'user_profile' post.author.username %}">{{ post.author|user_display_name }}</a>
+                                        {% if post.author|is_admin %}
+                                        <span class="admin-badge">admin</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="comment-date">
+                                        <i class="far fa-clock"></i> {{ post.created_on|date:"d.m.Y H:i" }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="comment-body">
+                                <div class="comment-content">
+                                    {{ post.content|safe }}
+                                </div>
+                            </div>
+                            
+                            <div class="comment-footer">
+                                {% if user.is_authenticated and not topic.is_closed %}
+                                <a href="{% url 'create_post_reply' topic.category.slug topic.slug %}?reply_to={{ post.id }}" class="reply-link">
+                                    <i class="fas fa-reply"></i> Ответить
+                                </a>
+                                {% if user == post.author or user.is_staff %}
+                                <form method="post" action="{% url 'forum_post_delete' post.id %}" class="d-inline ms-3">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Вы уверены, что хотите удалить этот ответ?')">
+                                        <i class="fas fa-trash-alt"></i> Удалить
+                                    </button>
+                                </form>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if post.replies.exists %}
+                        <div class="comment-replies collapsed">
+                            <div class="comment-replies-header" onclick="toggleReplies(this)">
+                                <i class="fas fa-plus-circle"></i> <strong>Ответы ({{ post.total_replies_count }})</strong>
+                            </div>
+                            <div class="comment-replies-content">
+                                {% for reply in post.get_replies %}
+                                    {% if forloop.counter <= 5 %}
+                                        {% include 'weightloss/forum/single_reply.html' with reply=reply depth=1 %}
+                                    {% else %}
+                                        <div class="hidden-replies">
+                                            {% include 'weightloss/forum/single_reply.html' with reply=reply depth=1 %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if post.total_replies_count > 5 %}
+                                <div class="comment-replies-toggle" onclick="showMoreReplies(this)">
+                                    <i class="fas fa-angle-down"></i> Показать больше ответов
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="no-comments">
+                    <i class="far fa-comment-dots"></i>
+                    <p>Пока нет комментариев. Будьте первым, кто оставит комментарий!</p>
+                </div>
+                {% endif %}
+                
+                <!-- Comment Form -->
+                {% if user.is_authenticated and not topic.is_closed %}
+                <div class="comment-form">
+                    <h4 class="comment-form-title mt-4">Оставить комментарий</h4>
+                    <form method="post" action="{% url 'create_post_reply' topic.category.slug topic.slug %}">
+                        {% csrf_token %}
+                        {{ form.media }}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn submit-btn">
+                            <i class="fas fa-paper-plane me-2"></i>Отправить
+                        </button>
+                    </form>
+                </div>
+                {% elif not user.is_authenticated %}
+                <div class="auth-prompt">
+                    <h5 class="auth-prompt-title">Присоединяйтесь к обсуждению</h5>
+                    <p class="auth-prompt-text">Чтобы оставить комментарий, пожалуйста, войдите или зарегистрируйтесь</p>
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn auth-btn auth-btn-primary me-2">Войти</a>
+                    <a href="{% url 'register' %}" class="btn auth-btn auth-btn-outline">Регистрация</a>
+                </div>
+                {% elif topic.is_closed %}
+                <div class="alert alert-warning mt-4">
+                    <i class="fas fa-lock me-2"></i> Эта тема закрыта для дальнейших комментариев.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="blog-sidebar">
+                <!-- Topic Info Widget -->
+                <div class="sidebar-widget">
+                    <h4 class="widget-title">Информация</h4>
+                    <div class="widget-content">
+                        <ul>
+                            <li>
+                                <i class="fas fa-eye text-muted me-2"></i> Просмотров: <strong>{{ topic.views }}</strong>
+                            </li>
+                            <li>
+                                <i class="fas fa-comments text-muted me-2"></i> Комментариев: <strong>{{ total_posts_count }}</strong>
+                            </li>
+                            <li>
+                                <i class="fas fa-calendar-alt text-muted me-2"></i> Создано: <strong>{{ topic.created_on|date:"d.m.Y" }}</strong>
+                            </li>
+                            <li>
+                                <i class="fas fa-clock text-muted me-2"></i> Обновлено: <strong>{{ topic.updated_on|date:"d.m.Y" }}</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Author Widget -->
+                <div class="sidebar-widget">
+                    <h4 class="widget-title">Автор</h4>
+                    <div class="d-flex align-items-center">
+                        {% if topic.author.profile.profile_pic %}
+                        <div class="author-avatar">
+                            <img src="{{ topic.author.profile.profile_pic.url }}" alt="{{ topic.author.username }}">
+                        </div>
+                        {% else %}
+                        <div class="author-placeholder">
+                            {{ topic.author.username|first|upper }}
+                        </div>
+                        {% endif %}
+                        <div class="ms-3">
+                            <h5 class="mb-1"><a href="{% url 'user_profile' topic.author.username %}" class="text-decoration-none">{{ topic.author|user_display_name }}</a></h5>
+                            <p class="text-muted mb-0 small">
+                                <i class="fas fa-pen-alt me-1"></i> Темы: {{ topic.author.forum_topics.count }}
+                            </p>
+                            <p class="text-muted mb-0 small">
+                                <i class="fas fa-comment me-1"></i> Ответы: {{ topic.author.forum_posts.count }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Categories Widget -->
+                <div class="sidebar-widget">
+                    <h4 class="widget-title">Категории форума</h4>
+                    <div class="widget-content">
+                        <ul>
+                            {% for category in forum_categories %}
+                            <li>
+                                <a href="{% url 'forum_category' category.slug %}">
+                                    {% if category.icon %}
+                                    <i class="fas {{ category.icon }} me-2"></i>
+                                    {% endif %}
+                                    {{ category.name }} 
+                                    <span class="badge bg-light text-dark float-end">{{ category.topics_count }}</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Related Topics Widget -->
+                <div class="sidebar-widget">
+                    <h4 class="widget-title">Похожие темы</h4>
+                    <div class="widget-content">
+                        <ul>
+                            {% with recent_topics=topic.category.topics.all|slice:":6" %}
+                            {% if recent_topics %}
+                                {% for recent_topic in recent_topics %}
+                                    {% if recent_topic != topic %}
+                                    <li>
+                                        <a href="{% url 'forum_topic_detail' recent_topic.category.slug recent_topic.slug %}">
+                                            {{ recent_topic.title }}
+                                            <span class="badge bg-light text-dark float-end">{{ recent_topic.forum_posts.count }}</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <li>Нет других тем в этой категории</li>
+                            {% endif %}
+                            {% endwith %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Lazy load images
+        const images = document.querySelectorAll('.featured-image');
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.add('fade-in');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+            
+            images.forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+    });
+    
+    // Function to toggle reply sections
+    function toggleReplies(element) {
+        const repliesSection = element.closest('.comment-replies');
+        repliesSection.classList.toggle('collapsed');
+        
+        // Change the icon based on collapsed state
+        const icon = element.querySelector('i');
+        if (repliesSection.classList.contains('collapsed')) {
+            icon.classList.remove('fa-minus-circle');
+            icon.classList.add('fa-plus-circle');
+        } else {
+            icon.classList.remove('fa-plus-circle');
+            icon.classList.add('fa-minus-circle');
+        }
+    }
+    
+    // Function to show more replies
+    function showMoreReplies(element) {
+        const repliesContent = element.closest('.comment-replies-content');
+        const hiddenReplies = repliesContent.querySelectorAll('.hidden-replies');
+        
+        // Show next batch of 5 hidden replies
+        let count = 0;
+        hiddenReplies.forEach(reply => {
+            if (reply.classList.contains('hidden-replies') && count < 5) {
+                reply.classList.remove('hidden-replies');
+                count++;
+            }
+        });
+        
+        // Hide the "show more" button if no more hidden replies
+        if (repliesContent.querySelectorAll('.hidden-replies').length === 0) {
+            element.style.display = 'none';
+        }
+    }
+    
+    // Check if any nested replies are missing and fix display issues
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure all reply containers are properly initialized
+        document.querySelectorAll('.comment-replies').forEach(container => {
+            // Make sure all reply sections that should be visible are displayed correctly
+            if (!container.classList.contains('collapsed')) {
+                const header = container.querySelector('.comment-replies-header');
+                const icon = header.querySelector('i');
+                icon.classList.remove('fa-plus-circle');
+                icon.classList.add('fa-minus-circle');
+            }
+        });
+        
+        // Force scroll to the comment if it's in the URL hash
+        if (window.location.hash && window.location.hash.startsWith('#post-')) {
+            const targetComment = document.querySelector(window.location.hash);
+            if (targetComment) {
+                // Ensure all parent containers are expanded
+                let parent = targetComment.closest('.comment-replies');
+                while (parent) {
+                    parent.classList.remove('collapsed');
+                    const header = parent.querySelector('.comment-replies-header');
+                    if (header) {
+                        const icon = header.querySelector('i');
+                        icon.classList.remove('fa-plus-circle');
+                        icon.classList.add('fa-minus-circle');
+                    }
+                    parent = parent.parentElement.closest('.comment-replies');
+                }
+                
+                // Scroll to the comment with a slight delay to ensure everything is expanded
+                setTimeout(() => {
+                    targetComment.scrollIntoView({ behavior: 'smooth' });
+                    targetComment.style.animation = 'none';
+                    setTimeout(() => {
+                        targetComment.style.animation = 'highlight-comment 2s ease';
+                    }, 100);
+                }, 300);
+            }
+        }
+    });
+</script>
+
+<style>
+    @keyframes highlight-comment {
+        0% { background-color: rgba(76, 175, 80, 0.2); }
+        100% { background-color: transparent; }
+    }
+</style>
+{% endblock %} 

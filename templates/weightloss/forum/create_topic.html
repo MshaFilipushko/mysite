@@ -1,0 +1,88 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}Создание новой темы - Форум Здоровый Вес{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'forum_home' %}">Форум</a></li>
+            {% if form.initial.category %}
+            <li class="breadcrumb-item"><a href="{% url 'forum_category' form.initial.category.slug %}">{{ form.initial.category.name }}</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active" aria-current="page">Создание новой темы</li>
+        </ol>
+    </nav>
+    
+    <div class="card border-0 shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Создание новой темы</h4>
+        </div>
+        <div class="card-body p-4">
+            {% if messages %}
+            <div class="messages mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                    <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" class="form-control {% if form.title.errors %}is-invalid{% endif %}" placeholder="Введите заголовок темы" value="{{ form.title.value|default:'' }}" required>
+                    {% if form.title.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.title.errors }}
+                    </div>
+                    {% endif %}
+                    {% if form.title.help_text %}
+                    <div class="form-text">{{ form.title.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.category.id_for_label }}" class="form-label">{{ form.category.label }}</label>
+                    <select name="{{ form.category.name }}" id="{{ form.category.id_for_label }}" class="form-select {% if form.category.errors %}is-invalid{% endif %}" required>
+                        <option value="">Выберите раздел</option>
+                        {% for category in form.fields.category.queryset %}
+                        <option value="{{ category.id }}" {% if category.id == form.category.value|add:"0" or category.id == form.initial.category.id %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.category.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.category.errors }}
+                    </div>
+                    {% endif %}
+                    {% if form.category.help_text %}
+                    <div class="form-text">{{ form.category.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.content.id_for_label }}" class="form-label">{{ form.content.label }}</label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                    <div class="text-danger mt-1">
+                        {{ form.content.errors }}
+                    </div>
+                    {% endif %}
+                    {% if form.content.help_text %}
+                    <div class="form-text">{{ form.content.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">Создать тему</button>
+                    <a href="{% if form.initial.category %}{% url 'forum_category' form.initial.category.slug %}{% else %}{% url 'forum_home' %}{% endif %}" class="btn btn-outline-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

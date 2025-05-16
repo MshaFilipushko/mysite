@@ -1,0 +1,66 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}{{ challenge.title }} - Здоровый Вес{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                {% if challenge.image %}
+                <img src="{{ challenge.image.url }}" class="card-img-top" alt="{{ challenge.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <h1 class="card-title">{{ challenge.title }}</h1>
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-primary me-2">{{ challenge.duration }} дней</span>
+                        <small class="text-muted">Создан: {{ challenge.created_on|date:"d.m.Y" }}</small>
+                    </div>
+                    <div class="challenge-content">
+                        {{ challenge.description|safe }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3>Как принять участие</h3>
+                    <ol>
+                        <li>Зарегистрируйтесь на сайте или войдите в свой аккаунт</li>
+                        <li>Нажмите кнопку "Присоединиться" на этой странице</li>
+                        <li>Следуйте ежедневным заданиям в течение всего челленджа</li>
+                        <li>Отмечайте выполненные задания и делитесь прогрессом с другими участниками</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card mb-4 sticky-top" style="top:90px;">
+                <div class="card-body">
+                    <h4 class="card-title">Информация о челлендже</h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Продолжительность
+                            <span class="badge bg-primary rounded-pill">{{ challenge.duration }} дней</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Статус
+                            <span class="badge bg-success rounded-pill">Активный</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        {% if user.is_authenticated %}
+                        <button class="btn btn-primary">Присоединиться к челленджу</button>
+                        {% else %}
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">Войдите, чтобы присоединиться</a>
+                        <a href="{% url 'register' %}" class="btn btn-outline-primary">Зарегистрироваться</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

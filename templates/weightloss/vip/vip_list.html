@@ -1,0 +1,329 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block title %}VIP-раздел | {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Современный дизайн блога */
+    .blog-container {
+        padding: 40px 0;
+    }
+    
+    .blog-header {
+        background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
+        border-radius: 15px;
+        padding: 40px;
+        margin-bottom: 40px;
+        position: relative;
+        color: white;
+        box-shadow: 0 10px 30px rgba(241, 196, 15, 0.2);
+        overflow: hidden;
+    }
+    
+    .blog-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 300px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath fill='%23ffffff' fill-opacity='0.05' d='M34.5,-59.2C45.9,-51.7,57.3,-44.5,65.9,-33.4C74.5,-22.3,80.3,-7.4,78.9,6.8C77.5,21,68.9,34.4,58.4,44.3C47.9,54.1,35.4,60.4,22.1,65.2C8.8,70.1,-5.4,73.5,-18.2,70.5C-31,67.5,-42.4,58.1,-51.1,46.6C-59.8,35.1,-65.9,21.6,-68.6,7.1C-71.3,-7.3,-70.7,-22.7,-64.3,-35.4C-58,-48.1,-46,-58,-33.3,-64.6C-20.6,-71.2,-7.2,-74.6,3.4,-79.8C14,-85.1,28,-85.3,34.5,-73.2C41,-61.1,41,-46.7,34.5,-59.2Z' transform='translate(100 100)'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        opacity: 0.6;
+        z-index: 0;
+    }
+    
+    .blog-header-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .blog-title {
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: white;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .blog-description {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 80%;
+    }
+    
+    .blog-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .blog-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .blog-img-container {
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .blog-card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .blog-card:hover .blog-card-img {
+        transform: scale(1.05);
+    }
+    
+    .placeholder-img {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        color: #aaa;
+        font-size: 2rem;
+    }
+    
+    .blog-card-body {
+        padding: 25px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .blog-card-title {
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: #2c3e50;
+        font-size: 1.2rem;
+        line-height: 1.4;
+        height: 2.8em;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    
+    .blog-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        color: #95a5a6;
+        font-size: 0.9rem;
+    }
+    
+    .blog-meta-item {
+        display: flex;
+        align-items: center;
+        margin-right: 15px;
+    }
+    
+    .blog-meta-item i {
+        margin-right: 5px;
+        color: #f1c40f;
+    }
+    
+    .blog-category {
+        display: inline-block;
+        padding: 6px 15px;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
+        color: white;
+        box-shadow: 0 5px 15px rgba(241, 196, 15, 0.15);
+    }
+    
+    .blog-btn {
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
+        border: none;
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        margin-top: auto;
+    }
+    
+    .blog-btn i {
+        margin-left: 8px;
+    }
+    
+    .blog-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(241, 196, 15, 0.2);
+        color: white;
+    }
+    
+    /* Sidebar Styling */
+    .blog-sidebar {
+        position: sticky;
+        top: 90px;
+    }
+    
+    .sidebar-card {
+        background-color: white;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .sidebar-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar-header {
+        background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
+        padding: 20px;
+        color: white;
+    }
+    
+    .sidebar-title {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    
+    .vip-crown-icon {
+        color: #f1c40f;
+        margin-right: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container blog-container">
+    <!-- Header -->
+    <div class="blog-header">
+        <div class="blog-header-content">
+            <h1 class="blog-title"><i class="fas fa-crown vip-crown-icon"></i> VIP-раздел</h1>
+            <p class="blog-description">Эксклюзивные материалы для VIP-пользователей от профессиональных диетологов и фитнес-тренеров.</p>
+            {% if is_admin %}
+            <a href="{% url 'vip_post_create' %}" class="blog-btn mt-3">
+                <i class="fas fa-plus-circle mr-2"></i> Создать VIP-статью
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            {% if vip_posts %}
+            <div class="row">
+                {% for post in vip_posts %}
+                <div class="col-md-6 mb-4">
+                    <div class="blog-card">
+                        {% if post.image %}
+                        <div class="blog-img-container">
+                            <img src="{{ post.image.url }}" class="blog-card-img" alt="{{ post.title }}">
+                        </div>
+                        {% else %}
+                        <div class="blog-img-container">
+                            <div class="placeholder-img">
+                                <i class="far fa-image"></i>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="blog-card-body">
+                            <span class="blog-category"><i class="fas fa-crown"></i> VIP</span>
+                            <h5 class="blog-card-title">{{ post.title }}</h5>
+                            <div class="blog-meta">
+                                <div class="blog-meta-item">
+                                    <i class="far fa-calendar-alt"></i>
+                                    <span>{{ post.created_on|date:"d.m.Y" }}</span>
+                                </div>
+                                <div class="blog-meta-item">
+                                    <i class="far fa-user"></i>
+                                    <span>{{ post.author.username }}</span>
+                                </div>
+                            </div>
+                            <div class="mb-3">{{ post.content|truncatewords:20|safe }}</div>
+                            <a href="{% url 'vip_detail' post.slug %}" class="blog-btn">
+                                Читать статью <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-warning">
+                <p class="mb-0"><i class="fas fa-info-circle mr-2"></i> В настоящее время в VIP-разделе нет статей.</p>
+                {% if is_admin %}
+                <div class="mt-3">
+                    <a href="{% url 'vip_post_create' %}" class="blog-btn">
+                        <i class="fas fa-plus-circle mr-2"></i> Создать первую VIP-статью
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="blog-sidebar">
+                <!-- About VIP -->
+                <div class="sidebar-card mb-4">
+                    <div class="sidebar-header">
+                        <h3 class="sidebar-title"><i class="fas fa-crown"></i> VIP-привилегии</h3>
+                    </div>
+                    <div class="p-4">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><i class="fas fa-check-circle text-warning mr-2"></i> Эксклюзивные материалы</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-warning mr-2"></i> Персональные консультации</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-warning mr-2"></i> Профессиональные советы</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-warning mr-2"></i> Специальные программы тренировок</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Your VIP Status -->
+                <div class="sidebar-card">
+                    <div class="sidebar-header">
+                        <h3 class="sidebar-title">Ваш VIP-статус</h3>
+                    </div>
+                    <div class="p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-crown text-warning mr-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <strong>Текущий статус:</strong><br>
+                                <span class="badge badge-warning" style="font-size: 0.9rem;">VIP-пользователь</span>
+                                {% if request.user.profile.vip_expires_at %}
+                                <div class="text-muted small mt-1">
+                                    <i class="far fa-clock mr-1"></i> Доступ до: {{ request.user.profile.vip_expires_at|date:"d.m.Y" }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <p class="mb-0">VIP-статус даёт вам доступ к эксклюзивному контенту, созданному профессионалами для максимального результата.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

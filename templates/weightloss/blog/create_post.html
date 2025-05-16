@@ -1,0 +1,113 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}Создание статьи - Здоровый Вес{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'blog_list' %}">Блог</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'user_posts' %}">Мои статьи</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Создание статьи</li>
+        </ol>
+    </nav>
+    
+    <div class="card border-0 shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Создание новой статьи</h4>
+        </div>
+        <div class="card-body p-4">
+            {% if messages %}
+            <div class="messages mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="alert alert-info mb-4">
+                <h5 class="alert-heading">Важная информация!</h5>
+                <p>Ваша статья будет отправлена на модерацию перед публикацией. Пожалуйста, убедитесь, что она соответствует нашим правилам:</p>
+                <ul class="mb-0">
+                    <li>Уникальный контент (не копируйте материалы с других сайтов)</li>
+                    <li>Полезная информация, основанная на достоверных источниках</li>
+                    <li>Отсутствие рекламы и спама</li>
+                    <li>Корректное форматирование и отсутствие грамматических ошибок</li>
+                </ul>
+            </div>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                    <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" class="form-control {% if form.title.errors %}is-invalid{% endif %}" placeholder="Введите заголовок статьи" value="{{ form.title.value|default:'' }}" required>
+                    {% if form.title.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.title.errors }}
+                    </div>
+                    {% endif %}
+                    {% if form.title.help_text %}
+                    <div class="form-text">{{ form.title.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.category.id_for_label }}" class="form-label">{{ form.category.label }}</label>
+                    <select name="{{ form.category.name }}" id="{{ form.category.id_for_label }}" class="form-select {% if form.category.errors %}is-invalid{% endif %}" required>
+                        <option value="">Выберите категорию</option>
+                        {% for category in form.fields.category.queryset %}
+                        <option value="{{ category.id }}" {% if category.id == form.category.value|add:"0" %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.category.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.category.errors }}
+                    </div>
+                    {% endif %}
+                    {% if form.category.help_text %}
+                    <div class="form-text">{{ form.category.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.featured_image.id_for_label }}" class="form-label">{{ form.featured_image.label }}</label>
+                    <input type="file" name="{{ form.featured_image.name }}" id="{{ form.featured_image.id_for_label }}" class="form-control {% if form.featured_image.errors %}is-invalid{% endif %}">
+                    {% if form.featured_image.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.featured_image.errors }}
+                    </div>
+                    {% endif %}
+                    {% if form.featured_image.help_text %}
+                    <div class="form-text">{{ form.featured_image.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.content.id_for_label }}" class="form-label">{{ form.content.label }}</label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                    <div class="text-danger mt-1">
+                        {{ form.content.errors }}
+                    </div>
+                    {% endif %}
+                    {% if form.content.help_text %}
+                    <div class="form-text">{{ form.content.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">Отправить на модерацию</button>
+                    <a href="{% url 'user_posts' %}" class="btn btn-outline-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест Favicon - ЗдоровыйВес</title>
+    
+    <!-- Все возможные типы favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/apple-touch-icon.png">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="msapplication-TileColor" content="#4caf50">
+    <meta name="theme-color" content="#4caf50">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        h1 {
+            color: #4caf50;
+        }
+        .icon-display {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .icon-display img {
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Тест отображения Favicon - ЗдоровыйВес</h1>
+    
+    <div class="test-section">
+        <h2>Проверка иконок</h2>
+        <p>Если favicon настроен правильно, вы должны видеть иконку листика во вкладке браузера.</p>
+        
+        <div class="icon-display">
+            <img src="/static/favicon.ico" alt="Favicon ICO" width="32" height="32">
+            <span>favicon.ico (32x32)</span>
+        </div>
+        
+        <div class="icon-display">
+            <img src="/static/images/favicon.png" alt="Favicon PNG" width="32" height="32">
+            <span>favicon.png (32x32)</span>
+        </div>
+        
+        <div class="icon-display">
+            <img src="/static/images/apple-touch-icon.png" alt="Apple Touch Icon" width="32" height="32">
+            <span>apple-touch-icon.png (реальный размер 180x180)</span>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Возможные причины отсутствия favicon</h2>
+        <ol>
+            <li>Кеширование браузера - попробуйте очистить кеш или открыть в режиме инкогнито</li>
+            <li>Неправильные пути к файлам</li>
+            <li>Проблемы с настройкой статических файлов в Django</li>
+            <li>Файл favicon не обрабатывается сервером правильно</li>
+        </ol>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,69 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}Ответ на комментарий | {{ recipe.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'recipe_list' %}">Рецепты</a></li>
+            <li class="breadcrumb-item"><a href="{{ recipe.get_absolute_url }}">{{ recipe.title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Ответ на комментарий</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-light">
+                    <h1 class="h4 mb-0">Ответ на комментарий</h1>
+                </div>
+                <div class="card-body">
+                    {% if parent_comment %}
+                    <div class="original-comment p-3 mb-4 bg-light rounded">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <strong>{{ parent_comment.author.username }}</strong>
+                                <span class="text-muted ms-2">{{ parent_comment.created_on|date:"d.m.Y H:i" }}</span>
+                            </div>
+                        </div>
+                        <div class="mb-0">
+                            {{ parent_comment.content|safe }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.media }}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.content.id_for_label }}" class="form-label fw-bold mb-2">Ваш ответ</label>
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.content.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ recipe.get_absolute_url }}" class="btn btn-outline-secondary">Отмена</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Отправить ответ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ form.media }}
+{% endblock %} 

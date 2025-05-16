@@ -1,0 +1,473 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} | VIP | {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modern Blog Detail Page Styling */
+    .blog-container {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+    
+    .blog-breadcrumb {
+        margin-bottom: 30px;
+    }
+    
+    .blog-breadcrumb .breadcrumb-item a {
+        color: #f1c40f;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .blog-breadcrumb .breadcrumb-item a:hover {
+        color: #e67e22;
+        text-decoration: underline;
+    }
+    
+    .blog-header {
+        position: relative;
+        margin-bottom: 40px;
+    }
+    
+    .blog-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        line-height: 1.3;
+    }
+    
+    .blog-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+    
+    .blog-author {
+        display: flex;
+        align-items: center;
+        margin-right: 30px;
+    }
+    
+    .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 15px;
+        border: 3px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .author-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .author-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-right: 15px;
+        border: 3px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .author-info {
+        line-height: 1.3;
+    }
+    
+    .author-name {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1rem;
+    }
+    
+    .post-date {
+        color: #95a5a6;
+        font-size: 0.9rem;
+    }
+    
+    .blog-category {
+        display: inline-block;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
+        color: white;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        box-shadow: 0 5px 15px rgba(241, 196, 15, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .blog-category:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(241, 196, 15, 0.3);
+        color: white;
+    }
+    
+    .featured-image-container {
+        position: relative;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 40px;
+        max-height: 500px;
+    }
+    
+    .featured-image {
+        width: 100%;
+        object-fit: cover;
+        transition: transform 0.8s ease;
+    }
+    
+    .featured-image:hover {
+        transform: scale(1.03);
+    }
+    
+    .blog-content {
+        line-height: 1.8;
+        color: #34495e;
+        font-size: 1.1rem;
+        margin-bottom: 50px;
+    }
+    
+    .blog-content p,
+    .blog-content ul, 
+    .blog-content ol {
+        margin-bottom: 1.5rem;
+    }
+    
+    .blog-content h2, 
+    .blog-content h3, 
+    .blog-content h4 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    
+    .blog-content img {
+        max-width: 100%;
+        border-radius: 10px;
+        margin: 20px 0;
+    }
+    
+    .blog-content a {
+        color: #f1c40f;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(241, 196, 15, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .blog-content a:hover {
+        color: #e67e22;
+        border-bottom-color: #e67e22;
+    }
+    
+    /* Comments Section Styling */
+    .comments-section {
+        margin-bottom: 50px;
+    }
+    
+    .comments-header {
+        position: relative;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f1f1f1;
+    }
+    
+    .comments-title {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #2c3e50;
+        margin: 0;
+    }
+    
+    .comments-count {
+        display: inline-block;
+        padding: 5px 15px;
+        background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
+        color: white;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-left: 10px;
+    }
+    
+    .comment-form-container {
+        background: #f9f9f9;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    
+    .comment-form {
+        margin-bottom: 0;
+    }
+    
+    .comment-form-title {
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        color: #2c3e50;
+    }
+    
+    .comment-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .comment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+    
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .comment-author {
+        display: flex;
+        align-items: center;
+    }
+    
+    .comment-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 15px;
+        border: 2px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .comment-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .comment-author-name {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    .comment-date {
+        color: #95a5a6;
+        font-size: 0.9rem;
+    }
+    
+    .comment-content {
+        color: #34495e;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+    
+    .comment-actions {
+        display: flex;
+        align-items: center;
+    }
+    
+    .comment-action {
+        display: flex;
+        align-items: center;
+        margin-right: 20px;
+        color: #95a5a6;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+    
+    .comment-action i {
+        margin-right: 5px;
+    }
+    
+    .comment-action:hover {
+        color: #f1c40f;
+    }
+    
+    .comment-replies {
+        margin-left: 55px;
+        margin-top: 20px;
+        padding-left: 20px;
+        border-left: 3px solid #f1f1f1;
+    }
+    
+    /* Sidebar Styling */
+    .blog-sidebar {
+        position: sticky;
+        top: 90px;
+    }
+    
+    .sidebar-card {
+        background-color: white;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .sidebar-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar-header {
+        background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%);
+        padding: 20px;
+        color: white;
+    }
+    
+    .sidebar-title {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    
+    .vip-crown-icon {
+        color: #f1c40f;
+        margin-right: 5px;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="blog-container">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="blog-breadcrumb">
+        <ol class="breadcrumb bg-white p-0">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'vip_list' %}">VIP-раздел</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ post.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Post Header -->
+            <div class="blog-header">
+                <h1 class="blog-title">{{ post.title }}</h1>
+                <div class="blog-meta">
+                    <div class="blog-author">
+                        <div class="author-placeholder">
+                            {{ post.author.username|first }}
+                        </div>
+                        <div class="author-info">
+                            <div class="author-name">{{ post.author.username }}</div>
+                            <div class="post-date">{{ post.created_on|date:"d.m.Y" }}</div>
+                        </div>
+                    </div>
+                    <span class="blog-category">
+                        <i class="fas fa-crown"></i> VIP
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Featured Image (if exists) -->
+            {% if post.image %}
+            <div class="featured-image-container">
+                <img src="{{ post.image.url }}" alt="{{ post.title }}" class="featured-image">
+            </div>
+            {% endif %}
+            
+            <!-- Post Content -->
+            <div class="blog-content">
+                {{ post.content|safe }}
+            </div>
+            
+            <!-- Comments Section -->
+            <section class="comments-section">
+                <div class="comments-header">
+                    <h3 class="comments-title">Комментарии <span class="comments-count">{{ total_comments }}</span></h3>
+                </div>
+                
+                <div class="comment-form-container">
+                    <h4 class="comment-form-title">Оставить комментарий</h4>
+                    <form method="post" action="{% url 'vip_detail' post.slug %}" class="comment-form">
+                        {% csrf_token %}
+                        {{ comment_form.media }}
+                        <div class="form-group">
+                            {{ comment_form.content }}
+                        </div>
+                        <button type="submit" class="btn" style="background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%); color: white; border-radius: 30px; padding: 10px 25px; font-weight: 600;">
+                            <i class="far fa-paper-plane mr-2"></i> Отправить комментарий
+                        </button>
+                    </form>
+                </div>
+                
+                {% if comments %}
+                <div class="comments-list">
+                    {% for comment in comments %}
+                        {% include 'weightloss/vip/vip_comment_template.html' with comment=comment post=post level=1 %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-light text-center mt-4">
+                    <p class="mb-0">Будьте первым, кто оставит комментарий!</p>
+                </div>
+                {% endif %}
+            </section>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="blog-sidebar">
+                <!-- VIP Privileges -->
+                <div class="sidebar-card mb-4">
+                    <div class="sidebar-header">
+                        <h3 class="sidebar-title"><i class="fas fa-crown vip-crown-icon"></i> VIP-привилегии</h3>
+                    </div>
+                    <div class="p-4">
+                        <ul class="list-unstyled mb-3">
+                            <li class="mb-2"><i class="fas fa-check-circle text-warning mr-2"></i> Эксклюзивные материалы</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-warning mr-2"></i> Персональные консультации</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-warning mr-2"></i> Профессиональные советы</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-warning mr-2"></i> Специальные программы тренировок</li>
+                        </ul>
+                        
+                        {% if request.user.profile.vip_expires_at %}
+                        <div class="alert alert-warning small">
+                            <div class="d-flex align-items-center">
+                                <i class="far fa-clock mr-2" style="font-size: 1.2rem;"></i>
+                                <div>
+                                    <strong>Срок действия VIP:</strong><br>
+                                    {{ request.user.profile.vip_expires_at|date:"d.m.Y" }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <a href="{% url 'vip_list' %}" class="btn btn-block" style="background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%); color: white; border-radius: 30px; padding: 10px 20px; font-weight: 600;">
+                            <i class="fas fa-crown mr-2"></i> Все VIP-статьи
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,140 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if form.instance.pk %}Редактирование{% else %}Создание{% endif %} VIP-статьи | {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ck-editor__editable {
+        min-height: 300px;
+        max-height: 600px;
+    }
+    
+    .vip-form-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    /* Стиль для желтой карточки */
+    .vip-header {
+        background-color: #ffc107;
+        color: #212529;
+        padding: 20px;
+        border-radius: 5px 5px 0 0;
+    }
+    
+    .vip-header h1 {
+        margin: 0;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .vip-crown-icon {
+        margin-right: 10px;
+        color: #fff;
+        text-shadow: 0 0 3px rgba(0,0,0,0.3);
+    }
+    
+    .help-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'vip_list' %}">VIP-раздел</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{% if form.instance.pk %}Редактирование{% else %}Создание{% endif %} VIP-статьи</li>
+        </ol>
+    </nav>
+    
+    <div class="card border-0 shadow">
+        <div class="card-header bg-warning text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-crown me-2"></i>
+                {% if form.instance.pk %}Редактирование{% else %}Создание новой{% endif %} VIP-статьи
+            </h4>
+        </div>
+        <div class="card-body p-4">
+            {% if messages %}
+            <div class="messages mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="alert alert-warning mb-4">
+                <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Важная информация!</h5>
+                <p>VIP-статьи доступны только для пользователей с активным VIP-статусом. Пожалуйста, учитывайте это при создании контента.</p>
+                <ul class="mb-0">
+                    <li>Уникальный контент высокого качества</li>
+                    <li>Информация, которая будет полезна VIP-пользователям</li>
+                    <li>Корректное форматирование и отсутствие грамматических ошибок</li>
+                </ul>
+            </div>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                    <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" class="form-control {% if form.title.errors %}is-invalid{% endif %}" placeholder="Введите заголовок VIP-статьи" value="{{ form.title.value|default:'' }}" required>
+                    {% if form.title.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.title.errors }}
+                    </div>
+                    {% endif %}
+                    {% if form.title.help_text %}
+                    <div class="form-text">{{ form.title.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.content.id_for_label }}" class="form-label">{{ form.content.label }}</label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                    <div class="text-danger mt-1">
+                        {{ form.content.errors }}
+                    </div>
+                    {% endif %}
+                    {% if form.content.help_text %}
+                    <div class="form-text">{{ form.content.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'vip_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Вернуться
+                    </a>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save me-2"></i>
+                        {% if form.instance.pk %}Сохранить изменения{% else %}Создать статью{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ form.media }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Добавление классов Bootstrap для улучшения стиля полей
+        document.querySelectorAll('.form-control').forEach(function(element) {
+            element.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %} 

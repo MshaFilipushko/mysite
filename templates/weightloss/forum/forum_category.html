@@ -1,0 +1,312 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}{{ category.name }} - Форум Здоровый Вес{% endblock %}
+
+{% block extra_css %}
+<style>
+    .category-header {
+        background: linear-gradient(to right, #4caf50, #8bc34a);
+        padding: 30px 0;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .category-header h1 {
+        color: white;
+        font-weight: 700;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    .category-header p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 18px;
+        margin-bottom: 0;
+    }
+    .topic-item {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+        position: relative;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    .topic-item:last-child {
+        border-bottom: none;
+    }
+    .topic-item:hover {
+        transform: translateY(-2px);
+        border-left: 4px solid #4caf50;
+        background-color: #f9f9f9;
+    }
+    .topic-item::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+    }
+    .topic-item a, 
+    .topic-item .topic-meta span {
+        position: relative;
+        z-index: 2;
+    }
+    .topic-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: rgba(76, 175, 80, 0.1);
+        color: #4caf50;
+    }
+    .pinned-topic {
+        background-color: rgba(255, 193, 7, 0.05);
+        border-left: 4px solid #ffc107;
+    }
+    .closed-topic {
+        background-color: rgba(108, 117, 125, 0.05);
+    }
+    .topic-title {
+        color: #333;
+        font-weight: 600;
+        transition: color 0.2s ease;
+    }
+    .topic-item:hover .topic-title a {
+        color: #4caf50 !important;
+    }
+    .reply-count {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 70px;
+    }
+    
+    .reply-count .small {
+        font-weight: normal;
+        font-size: 11px;
+        margin-top: 2px;
+    }
+    .last-reply {
+        background-color: #f5f5f5;
+        border-radius: 8px;
+        padding: 12px;
+    }
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #4caf50;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+    .empty-category {
+        padding: 60px 0;
+        text-align: center;
+    }
+    .topic-meta {
+        color: #6c757d;
+        font-size: 13px;
+    }
+    .topic-meta i {
+        width: 16px;
+        text-align: center;
+        margin-right: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'forum_home' %}">Форум</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+        </ol>
+    </nav>
+    
+    <!-- Category Header -->
+    <div class="category-header text-center text-md-start px-4">
+        <div class="d-md-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-2">{{ category.name|safe }}</h1>
+                <p>{{ category.description|safe }}</p>
+            </div>
+            {% if user.is_authenticated %}
+            <div class="mt-3 mt-md-0">
+                <a href="{% url 'create_topic' %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i>Создать тему
+                </a>
+            </div>
+            {% else %}
+            <div class="mt-3 mt-md-0">
+                <a href="{% url 'login' %}?next={% url 'create_topic' %}" class="btn btn-light btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Войти и создать тему
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="card border-0 shadow mb-4">
+        <div class="card-header py-3">
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <h5 class="mb-0">Темы в разделе</h5>
+                </div>
+                <div class="col-md-5 text-md-end">
+                    <span class="text-muted small">Всего тем: {{ topics|length }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if topics %}
+            <div class="list-group list-group-flush">
+                {% for topic in topics %}
+                <div class="topic-item p-3 p-md-4 {% if topic.is_pinned %}pinned-topic{% endif %} {% if topic.is_closed %}closed-topic{% endif %}">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center">
+                                <div class="topic-icon me-3">
+                                    {% if topic.is_pinned and topic.is_closed %}
+                                    <i class="fas fa-thumbtack text-warning"></i>
+                                    {% elif topic.is_pinned %}
+                                    <i class="fas fa-thumbtack text-warning"></i>
+                                    {% elif topic.is_closed %}
+                                    <i class="fas fa-lock text-secondary"></i>
+                                    {% else %}
+                                    <i class="fas fa-comment-alt"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="mb-1 topic-title">
+                                        <a href="{{ topic.get_absolute_url }}" class="text-decoration-none text-dark">
+                                            {{ topic.title }}
+                                        </a>
+                                    </h5>
+                                    <div class="topic-meta">
+                                        <span><i class="fas fa-user"></i>{{ topic.author.username }}</span>
+                                        <span class="ms-3"><i class="fas fa-calendar-alt"></i>{{ topic.created_on|date:"d.m.Y" }}</span>
+                                        <span class="ms-3"><i class="fas fa-eye"></i>{{ topic.views }}</span>
+                                        
+                                        {% if topic.is_pinned %}
+                                        <span class="ms-3 text-warning"><i class="fas fa-thumbtack"></i>Закреплено</span>
+                                        {% endif %}
+                                        
+                                        {% if topic.is_closed %}
+                                        <span class="ms-3 text-secondary"><i class="fas fa-lock"></i>Закрыто</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1 text-center my-2 my-md-0">
+                            <div class="reply-count">
+                                {{ topic.replies_count }}
+                                <div class="small text-muted">
+                                    {% if topic.replies_count == 0 %}
+                                    ответов
+                                    {% elif topic.replies_count == 1 %}
+                                    ответ
+                                    {% elif topic.replies_count > 1 and topic.replies_count < 5 %}
+                                    ответа
+                                    {% else %}
+                                    ответов
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            {% with last_post=topic.last_post %}
+                            {% if last_post %}
+                            <div class="last-reply d-flex align-items-center">
+                                <div class="user-avatar me-2">
+                                    {{ last_post.author.username|first|upper }}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="small fw-medium">{{ last_post.author.username }}</div>
+                                    <div class="small text-muted">{{ last_post.created_on|date:"d.m.Y H:i" }}</div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center text-muted">
+                                <i class="fas fa-comment-slash fa-2x mb-2 opacity-50"></i>
+                                <div>Нет ответов</div>
+                            </div>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-category">
+                <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                <h4>В этой категории пока нет тем</h4>
+                <p class="text-muted mb-4">Станьте первым, кто создаст тему в этом разделе</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'create_topic' %}" class="btn btn-success">
+                    <i class="fas fa-plus-circle me-2"></i>Создать первую тему
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}?next={% url 'create_topic' %}" class="btn btn-success">
+                    <i class="fas fa-sign-in-alt me-2"></i>Войти и создать тему
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% include 'weightloss/includes/pagination.html' %}
+    
+    {% if user.is_authenticated and topics %}
+    <div class="text-center">
+        <a href="{% url 'create_topic' %}" class="btn btn-success btn-lg">
+            <i class="fas fa-plus-circle me-2"></i>Создать новую тему
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработка клика по блоку темы
+    document.querySelectorAll('.topic-item').forEach(function(topic) {
+        topic.addEventListener('click', function(e) {
+            // Если клик был не по ссылке, а по самому блоку
+            if (!e.target.closest('a')) {
+                // Находим первую ссылку в блоке (на тему)
+                const link = this.querySelector('h5 a');
+                if (link) {
+                    window.location.href = link.getAttribute('href');
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

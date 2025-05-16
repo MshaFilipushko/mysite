@@ -1,0 +1,138 @@
+/* Стили для комментариев в форуме */
+.comment {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.comment-card, .comment-reply-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    position: relative;
+}
+
+.comment-header, .comment-reply-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.comment-author-avatar, .comment-reply-author-avatar {
+    margin-right: 12px;
+}
+
+.comment-author-avatar img, .comment-reply-author-avatar img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-reply-author-avatar img {
+    width: 35px;
+    height: 35px;
+}
+
+.comment-author-placeholder {
+    background-color: #5a8dee;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+}
+
+.comment-author-info {
+    flex-grow: 1;
+}
+
+.comment-author a, .comment-reply-author a {
+    font-weight: 600;
+    color: #333;
+    text-decoration: none;
+}
+
+.comment-author a:hover, .comment-reply-author a:hover {
+    color: #5a8dee;
+}
+
+.admin-badge {
+    background-color: #ff6b6b;
+    color: white;
+    font-size: 0.7rem;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.level-indicator {
+    font-size: 0.7rem;
+    color: #888;
+    margin-left: 6px;
+}
+
+.comment-date {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.comment-body, .comment-reply-body {
+    margin-bottom: 1rem;
+}
+
+.comment-content {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #444;
+}
+
+.reply-indicator {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: #777;
+    margin-bottom: 0.5rem;
+}
+
+.comment-footer, .comment-reply-footer {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.reply-link {
+    color: #5a8dee;
+    text-decoration: none;
+}
+
+.reply-link:hover {
+    text-decoration: underline;
+}
+
+.nested-replies, .deeper-replies {
+    margin-left: 2.5rem;
+    padding-left: 1rem;
+    border-left: 2px solid #eaeaea;
+}
+
+.deeper-comment {
+    margin-top: 1rem;
+}
+
+.deeper-comment .comment-reply-card {
+    background-color: #f9f9f9;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 767px) {
+    .nested-replies, .deeper-replies {
+        margin-left: 1rem;
+        padding-left: 0.5rem;
+    }
+    
+    .comment-card, .comment-reply-card {
+        padding: 1rem;
+    }
+} 
