@@ -16,7 +16,42 @@ urlpatterns = [
     path('blog/<slug:slug>/comment/<int:comment_id>/reply/', views.CommentReplyView.as_view(), name='comment_reply'),
     path('category/<slug:slug>/', views.CategoryDetailView.as_view(), name='category_detail'),
     
-    # VIP раздел
+    # План питания (бывший VIP раздел)
+    path('meal-plan/', views.MealPlanListView.as_view(), name='meal_plan_list'),
+    path('meal-plan/calculator/', views.NutritionCalculatorView.as_view(), name='nutrition_calculator'),
+    path('meal-plan/goals/', views.NutritionGoalListView.as_view(), name='nutrition_goal_list'),
+    path('meal-plan/goals/create/', views.NutritionGoalCreateView.as_view(), name='nutrition_goal_create'),
+    path('meal-plan/goals/<int:pk>/', views.NutritionGoalDetailView.as_view(), name='nutrition_goal_detail'),
+    path('meal-plan/goals/<int:pk>/edit/', views.NutritionGoalUpdateView.as_view(), name='nutrition_goal_edit'),
+    path('meal-plan/goals/<int:pk>/delete/', views.NutritionGoalDeleteView.as_view(), name='nutrition_goal_delete'),
+    
+    # Управление планами питания
+    path('meal-plan/plans/', views.MealPlanListView.as_view(), name='meal_plan_list'),
+    path('meal-plan/plans/create/', views.MealPlanCreateView.as_view(), name='meal_plan_create'),
+    path('meal-plan/plans/<int:pk>/', views.MealPlanDetailView.as_view(), name='meal_plan_detail'),
+    path('meal-plan/plans/<int:pk>/edit/', views.MealPlanUpdateView.as_view(), name='meal_plan_edit'),
+    path('meal-plan/plans/<int:pk>/delete/', views.MealPlanDeleteView.as_view(), name='meal_plan_delete'),
+    path('meal-plan/plans/<int:plan_id>/add-meal/', views.MealCreateView.as_view(), name='meal_create'),
+    path('meal-plan/plans/<int:meal_plan_id>/auto-fill/', views.meal_plan_auto_fill, name='meal_plan_auto_fill'),
+    path('meal-plan/plans/meals/<int:pk>/edit/', views.MealUpdateView.as_view(), name='meal_edit'),
+    path('meal-plan/plans/meals/<int:pk>/delete/', views.MealDeleteView.as_view(), name='meal_delete'),
+    path('meal-plan/plans/meals/<int:meal_id>/add-item/', views.MealItemCreateView.as_view(), name='meal_item_create'),
+    path('meal-plan/plans/meal-items/<int:pk>/edit/', views.MealItemUpdateView.as_view(), name='meal_item_edit'),
+    path('meal-plan/plans/meal-items/<int:pk>/delete/', views.MealItemDeleteView.as_view(), name='meal_item_delete'),
+    
+    # Управление продуктами
+    path('meal-plan/foods/', views.FoodListView.as_view(), name='food_list'),
+    path('meal-plan/foods/create/', views.FoodCreateView.as_view(), name='food_create'),
+    path('meal-plan/foods/<int:pk>/edit/', views.FoodUpdateView.as_view(), name='food_edit'),
+    path('meal-plan/foods/<int:pk>/delete/', views.FoodDeleteView.as_view(), name='food_delete'),
+    path('meal-plan/foods/categories/', views.FoodCategoryListView.as_view(), name='food_category_list'),
+    
+    # API для плана питания
+    path('api/nutrition/calculate/', views.nutrition_calculate_api, name='nutrition_calculate_api'),
+    path('api/foods/search/', views.food_search_api, name='food_search_api'),
+    path('api/foods/create/', views.food_create_api, name='food_create_api'),
+    
+    # Сохраненные статьи VIP (для обратной совместимости)
     path('vip/', views.VIPListView.as_view(), name='vip_list'),
     path('vip/create/', views.VIPPostCreateView.as_view(), name='vip_post_create'),
     path('vip/edit/<slug:slug>/', views.VIPPostUpdateView.as_view(), name='vip_post_update'),

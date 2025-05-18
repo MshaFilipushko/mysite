@@ -436,3 +436,263 @@ class ContactMessage(models.Model):
     
     def __str__(self):
         return f'Сообщение от {self.name}: {self.subject}'
+
+# Модели для калькулятора рациона и плана питания
+class FoodCategory(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Название категории")
+    slug = models.SlugField(unique=True)
+    icon = models.CharField(max_length=50, blank=True, help_text="Font Awesome класс, напр. 'fa-apple'")
+    order = models.PositiveIntegerField(default=0)
+    
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name = "Категория продуктов"
+        verbose_name_plural = "Категории продуктов"
+    
+    def __str__(self):
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = generate_unique_slug(FoodCategory, self.name)
+        super().save(*args, **kwargs)
+
+class Food(models.Model):
+    name = models.CharField(max_length=200, verbose_name="Название продукта")
+    category = models.ForeignKey(FoodCategory, on_delete=models.CASCADE, related_name="foods", verbose_name="Категория")
+    calories = models.PositiveIntegerField(verbose_name="Калории на 100г")
+    protein = models.FloatField(verbose_name="Белки на 100г (г)")
+    fats = models.FloatField(verbose_name="Жиры на 100г (г)")
+    carbs = models.FloatField(verbose_name="Углеводы на 100г (г)")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="custom_foods", verbose_name="Пользователь")
+    is_custom = models.BooleanField(default=False, verbose_name="Пользовательский продукт")
+    image = models.ImageField(upload_to='foods/', null=True, blank=True, verbose_name="Изображение")
+    
+    class Meta:
+        ordering = ['name']
+        verbose_name = "Продукт"
+        verbose_name_plural = "Продукты"
+    
+    def __str__(self):
+        return self.name
+
+class NutritionGoal(models.Model):
+    GOAL_CHOICES = (
+        ('maintain', 'Поддерживать вес'),
+        ('lose_slow', 'Медленное похудение (-10%)'),
+        ('lose_medium', 'Среднее похудение (-15%)'),
+        ('lose_fast', 'Быстрое похудение (-20%)'),
+        ('gain_slow', 'Медленный набор (+10%)'),
+        ('gain_medium', 'Средний набор (+15%)'),
+        ('gain_fast', 'Быстрый набор (+20%)'),
+    )
+    
+    ACTIVITY_CHOICES = (
+        ('sedentary', 'Сидячий образ жизни'),
+        ('light', 'Тренировки 1-3 раза в неделю'),
+        ('moderate', 'Тренировки 3-5 раз в неделю'),
+        ('active', 'Тренировки 6-7 раз в неделю'),
+        ('very_active', 'Тяжелая физическая работа или 2 тренировки в день'),
+    )
+    
+    GENDER_CHOICES = (
+        ('male', 'Мужчина'),
+        ('female', 'Женщина'),
+    )
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="nutrition_goals", verbose_name="Пользователь")
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, verbose_name="Пол")
+    age = models.PositiveIntegerField(verbose_name="Возраст")
+    height = models.PositiveIntegerField(verbose_name="Рост (см)")
+    weight = models.FloatField(verbose_name="Вес (кг)")
+    activity_level = models.CharField(max_length=20, choices=ACTIVITY_CHOICES, verbose_name="Уровень активности")
+    goal = models.CharField(max_length=20, choices=GOAL_CHOICES, verbose_name="Цель")
+    
+    # Рассчитанные значения
+    base_calories = models.PositiveIntegerField(verbose_name="Базовые калории")
+    target_calories = models.PositiveIntegerField(verbose_name="Целевые калории")
+    protein_per_kg = models.FloatField(verbose_name="Белки на кг веса")
+    protein_daily = models.FloatField(verbose_name="Белки в день (г)")
+    fats_per_kg = models.FloatField(verbose_name="Жиры на кг веса")
+    fats_daily = models.FloatField(verbose_name="Жиры в день (г)")
+    carbs_daily = models.FloatField(verbose_name="Углеводы в день (г)")
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Цель по питанию"
+        verbose_name_plural = "Цели по питанию"
+    
+    def __str__(self):
+        return f"План питания {self.user.username}: {self.get_goal_display()}"
+    
+    def save(self, *args, **kwargs):
+        # Расчет базовых калорий на основе формулы Миффлина-Сент Жеора
+        if self.gender == 'male':
+            self.base_calories = int((10 * self.weight) + (6.25 * self.height) - (5 * self.age) + 5)
+        else:
+            self.base_calories = int((10 * self.weight) + (6.25 * self.height) - (5 * self.age) - 161)
+        
+        # Коэффициент активности
+        activity_multiplier = {
+            'sedentary': 1.2,
+            'light': 1.375,
+            'moderate': 1.55,
+            'active': 1.725,
+            'very_active': 1.9
+        }[self.activity_level]
+        
+        # Коррекция по цели
+        goal_modifier = {
+            'maintain': 1.0,
+            'lose_slow': 0.9,
+            'lose_medium': 0.85,
+            'lose_fast': 0.8,
+            'gain_slow': 1.1,
+            'gain_medium': 1.15,
+            'gain_fast': 1.2,
+        }[self.goal]
+        
+        self.target_calories = int(self.base_calories * activity_multiplier * goal_modifier)
+        
+        # Расчет макронутриентов
+        # Белок: при похудении - больше, при наборе - меньше
+        if 'lose' in self.goal:
+            self.protein_per_kg = 1.8  # 1.8г белка на кг при похудении
+        elif 'gain' in self.goal:
+            self.protein_per_kg = 2.0  # 2.0г белка на кг при наборе массы
+        else:
+            self.protein_per_kg = 1.6  # 1.6г белка на кг при поддержании
+        
+        self.protein_daily = round(self.protein_per_kg * self.weight, 1)
+        
+        # Жиры: минимум 0.8г на кг веса
+        self.fats_per_kg = 0.9
+        self.fats_daily = round(self.fats_per_kg * self.weight, 1)
+        
+        # Углеводы: оставшиеся калории
+        protein_calories = self.protein_daily * 4  # 4 ккал на 1г белка
+        fat_calories = self.fats_daily * 9  # 9 ккал на 1г жира
+        carbs_calories = self.target_calories - protein_calories - fat_calories
+        self.carbs_daily = round(carbs_calories / 4, 1)  # 4 ккал на 1г углеводов
+        
+        super().save(*args, **kwargs)
+
+class MealPlan(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="meal_plans", verbose_name="Пользователь")
+    name = models.CharField(max_length=200, verbose_name="Название плана")
+    nutrition_goal = models.ForeignKey(NutritionGoal, on_delete=models.CASCADE, related_name="meal_plans", verbose_name="Цель по питанию")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "План питания"
+        verbose_name_plural = "Планы питания"
+    
+    def __str__(self):
+        return f"{self.name} ({self.user.username})"
+    
+    def total_calories(self):
+        """Возвращает общее количество калорий в плане питания"""
+        total = 0
+        for meal in self.meals.all():
+            total += meal.total_calories()
+        return total
+    
+    def total_protein(self):
+        """Возвращает общее количество белка в плане питания"""
+        total = 0
+        for meal in self.meals.all():
+            total += meal.total_protein()
+        return total
+    
+    def total_fats(self):
+        """Возвращает общее количество жиров в плане питания"""
+        total = 0
+        for meal in self.meals.all():
+            total += meal.total_fats()
+        return total
+    
+    def total_carbs(self):
+        """Возвращает общее количество углеводов в плане питания"""
+        total = 0
+        for meal in self.meals.all():
+            total += meal.total_carbs()
+        return total
+
+class Meal(models.Model):
+    MEAL_TYPE_CHOICES = (
+        ('breakfast', 'Завтрак'),
+        ('lunch', 'Обед'),
+        ('dinner', 'Ужин'),
+        ('snack', 'Перекус'),
+    )
+    
+    plan = models.ForeignKey(MealPlan, on_delete=models.CASCADE, related_name="meals", verbose_name="План питания")
+    meal_type = models.CharField(max_length=20, choices=MEAL_TYPE_CHOICES, verbose_name="Тип приема пищи")
+    day_of_week = models.PositiveIntegerField(choices=[(i, d) for i, d in enumerate(['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'], 1)], verbose_name="День недели")
+    
+    class Meta:
+        ordering = ['day_of_week', 'meal_type']
+        verbose_name = "Прием пищи"
+        verbose_name_plural = "Приемы пищи"
+    
+    def __str__(self):
+        return f"{self.get_day_of_week_display()} - {self.get_meal_type_display()}"
+    
+    def total_calories(self):
+        """Возвращает общее количество калорий в приеме пищи"""
+        total = 0
+        for item in self.meal_items.all():
+            total += item.calories
+        return total
+    
+    def total_protein(self):
+        """Возвращает общее количество белка в приеме пищи"""
+        total = 0
+        for item in self.meal_items.all():
+            total += item.protein
+        return total
+    
+    def total_fats(self):
+        """Возвращает общее количество жиров в приеме пищи"""
+        total = 0
+        for item in self.meal_items.all():
+            total += item.fats
+        return total
+    
+    def total_carbs(self):
+        """Возвращает общее количество углеводов в приеме пищи"""
+        total = 0
+        for item in self.meal_items.all():
+            total += item.carbs
+        return total
+
+class MealItem(models.Model):
+    meal = models.ForeignKey(Meal, on_delete=models.CASCADE, related_name="meal_items", verbose_name="Прием пищи")
+    food = models.ForeignKey(Food, on_delete=models.CASCADE, related_name="meal_items", verbose_name="Продукт")
+    amount = models.PositiveIntegerField(verbose_name="Количество (г)")
+    
+    # Рассчитываемые поля
+    calories = models.PositiveIntegerField(verbose_name="Калории", editable=False)
+    protein = models.FloatField(verbose_name="Белки (г)", editable=False)
+    fats = models.FloatField(verbose_name="Жиры (г)", editable=False)
+    carbs = models.FloatField(verbose_name="Углеводы (г)", editable=False)
+    
+    class Meta:
+        verbose_name = "Продукт в рационе"
+        verbose_name_plural = "Продукты в рационе"
+    
+    def __str__(self):
+        return f"{self.food.name} ({self.amount}г)"
+    
+    def save(self, *args, **kwargs):
+        # Рассчитываем питательную ценность на основе количества
+        self.calories = int(self.food.calories * self.amount / 100)
+        self.protein = round(self.food.protein * self.amount / 100, 1)
+        self.fats = round(self.food.fats * self.amount / 100, 1)
+        self.carbs = round(self.food.carbs * self.amount / 100, 1)
+        super().save(*args, **kwargs)

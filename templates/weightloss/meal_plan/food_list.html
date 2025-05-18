@@ -1,0 +1,297 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block title %}База продуктов{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/meal_plan.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Hero секция -->
+            <div class="meal-plan-hero mb-4 animated">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h2 class="display-4 mb-3">База продуктов</h2>
+                        <p class="lead mb-4">Просматривайте питательную ценность продуктов и добавляйте их в свой рацион для достижения целей</p>
+                        <div class="d-flex flex-wrap">
+                            <a href="{% url 'meal_plan_list' %}" class="btn btn-light btn-lg me-2 mb-2">
+                                <i class="fas fa-arrow-left me-2"></i> К планам питания
+                            </a>
+                            <a href="{% url 'food_create' %}" class="btn btn-outline-light btn-lg mb-2">
+                                <i class="fas fa-plus me-2"></i> Добавить продукт
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-none d-md-flex align-items-center justify-content-center">
+                        <i class="fas fa-apple-alt fa-5x text-white opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Основная карточка с содержимым -->
+            <div class="meal-plan-card mb-4 animated" style="animation-delay: 0.1s;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="h4 mb-0"><i class="fas fa-search me-2"></i> Поиск продуктов</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-lg-8 mb-3 mb-lg-0">
+                            <form method="get" class="d-flex flex-column flex-md-row align-items-center">
+                                <div class="input-group me-md-2 mb-2 mb-md-0 food-search">
+                                    <input type="text" name="search" class="form-control border-0" placeholder="Введите название продукта..." value="{{ search_form }}">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary" type="submit">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-2 mb-md-0 me-md-2">
+                                    <select name="category" class="form-select" onchange="this.form.submit()">
+                                        <option value="">Все категории</option>
+                                        {% for category, count in categories_with_counts %}
+                                            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"i" %}selected{% endif %}>
+                                                {{ category.name }} ({{ count }})
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% if search_form or selected_category %}
+                                    <a href="{% url 'food_list' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-1"></i> Сбросить
+                                    </a>
+                                {% endif %}
+                            </form>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="btn-group w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary px-4" id="show-all-btn">
+                                    <i class="fas fa-list me-1"></i> Все
+                                </button>
+                                <button type="button" class="btn btn-outline-primary px-4" id="show-base-btn">
+                                    <i class="fas fa-database me-1"></i> Базовые
+                                </button>
+                                <button type="button" class="btn btn-outline-primary px-4" id="show-custom-btn">
+                                    <i class="fas fa-user me-1"></i> Мои
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Категории в виде горизонтальных карточек -->
+                    <div class="row mb-4 category-tiles animated" style="animation-delay: 0.2s;">
+                        {% for category, count in categories_with_counts %}
+                            <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                                <a href="{% url 'food_list' %}?category={{ category.id }}" class="text-decoration-none">
+                                    <div class="food-category-card h-100 p-3 text-center {% if selected_category == category.id|stringformat:"i" %}active{% endif %}">
+                                        <div class="category-icon mb-2">
+                                            <i class="fas {% if category.icon %}{{ category.icon }}{% else %}fa-utensils{% endif %}"></i>
+                                        </div>
+                                        <h5 class="mb-1">{{ category.name }}</h5>
+                                        <p class="text-muted small mb-0">{{ count }} продуктов</p>
+                                    </div>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Таблица продуктов -->
+                    <div class="table-responsive animated" style="animation-delay: 0.3s;">
+                        <table class="table table-hover food-table">
+                            <thead>
+                                <tr>
+                                    <th>Название</th>
+                                    <th>Категория</th>
+                                    <th class="text-center">Калории</th>
+                                    <th class="text-center">Белки</th>
+                                    <th class="text-center">Жиры</th>
+                                    <th class="text-center">Углеводы</th>
+                                    <th class="text-center">Тип</th>
+                                    <th class="text-center">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for food in foods %}
+                                    <tr class="food-item {% if food.is_custom %}custom-food{% else %}base-food{% endif %}">
+                                        <td>
+                                            <strong>{{ food.name }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">
+                                                <i class="fas {% if food.category.icon %}{{ food.category.icon }}{% else %}fa-utensils{% endif %} me-1"></i>
+                                                {{ food.category.name }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="macro-badge calories">{{ food.calories }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="macro-badge protein">{{ food.protein }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="macro-badge fat">{{ food.fats }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="macro-badge carbs">{{ food.carbs }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            {% if food.is_custom %}
+                                                <span class="badge bg-success">Мой</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Базовый</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                {% if food.is_custom %}
+                                                    <a href="{% url 'food_edit' food.pk %}" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Изменить">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="{% url 'food_delete' food.pk %}" class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Удалить">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                {% else %}
+                                                    <button type="button" class="btn btn-outline-success copy-food" data-id="{{ food.id }}" data-name="{{ food.name }}" data-bs-toggle="tooltip" title="Копировать в мои">
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center py-5">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                                <p class="lead mb-0">Продукты не найдены</p>
+                                                <p class="text-muted">{% if search_form or selected_category %}Попробуйте изменить параметры поиска.{% endif %}</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Пагинация -->
+                    {% if is_paginated %}
+                        <nav aria-label="Навигация по страницам" class="mt-3">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% if search_form %}search={{ search_form }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}page=1">
+                                            <i class="fas fa-angle-double-left"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% if search_form %}search={{ search_form }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                                            <i class="fas fa-angle-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?{% if search_form %}search={{ search_form }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% if search_form %}search={{ search_form }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ page_obj.next_page_number }}">
+                                            <i class="fas fa-angle-right"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% if search_form %}search={{ search_form }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ page_obj.paginator.num_pages }}">
+                                            <i class="fas fa-angle-double-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white py-3">
+                    <div class="text-center">
+                        <a href="{% url 'food_create' %}" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i> Добавить свой продукт
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Инициализация всплывающих подсказок
+        $('[data-bs-toggle="tooltip"]').tooltip();
+        
+        // Фильтрация продуктов по типу
+        $('#show-all-btn').click(function() {
+            $('.food-item').show();
+            $('.btn-group .btn').removeClass('active');
+            $(this).addClass('active');
+        });
+        
+        $('#show-base-btn').click(function() {
+            $('.food-item').hide();
+            $('.base-food').show();
+            $('.btn-group .btn').removeClass('active');
+            $(this).addClass('active');
+        });
+        
+        $('#show-custom-btn').click(function() {
+            $('.food-item').hide();
+            $('.custom-food').show();
+            $('.btn-group .btn').removeClass('active');
+            $(this).addClass('active');
+        });
+        
+        // Активация первой кнопки по умолчанию
+        $('#show-all-btn').addClass('active');
+        
+        // Копирование базового продукта в пользовательские
+        $('.copy-food').click(function() {
+            var foodId = $(this).data('id');
+            var foodName = $(this).data('name');
+            
+            if (confirm('Хотите создать копию продукта "' + foodName + '" в своих продуктах?')) {
+                // Тут можно добавить AJAX-запрос к API для копирования продукта
+                // или открыть модальное окно для редактирования перед сохранением копии
+            }
+        });
+        
+        // Анимация при прокрутке страницы
+        function revealOnScroll() {
+            var reveals = document.querySelectorAll('.animated');
+            
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 150;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add('visible');
+                }
+            }
+        }
+        
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll(); // Вызываем функцию при загрузке страницы
+    });
+</script>
+{% endblock %} 

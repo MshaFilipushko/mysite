@@ -1,0 +1,187 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block title %}Цели питания{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h1 class="h3 mb-0">Цели питания</h1>
+                    <div>
+                        <a href="{% url 'meal_plan_list' %}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-arrow-left"></i> К списку планов питания
+                        </a>
+                        <a href="{% url 'nutrition_goal_edit' goal.pk %}" class="btn btn-light btn-sm ml-2">
+                            <i class="fas fa-edit"></i> Редактировать
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Информация о целях питания -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header bg-success text-white">
+                                    <h2 class="h5 mb-0">Основная информация</h2>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Пол
+                                            <span class="badge bg-primary rounded-pill">{{ goal.get_gender_display }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Возраст
+                                            <span class="badge bg-primary rounded-pill">{{ goal.age }} лет</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Рост
+                                            <span class="badge bg-primary rounded-pill">{{ goal.height }} см</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Вес
+                                            <span class="badge bg-primary rounded-pill">{{ goal.weight }} кг</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Активность
+                                            <span class="badge bg-info rounded-pill">{{ goal.get_activity_level_display }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Цель
+                                            <span class="badge bg-success rounded-pill">{{ goal.get_goal_display }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card h-100">
+                                <div class="card-header bg-info text-white">
+                                    <h2 class="h5 mb-0">Потребности в питании</h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-4">
+                                        <div class="col-12">
+                                            <div class="alert alert-success text-center">
+                                                <h3 class="display-4">{{ goal.target_calories }}</h3>
+                                                <p class="lead">ккал/день</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4 text-center">
+                                            <div class="nutrient-box bg-primary text-white p-3 rounded mb-3">
+                                                <h5>Белки</h5>
+                                                <p class="h3">{{ goal.protein_daily }}</p>
+                                                <small>г/сутки ({{ goal.protein_per_kg }} г/кг)</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <div class="nutrient-box bg-warning text-dark p-3 rounded mb-3">
+                                                <h5>Жиры</h5>
+                                                <p class="h3">{{ goal.fats_daily }}</p>
+                                                <small>г/сутки ({{ goal.fats_per_kg }} г/кг)</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <div class="nutrient-box bg-danger text-white p-3 rounded mb-3">
+                                                <h5>Углеводы</h5>
+                                                <p class="h3">{{ goal.carbs_daily }}</p>
+                                                <small>г/сутки</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <h4>Распределение калорий:</h4>
+                                        <div class="progress" style="height: 25px;">
+                                            <!-- Примерные проценты для визуализации -->
+                                            <div class="progress-bar bg-primary" style="width: 25%">
+                                                Белки
+                                            </div>
+                                            <div class="progress-bar bg-warning" style="width: 35%">
+                                                Жиры
+                                            </div>
+                                            <div class="progress-bar bg-danger" style="width: 40%">
+                                                Углеводы
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Планы питания -->
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="h4">Планы питания на основе этих целей</h2>
+                            <a href="{% url 'meal_plan_create' %}" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus"></i> Создать план питания
+                            </a>
+                        </div>
+                        
+                        {% if meal_plans %}
+                        <div class="row">
+                            {% for plan in meal_plans %}
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-light">
+                                        <h3 class="h5 mb-0">{{ plan.name }}</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><small class="text-muted">Создан: {{ plan.created_at|date:"d.m.Y" }}</small></p>
+                                        <a href="{% url 'meal_plan_detail' plan.pk %}" class="btn btn-primary btn-sm">Просмотреть план</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <p class="mb-0">У вас пока нет планов питания на основе этих целей. Создайте свой первый план!</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <a href="{% url 'meal_plan_list' %}" class="btn btn-secondary">Назад к списку</a>
+                        <a href="{% url 'nutrition_goal_edit' goal.pk %}" class="btn btn-primary">Редактировать цели</a>
+                        <a href="{% url 'nutrition_goal_delete' goal.pk %}" class="btn btn-danger">Удалить</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Расчет процентов для прогресс-бара
+        const proteinCalories = {{ goal.protein_daily }} * 4; // 4 ккал на 1г белка
+        const fatCalories = {{ goal.fats_daily }} * 9; // 9 ккал на 1г жира
+        const carbCalories = {{ goal.carbs_daily }} * 4; // 4 ккал на 1г углеводов
+        const totalCalories = {{ goal.target_calories }};
+        
+        // Расчет процентов
+        const proteinPercent = (proteinCalories / totalCalories) * 100;
+        const fatPercent = (fatCalories / totalCalories) * 100;
+        const carbPercent = (carbCalories / totalCalories) * 100;
+        
+        // Обновление прогресс-бара
+        document.querySelector('.progress-bar.bg-primary').style.width = proteinPercent + '%';
+        document.querySelector('.progress-bar.bg-warning').style.width = fatPercent + '%';
+        document.querySelector('.progress-bar.bg-danger').style.width = carbPercent + '%';
+        
+        // Добавление текста с процентами
+        document.querySelector('.progress-bar.bg-primary').textContent = 'Белки ' + Math.round(proteinPercent) + '%';
+        document.querySelector('.progress-bar.bg-warning').textContent = 'Жиры ' + Math.round(fatPercent) + '%';
+        document.querySelector('.progress-bar.bg-danger').textContent = 'Углеводы ' + Math.round(carbPercent) + '%';
+    });
+</script>
+{% endblock %} 

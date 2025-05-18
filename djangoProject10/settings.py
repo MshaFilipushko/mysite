@@ -28,9 +28,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-1v-gl_5n-)js#%x(zegif777#@3fs$*h(e&7nxy@-r)4vec7&g')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['zdovoviyves.ru', 'www.zdovoviyves.ru']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -98,11 +98,8 @@ WSGI_APPLICATION = 'djangoProject10.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'u3118324_default',
-        'USER': 'u3118324_default',
-        'PASSWORD': 'sM43lbK0j6FN05uU',
-        'HOST': 'localhost',  # Попробуйте сначала localhost
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -242,8 +239,6 @@ X_FRAME_OPTIONS = 'DENY'
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
-    'https://zdovoviyves.ru',
-    'https://www.zdovoviyves.ru'
 ]
 
 # Crispy Forms settings

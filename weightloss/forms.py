@@ -1,10 +1,11 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import UserProfile, Post, ForumTopic, ForumPost, Category, Comment, Recipe, RecipeComment, VIPPost, VIPComment
+from .models import UserProfile, Post, ForumTopic, ForumPost, Category, Comment, Recipe, RecipeComment, VIPPost, VIPComment, NutritionGoal, Food, MealPlan, Meal, MealItem
 from django.utils.text import slugify
 import random
 import string
+from django.db import models
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, help_text="Обязательное поле")
@@ -275,4 +276,108 @@ class VIPCommentForm(forms.ModelForm):
             instance.parent = self.parent_comment
         if commit:
             instance.save()
-        return instance 
+        return instance
+
+# Формы для плана питания
+class NutritionGoalForm(forms.ModelForm):
+    class Meta:
+        model = NutritionGoal
+        fields = ['gender', 'age', 'height', 'weight', 'activity_level', 'goal']
+        widgets = {
+            'gender': forms.RadioSelect,
+            'activity_level': forms.RadioSelect,
+            'goal': forms.RadioSelect,
+        }
+
+class FoodForm(forms.ModelForm):
+    class Meta:
+        model = Food
+        fields = ['name', 'category', 'calories', 'protein', 'fats', 'carbs']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'category': forms.Select(attrs={'class': 'form-control'}),
+            'calories': forms.NumberInput(attrs={'class': 'form-control'}),
+            'protein': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
+            'fats': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
+            'carbs': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.user:
+            instance.user = self.user
+            instance.is_custom = True
+        if commit:
+            instance.save()
+        return instance
+
+class MealPlanForm(forms.ModelForm):
+    class Meta:
+        model = MealPlan
+        fields = ['name', 'nutrition_goal']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'nutrition_goal': forms.Select(attrs={'class': 'form-control'}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if self.user:
+            self.fields['nutrition_goal'].queryset = NutritionGoal.objects.filter(user=self.user)
+        
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.user:
+            instance.user = self.user
+        if commit:
+            instance.save()
+        return instance
+
+class MealForm(forms.ModelForm):
+    class Meta:
+        model = Meal
+        fields = ['meal_type', 'day_of_week']
+        widgets = {
+            'meal_type': forms.Select(attrs={'class': 'form-control'}),
+            'day_of_week': forms.Select(attrs={'class': 'form-control'}),
+        }
+        
+class MealItemForm(forms.ModelForm):
+    class Meta:
+        model = MealItem
+        fields = ['food', 'amount']
+        widgets = {
+            'food': forms.Select(attrs={'class': 'form-control food-select'}),
+            'amount': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Отображаем как общие продукты, так и пользовательские продукты текущего пользователя
+        if self.user:
+            self.fields['food'].queryset = Food.objects.filter(
+                models.Q(is_custom=False) | models.Q(is_custom=True, user=self.user)
+            )
+        else:
+            self.fields['food'].queryset = Food.objects.filter(is_custom=False)
+
+# Форма для быстрого добавления продукта при создании плана питания
+class QuickFoodForm(forms.ModelForm):
+    class Meta:
+        model = Food
+        fields = ['name', 'category', 'calories', 'protein', 'fats', 'carbs']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Название продукта'}),
+            'category': forms.Select(attrs={'class': 'form-control'}),
+            'calories': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ккал на 100г'}),
+            'protein': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'placeholder': 'Белки, г'}),
+            'fats': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'placeholder': 'Жиры, г'}),
+            'carbs': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'placeholder': 'Углеводы, г'}),
+        } 

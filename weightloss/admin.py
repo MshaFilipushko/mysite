@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Category, Post, Recipe, Challenge, UserProfile, ForumCategory, ForumTopic, ForumPost, Notification, VIPPost, VIPComment, ContactMessage
+from .models import (
+    Category, Post, Comment, Recipe, RecipeComment, Challenge, 
+    UserProfile, ForumCategory, ForumTopic, ForumPost, Notification, 
+    ContactMessage, VIPPost, VIPComment,
+    # Модели плана питания
+    FoodCategory, Food, NutritionGoal, MealPlan, Meal, MealItem
+)
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -135,3 +141,57 @@ class ContactMessageAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} сообщений отмечено как прочитанные.')
     
     mark_as_read.short_description = "Отметить выбранные сообщения как прочитанные"
+
+# Админка для плана питания
+class FoodCategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'order')
+    list_editable = ('order',)
+    prepopulated_fields = {'slug': ('name',)}
+    
+admin.site.register(FoodCategory, FoodCategoryAdmin)
+
+class FoodAdmin(admin.ModelAdmin):
+    list_display = ('name', 'category', 'calories', 'protein', 'fats', 'carbs', 'is_custom', 'user')
+    list_filter = ('category', 'is_custom')
+    search_fields = ('name',)
+    list_per_page = 20
+    
+admin.site.register(Food, FoodAdmin)
+
+class NutritionGoalAdmin(admin.ModelAdmin):
+    list_display = ('user', 'gender', 'age', 'weight', 'activity_level', 'goal', 'target_calories')
+    list_filter = ('gender', 'activity_level', 'goal')
+    search_fields = ('user__username',)
+    readonly_fields = ('base_calories', 'target_calories', 'protein_daily', 'fats_daily', 'carbs_daily')
+    
+admin.site.register(NutritionGoal, NutritionGoalAdmin)
+
+class MealInline(admin.TabularInline):
+    model = Meal
+    extra = 0
+
+class MealPlanAdmin(admin.ModelAdmin):
+    list_display = ('name', 'user', 'nutrition_goal', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('name', 'user__username')
+    inlines = [MealInline]
+    
+admin.site.register(MealPlan, MealPlanAdmin)
+
+class MealItemInline(admin.TabularInline):
+    model = MealItem
+    extra = 0
+
+class MealAdmin(admin.ModelAdmin):
+    list_display = ('plan', 'meal_type', 'day_of_week', 'total_calories')
+    list_filter = ('meal_type', 'day_of_week')
+    inlines = [MealItemInline]
+    
+admin.site.register(Meal, MealAdmin)
+
+class MealItemAdmin(admin.ModelAdmin):
+    list_display = ('meal', 'food', 'amount', 'calories', 'protein', 'fats', 'carbs')
+    list_filter = ('meal__meal_type',)
+    search_fields = ('food__name',)
+    
+admin.site.register(MealItem, MealItemAdmin)

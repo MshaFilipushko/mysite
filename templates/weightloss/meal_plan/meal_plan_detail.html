@@ -1,0 +1,734 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+{% load weight_filters %}
+
+{% block title %}{{ meal_plan.name }} - План питания{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/meal_plan.css' %}">
+<style>
+    /* Стили для вкладок дней недели */
+    .nav-pills .nav-link.active, 
+    .nav-pills .show > .nav-link {
+        background-color: #FFD700 !important;
+        color: #000 !important;
+        font-weight: bold !important;
+    }
+    
+    /* Hover эффект для неактивных вкладок */
+    .nav-pills .nav-link:not(.active):hover {
+        background-color: #fff8c5;
+    }
+    
+    /* Анимация при выборе вкладки */
+    .nav-pills .nav-link {
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Hero секция -->
+            <div class="meal-plan-hero mb-4 animated">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h2 class="display-4 mb-3">{{ meal_plan.name }}</h2>
+                        <p class="lead mb-4">Ваш персональный план питания с распределением нутриентов по дням недели</p>
+                        <div class="d-flex flex-wrap">
+                            <a href="{% url 'meal_plan_list' %}" class="btn btn-light btn-lg me-2 mb-2">
+                                <i class="fas fa-arrow-left me-2"></i> К списку планов
+                            </a>
+                            <a href="{% url 'meal_plan_edit' meal_plan.pk %}" class="btn btn-outline-light btn-lg mb-2">
+                                <i class="fas fa-edit me-2"></i> Редактировать
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-none d-md-flex align-items-center justify-content-center">
+                        <i class="fas fa-clipboard-list fa-5x text-white opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Основная карточка с содержимым -->
+            <div class="meal-plan-card mb-4 animated" style="animation-delay: 0.1s;">
+                <!-- Информация о плане питания -->
+                <div class="card-body p-0">
+                    <div class="card mb-0 border-0">
+                        <div class="card-header" style="background: linear-gradient(135deg, #4caf50, #8bc34a); color: white;">
+                            <h2 class="h4 mb-0"><i class="fas fa-info-circle me-2"></i> Информация о плане</h2>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div class="d-flex mb-3">
+                                        <div class="me-4">
+                                            <i class="fas fa-calendar-alt fa-2x text-muted"></i>
+                                        </div>
+                                        <div>
+                                            <h5>Даты</h5>
+                                            <p class="mb-1"><strong>Создан:</strong> {{ meal_plan.created_at|date:"d.m.Y" }}</p>
+                                            <p class="mb-0"><strong>Обновлен:</strong> {{ meal_plan.updated_at|date:"d.m.Y" }}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex">
+                                        <div class="me-4">
+                                            <i class="fas fa-bullseye fa-2x text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h5>Цель питания</h5>
+                                            {% if meal_plan.nutrition_goal %}
+                                                <a href="{% url 'nutrition_goal_detail' meal_plan.nutrition_goal.pk %}" class="btn btn-sm btn-primary">
+                                                    {{ meal_plan.nutrition_goal.get_goal_display }}
+                                                </a>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Не указана</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% if meal_plan.nutrition_goal %}
+                                <div class="col-md-5">
+                                    <div class="card shadow-sm h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><i class="fas fa-chart-pie me-2 text-success"></i>Целевые макронутриенты</h5>
+                                            
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span>Калории</span>
+                                                    <span class="fw-bold">{{ meal_plan.nutrition_goal.target_calories }} ккал</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-danger" style="width: 100%"></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span>Белки</span>
+                                                    <span class="fw-bold">{{ meal_plan.nutrition_goal.protein_daily|floatformat:1 }} г</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-info" style="width: 100%"></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span>Жиры</span>
+                                                    <span class="fw-bold">{{ meal_plan.nutrition_goal.fats_daily|floatformat:1 }} г</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-warning" style="width: 100%"></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div>
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span>Углеводы</span>
+                                                    <span class="fw-bold">{{ meal_plan.nutrition_goal.carbs_daily|floatformat:1 }} г</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Рацион по дням недели -->
+                    <div class="card border-0">
+                        <div class="card-header bg-white p-4 d-flex justify-content-between align-items-center">                            
+                            <h2 class="h4 mb-0"><i class="fas fa-utensils me-2 text-primary"></i>Рацион на неделю</h2>                            
+                            <div>                                
+                                <!-- Убираем AJAX кнопку и меняем стиль для POST формы -->                                
+                                <form method="post" action="{% url 'meal_plan_auto_fill' meal_plan.id %}">                                    
+                                    {% csrf_token %}                                    
+                                    <button type="submit" class="btn btn-success">                                        
+                                        <i class="fas fa-magic me-2"></i> Заполнить автоматически                                    
+                                    </button>                                
+                                </form>                            
+                            </div>                        
+                        </div>
+                        
+                        <div class="card-body p-4">
+                            {% csrf_token %}
+                            
+                            <ul class="nav nav-pills mb-4" id="mealDaysTabs" role="tablist">
+                                {% for day_number, meals, day_totals in days_data %}
+                                    <li class="nav-item me-2 mb-2" role="presentation">
+                                        <button class="nav-link {% if forloop.first %}active{% endif %}" 
+                                           id="day-{{ day_number }}-tab" 
+                                           data-bs-toggle="tab" 
+                                           data-bs-target="#day-{{ day_number }}" 
+                                           type="button"
+                                           role="tab"
+                                           aria-controls="day-{{ day_number }}"
+                                           aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                            {{ meals.0.get_day_of_week_display }}
+                                        </button>
+                                    </li>
+                                {% empty %}
+                                    <li class="nav-item">
+                                        <span class="nav-link disabled">Нет данных</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            
+                            <div class="tab-content" id="mealDaysContent">
+                                {% for day_number, meals, day_totals in days_data %}
+                                    <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+                                         id="day-{{ day_number }}" 
+                                         role="tabpanel"
+                                         aria-labelledby="day-{{ day_number }}-tab">
+                                        
+                                        <div class="day-card mb-4 animated" style="animation-delay: 0.2s;">
+                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-calendar-day text-primary me-2"></i>
+                                                    <span class="day-name">{{ meals.0.get_day_of_week_display }}</span>
+                                                </div>
+                                                <div class="d-flex">
+                                                    <span class="macro-badge calories me-2">{{ day_totals.calories }} ккал</span>
+                                                    <span class="macro-badge protein me-2">Б: {{ day_totals.protein|floatformat:1 }}г</span>
+                                                    <span class="macro-badge fat me-2">Ж: {{ day_totals.fats|floatformat:1 }}г</span>
+                                                    <span class="macro-badge carbs">У: {{ day_totals.carbs|floatformat:1 }}г</span>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <!-- ЗАВТРАК -->
+                                                {% for meal in meals %}
+                                                    {% if meal.meal_type == 'breakfast' %}
+                                                    <div class="meal-section mb-4 pb-4 {% if not forloop.last %}border-bottom{% endif %}">
+                                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="meal-icon">
+                                                                    <i class="fas fa-mug-hot"></i>
+                                                                </div>
+                                                                <h4 class="h5 mb-0">{{ meal.get_meal_type_display }}</h4>
+                                                            </div>
+                                                            <div>
+                                                                <a href="{% url 'meal_item_create' meal.id %}" class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-plus me-1"></i> Добавить продукт
+                                                                </a>
+                                                                <a href="{% url 'meal_edit' meal.id %}" class="btn btn-sm btn-outline-secondary ms-1">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        {% if meal.meal_items.all %}
+                                                            <div class="table-responsive">
+                                                                <table class="table food-table">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Продукт</th>
+                                                                            <th>Кол-во</th>
+                                                                            <th class="text-center">Калории</th>
+                                                                            <th class="text-center">БЖУ</th>
+                                                                            <th class="text-center">Действия</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {% for item in meal.meal_items.all %}
+                                                                            <tr>
+                                                                                <td><strong>{{ item.food.name }}</strong></td>
+                                                                                <td>{{ item.amount }} г.</td>
+                                                                                <td class="text-center">
+                                                                                    <span class="macro-badge calories">
+                                                                                        {{ item.food.calories|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td class="text-center">
+                                                                                    <span class="macro-badge protein me-1" title="Белки">
+                                                                                        Б: {{ item.food.protein|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                    <span class="macro-badge fat me-1" title="Жиры">
+                                                                                        Ж: {{ item.food.fats|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                    <span class="macro-badge carbs" title="Углеводы">
+                                                                                        У: {{ item.food.carbs|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td class="text-center">
+                                                                                    <div class="btn-group btn-group-sm">
+                                                                                        <a href="{% url 'meal_item_edit' item.id %}" class="btn btn-outline-primary" title="Редактировать">
+                                                                                            <i class="fas fa-edit"></i>
+                                                                                        </a>
+                                                                                        <a href="{% url 'meal_item_delete' item.id %}" class="btn btn-outline-danger" title="Удалить">
+                                                                                            <i class="fas fa-trash"></i>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                    <tfoot>
+                                                                        <tr class="bg-light">
+                                                                            <th colspan="2">Итого:</th>
+                                                                            <th class="text-center">{{ meal.total_calories }} ккал</th>
+                                                                            <td class="text-center">
+                                                                                <span class="badge bg-primary me-1">Б: {{ meal.total_protein|floatformat:1 }}г</span>
+                                                                                <span class="badge bg-warning me-1">Ж: {{ meal.total_fats|floatformat:1 }}г</span>
+                                                                                <span class="badge bg-success">У: {{ meal.total_carbs|floatformat:1 }}г</span>
+                                                                            </td>
+                                                                            <th></th>
+                                                                        </tr>
+                                                                    </tfoot>
+                                                                </table>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="alert alert-light">
+                                                                <div class="d-flex align-items-center">
+                                                                    <i class="fas fa-info-circle me-3 text-primary fa-2x"></i>
+                                                                    <div>
+                                                                        <p class="mb-2">Нет добавленных продуктов для этого приема пищи</p>
+                                                                        <a href="{% url 'meal_item_create' meal.id %}" class="btn btn-sm btn-primary">
+                                                                            <i class="fas fa-plus me-1"></i> Добавить продукт
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% endif %}
+                                                {% endfor %}
+
+                                                <!-- ОБЕД -->
+                                                {% for meal in meals %}
+                                                    {% if meal.meal_type == 'lunch' %}
+                                                    <div class="meal-section mb-4 pb-4 {% if not forloop.last %}border-bottom{% endif %}">
+                                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="meal-icon">
+                                                                    <i class="fas fa-utensils"></i>
+                                                                </div>
+                                                                <h4 class="h5 mb-0">{{ meal.get_meal_type_display }}</h4>
+                                                            </div>
+                                                            <div>
+                                                                <a href="{% url 'meal_item_create' meal.id %}" class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-plus me-1"></i> Добавить продукт
+                                                                </a>
+                                                                <a href="{% url 'meal_edit' meal.id %}" class="btn btn-sm btn-outline-secondary ms-1">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        {% if meal.meal_items.all %}
+                                                            <div class="table-responsive">
+                                                                <table class="table food-table">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Продукт</th>
+                                                                            <th>Кол-во</th>
+                                                                            <th class="text-center">Калории</th>
+                                                                            <th class="text-center">БЖУ</th>
+                                                                            <th class="text-center">Действия</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {% for item in meal.meal_items.all %}
+                                                                            <tr>
+                                                                                <td><strong>{{ item.food.name }}</strong></td>
+                                                                                <td>{{ item.amount }} г.</td>
+                                                                                <td class="text-center">
+                                                                                    <span class="macro-badge calories">
+                                                                                        {{ item.food.calories|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td class="text-center">
+                                                                                    <span class="macro-badge protein me-1" title="Белки">
+                                                                                        Б: {{ item.food.protein|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                    <span class="macro-badge fat me-1" title="Жиры">
+                                                                                        Ж: {{ item.food.fats|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                    <span class="macro-badge carbs" title="Углеводы">
+                                                                                        У: {{ item.food.carbs|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td class="text-center">
+                                                                                    <div class="btn-group btn-group-sm">
+                                                                                        <a href="{% url 'meal_item_edit' item.id %}" class="btn btn-outline-primary" title="Редактировать">
+                                                                                            <i class="fas fa-edit"></i>
+                                                                                        </a>
+                                                                                        <a href="{% url 'meal_item_delete' item.id %}" class="btn btn-outline-danger" title="Удалить">
+                                                                                            <i class="fas fa-trash"></i>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                    <tfoot>
+                                                                        <tr class="bg-light">
+                                                                            <th colspan="2">Итого:</th>
+                                                                            <th class="text-center">{{ meal.total_calories }} ккал</th>
+                                                                            <td class="text-center">
+                                                                                <span class="badge bg-primary me-1">Б: {{ meal.total_protein|floatformat:1 }}г</span>
+                                                                                <span class="badge bg-warning me-1">Ж: {{ meal.total_fats|floatformat:1 }}г</span>
+                                                                                <span class="badge bg-success">У: {{ meal.total_carbs|floatformat:1 }}г</span>
+                                                                            </td>
+                                                                            <th></th>
+                                                                        </tr>
+                                                                    </tfoot>
+                                                                </table>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="alert alert-light">
+                                                                <div class="d-flex align-items-center">
+                                                                    <i class="fas fa-info-circle me-3 text-primary fa-2x"></i>
+                                                                    <div>
+                                                                        <p class="mb-2">Нет добавленных продуктов для этого приема пищи</p>
+                                                                        <a href="{% url 'meal_item_create' meal.id %}" class="btn btn-sm btn-primary">
+                                                                            <i class="fas fa-plus me-1"></i> Добавить продукт
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% endif %}
+                                                {% endfor %}
+
+                                                <!-- УЖИН -->
+                                                {% for meal in meals %}
+                                                    {% if meal.meal_type == 'dinner' %}
+                                                    <div class="meal-section mb-4 pb-4 {% if not forloop.last %}border-bottom{% endif %}">
+                                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="meal-icon">
+                                                                    <i class="fas fa-hamburger"></i>
+                                                                </div>
+                                                                <h4 class="h5 mb-0">{{ meal.get_meal_type_display }}</h4>
+                                                            </div>
+                                                            <div>
+                                                                <a href="{% url 'meal_item_create' meal.id %}" class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-plus me-1"></i> Добавить продукт
+                                                                </a>
+                                                                <a href="{% url 'meal_edit' meal.id %}" class="btn btn-sm btn-outline-secondary ms-1">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        {% if meal.meal_items.all %}
+                                                            <div class="table-responsive">
+                                                                <table class="table food-table">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Продукт</th>
+                                                                            <th>Кол-во</th>
+                                                                            <th class="text-center">Калории</th>
+                                                                            <th class="text-center">БЖУ</th>
+                                                                            <th class="text-center">Действия</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {% for item in meal.meal_items.all %}
+                                                                            <tr>
+                                                                                <td><strong>{{ item.food.name }}</strong></td>
+                                                                                <td>{{ item.amount }} г.</td>
+                                                                                <td class="text-center">
+                                                                                    <span class="macro-badge calories">
+                                                                                        {{ item.food.calories|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td class="text-center">
+                                                                                    <span class="macro-badge protein me-1" title="Белки">
+                                                                                        Б: {{ item.food.protein|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                    <span class="macro-badge fat me-1" title="Жиры">
+                                                                                        Ж: {{ item.food.fats|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                    <span class="macro-badge carbs" title="Углеводы">
+                                                                                        У: {{ item.food.carbs|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td class="text-center">
+                                                                                    <div class="btn-group btn-group-sm">
+                                                                                        <a href="{% url 'meal_item_edit' item.id %}" class="btn btn-outline-primary" title="Редактировать">
+                                                                                            <i class="fas fa-edit"></i>
+                                                                                        </a>
+                                                                                        <a href="{% url 'meal_item_delete' item.id %}" class="btn btn-outline-danger" title="Удалить">
+                                                                                            <i class="fas fa-trash"></i>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                    <tfoot>
+                                                                        <tr class="bg-light">
+                                                                            <th colspan="2">Итого:</th>
+                                                                            <th class="text-center">{{ meal.total_calories }} ккал</th>
+                                                                            <td class="text-center">
+                                                                                <span class="badge bg-primary me-1">Б: {{ meal.total_protein|floatformat:1 }}г</span>
+                                                                                <span class="badge bg-warning me-1">Ж: {{ meal.total_fats|floatformat:1 }}г</span>
+                                                                                <span class="badge bg-success">У: {{ meal.total_carbs|floatformat:1 }}г</span>
+                                                                            </td>
+                                                                            <th></th>
+                                                                        </tr>
+                                                                    </tfoot>
+                                                                </table>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="alert alert-light">
+                                                                <div class="d-flex align-items-center">
+                                                                    <i class="fas fa-info-circle me-3 text-primary fa-2x"></i>
+                                                                    <div>
+                                                                        <p class="mb-2">Нет добавленных продуктов для этого приема пищи</p>
+                                                                        <a href="{% url 'meal_item_create' meal.id %}" class="btn btn-sm btn-primary">
+                                                                            <i class="fas fa-plus me-1"></i> Добавить продукт
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% endif %}
+                                                {% endfor %}
+
+                                                <!-- ПЕРЕКУС -->
+                                                {% for meal in meals %}
+                                                    {% if meal.meal_type == 'snack' %}
+                                                    <div class="meal-section mb-4 pb-4 {% if not forloop.last %}border-bottom{% endif %}">
+                                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="meal-icon">
+                                                                    <i class="fas fa-apple-alt"></i>
+                                                                </div>
+                                                                <h4 class="h5 mb-0">{{ meal.get_meal_type_display }}</h4>
+                                                            </div>
+                                                            <div>
+                                                                <a href="{% url 'meal_item_create' meal.id %}" class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-plus me-1"></i> Добавить продукт
+                                                                </a>
+                                                                <a href="{% url 'meal_edit' meal.id %}" class="btn btn-sm btn-outline-secondary ms-1">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        {% if meal.meal_items.all %}
+                                                            <div class="table-responsive">
+                                                                <table class="table food-table">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Продукт</th>
+                                                                            <th>Кол-во</th>
+                                                                            <th class="text-center">Калории</th>
+                                                                            <th class="text-center">БЖУ</th>
+                                                                            <th class="text-center">Действия</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {% for item in meal.meal_items.all %}
+                                                                            <tr>
+                                                                                <td><strong>{{ item.food.name }}</strong></td>
+                                                                                <td>{{ item.amount }} г.</td>
+                                                                                <td class="text-center">
+                                                                                    <span class="macro-badge calories">
+                                                                                        {{ item.food.calories|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td class="text-center">
+                                                                                    <span class="macro-badge protein me-1" title="Белки">
+                                                                                        Б: {{ item.food.protein|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                    <span class="macro-badge fat me-1" title="Жиры">
+                                                                                        Ж: {{ item.food.fats|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                    <span class="macro-badge carbs" title="Углеводы">
+                                                                                        У: {{ item.food.carbs|mul:item.amount|div:100|floatformat:1 }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td class="text-center">
+                                                                                    <div class="btn-group btn-group-sm">
+                                                                                        <a href="{% url 'meal_item_edit' item.id %}" class="btn btn-outline-primary" title="Редактировать">
+                                                                                            <i class="fas fa-edit"></i>
+                                                                                        </a>
+                                                                                        <a href="{% url 'meal_item_delete' item.id %}" class="btn btn-outline-danger" title="Удалить">
+                                                                                            <i class="fas fa-trash"></i>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                    <tfoot>
+                                                                        <tr class="bg-light">
+                                                                            <th colspan="2">Итого:</th>
+                                                                            <th class="text-center">{{ meal.total_calories }} ккал</th>
+                                                                            <td class="text-center">
+                                                                                <span class="badge bg-primary me-1">Б: {{ meal.total_protein|floatformat:1 }}г</span>
+                                                                                <span class="badge bg-warning me-1">Ж: {{ meal.total_fats|floatformat:1 }}г</span>
+                                                                                <span class="badge bg-success">У: {{ meal.total_carbs|floatformat:1 }}г</span>
+                                                                            </td>
+                                                                            <th></th>
+                                                                        </tr>
+                                                                    </tfoot>
+                                                                </table>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="alert alert-light">
+                                                                <div class="d-flex align-items-center">
+                                                                    <i class="fas fa-info-circle me-3 text-primary fa-2x"></i>
+                                                                    <div>
+                                                                        <p class="mb-2">Нет добавленных продуктов для этого приема пищи</p>
+                                                                        <a href="{% url 'meal_item_create' meal.id %}" class="btn btn-sm btn-primary">
+                                                                            <i class="fas fa-plus me-1"></i> Добавить продукт
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                
+                                                <!-- Сводка за день -->
+                                                <div class="mt-4 p-3 rounded" style="background-color: var(--light-accent);">
+                                                    <h5><i class="fas fa-chart-pie me-2"></i>Итоги за день</h5>
+                                                    <div class="row text-center mt-3">
+                                                        <div class="col-md-3 mb-3">
+                                                            <div class="shadow-sm p-3 rounded bg-white">
+                                                                <i class="fas fa-fire-alt text-danger fa-lg mb-2"></i>
+                                                                <h6>Калории</h6>
+                                                                <span class="h4 fw-bold text-danger">{{ day_totals.calories }}</span>
+                                                                <span class="d-block small text-muted">ккал</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3 mb-3">
+                                                            <div class="shadow-sm p-3 rounded bg-white">
+                                                                <i class="fas fa-drumstick-bite text-info fa-lg mb-2"></i>
+                                                                <h6>Белки</h6>
+                                                                <span class="h4 fw-bold text-info">{{ day_totals.protein|floatformat:1 }}</span>
+                                                                <span class="d-block small text-muted">грамм</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3 mb-3">
+                                                            <div class="shadow-sm p-3 rounded bg-white">
+                                                                <i class="fas fa-cheese text-warning fa-lg mb-2"></i>
+                                                                <h6>Жиры</h6>
+                                                                <span class="h4 fw-bold text-warning">{{ day_totals.fats|floatformat:1 }}</span>
+                                                                <span class="d-block small text-muted">грамм</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3 mb-3">
+                                                            <div class="shadow-sm p-3 rounded bg-white">
+                                                                <i class="fas fa-bread-slice text-success fa-lg mb-2"></i>
+                                                                <h6>Углеводы</h6>
+                                                                <span class="h4 fw-bold text-success">{{ day_totals.carbs|floatformat:1 }}</span>
+                                                                <span class="d-block small text-muted">грамм</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% empty %}
+                                    <div class="alert alert-info">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-info-circle fa-2x me-3"></i>
+                                            <div>
+                                                <h5 class="mb-1">Нет данных о приемах пищи</h5>
+                                                <p class="mb-0">Не найдены приемы пищи в этом плане питания. Возможно, произошла ошибка при создании плана.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-white p-4">
+                        <div class="text-center">
+                            <a href="{% url 'meal_plan_list' %}" class="btn btn-secondary btn-lg me-2">
+                                <i class="fas fa-arrow-left me-2"></i> К списку планов
+                            </a>
+                            <a href="{% url 'meal_plan_edit' meal_plan.pk %}" class="btn btn-primary btn-lg me-2">
+                                <i class="fas fa-edit me-2"></i> Редактировать
+                            </a>
+                            <a href="{% url 'meal_plan_delete' meal_plan.pk %}" class="btn btn-danger btn-lg">
+                                <i class="fas fa-trash me-2"></i> Удалить
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Инициализация всплывающих подсказок
+    $('[title]').tooltip();
+    
+    // Добавляем стиль для активной вкладки дня недели
+    const activeColor = '#FFD700'; // Ярко-желтый цвет
+    const activeTextColor = '#000000'; // Черный текст для лучшей читаемости
+    
+    // Функция для установки стилей активной вкладки
+    function setActiveTabStyle(element) {
+        // Сбрасываем стили всех вкладок
+        $('.nav-pills .nav-link').css({
+            'background-color': '',
+            'color': '',
+            'font-weight': ''
+        });
+        
+        // Устанавливаем стили для активной вкладки
+        $(element).css({
+            'background-color': activeColor,
+            'color': activeTextColor,
+            'font-weight': 'bold'
+        });
+    }
+    
+    // Обработка клика по вкладке
+    $('.nav-pills .nav-link').on('click', function() {
+        setActiveTabStyle(this);
+    });
+    
+    // Устанавливаем стили для активной вкладки при загрузке страницы
+    setActiveTabStyle($('.nav-pills .nav-link.active'));
+    
+    // Обработчик события для Bootstrap табов
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        setActiveTabStyle(e.target);
+    });
+    
+    // Анимация при прокрутке страницы
+    function revealOnScroll() {
+        const reveals = document.querySelectorAll('.animated');
+        
+        for (let i = 0; i < reveals.length; i++) {
+            const windowHeight = window.innerHeight;
+            const elementTop = reveals[i].getBoundingClientRect().top;
+            const elementVisible = 150;
+            
+            if (elementTop < windowHeight - elementVisible) {
+                reveals[i].classList.add('visible');
+            }
+        }
+    }
+    
+    window.addEventListener('scroll', revealOnScroll);
+    revealOnScroll(); // Вызываем функцию при загрузке страницы
+});
+</script>
+{% endblock %} 

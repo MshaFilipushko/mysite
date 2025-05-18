@@ -1,0 +1,498 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+
+{% block title %}Калькулятор питания{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/meal_plan.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Hero секция -->
+            <div class="meal-plan-hero mb-4 animated">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h2 class="display-4 mb-3">Калькулятор питания</h2>
+                        <p class="lead mb-4">Рассчитайте свои индивидуальные потребности в калориях и нутриентах для достижения ваших целей</p>
+                        <div class="d-flex">
+                            <a href="{% url 'meal_plan_list' %}" class="btn btn-light btn-lg me-2">
+                                <i class="fas fa-arrow-left me-2"></i> К планам питания
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-none d-md-flex align-items-center justify-content-center">
+                        <i class="fas fa-calculator fa-5x text-white opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Калькулятор -->
+            <div class="meal-plan-card calculator-container mb-4 animated" style="animation-delay: 0.1s;">
+                <div class="card-body">
+                    <form method="post" id="nutrition-calculator-form">
+                        {% csrf_token %}
+                        
+                        <!-- Шаг 1: Расчет текущих потребностей -->
+                        <div class="card border-0 shadow-sm mb-4 animated" style="animation-delay: 0.2s;">
+                            <div class="card-header" style="background: linear-gradient(135deg, #4caf50, #8bc34a); color: white;">
+                                <h2 class="h5 mb-0"><i class="fas fa-user-circle me-2"></i> Шаг 1 из 3. Расчет текущих потребностей</h2>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="form-group mb-4">
+                                    <label class="fw-bold mb-3">Выберите пол</label>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-check custom-radio">
+                                                <input class="form-check-input" type="radio" name="gender" id="gender_male" value="male" required>
+                                                <label class="form-check-label d-flex align-items-center" for="gender_male">
+                                                    <i class="fas fa-mars text-primary me-2"></i> Мужчина
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="form-check custom-radio">
+                                                <input class="form-check-input" type="radio" name="gender" id="gender_female" value="female">
+                                                <label class="form-check-label d-flex align-items-center" for="gender_female">
+                                                    <i class="fas fa-venus text-danger me-2"></i> Женщина
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-4">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-group">
+                                            <label for="age" class="form-label fw-bold">
+                                                <i class="fas fa-birthday-cake me-2 text-primary"></i>Возраст
+                                            </label>
+                                            <input type="number" class="form-control form-control-lg" id="age" name="age" min="10" max="120" placeholder="Лет" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-group">
+                                            <label for="height" class="form-label fw-bold">
+                                                <i class="fas fa-ruler-vertical me-2 text-success"></i>Рост
+                                            </label>
+                                            <input type="number" class="form-control form-control-lg" id="height" name="height" min="100" max="250" placeholder="см" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-group">
+                                            <label for="weight" class="form-label fw-bold">
+                                                <i class="fas fa-weight me-2 text-warning"></i>Вес
+                                            </label>
+                                            <input type="number" class="form-control form-control-lg" id="weight" name="weight" min="30" max="300" step="0.1" placeholder="кг" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label class="fw-bold mb-3"><i class="fas fa-running me-2 text-danger"></i>Выберите уровень активности:</label>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="radio" name="activity_level" id="activity_sedentary" value="sedentary" required>
+                                        <label class="form-check-label" for="activity_sedentary">
+                                            <span class="fw-bold">Сидячий</span> - минимальная физическая активность или её отсутствие
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="radio" name="activity_level" id="activity_light" value="light">
+                                        <label class="form-check-label" for="activity_light">
+                                            <span class="fw-bold">Лёгкая активность</span> - активные виды спорта не менее 30 мин 3 раза в неделю
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="radio" name="activity_level" id="activity_moderate" value="moderate">
+                                        <label class="form-check-label" for="activity_moderate">
+                                            <span class="fw-bold">Средняя активность</span> - тренировки 3-5 раз в неделю
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="radio" name="activity_level" id="activity_active" value="active">
+                                        <label class="form-check-label" for="activity_active">
+                                            <span class="fw-bold">Активный образ жизни</span> - тренировки 6-7 раз в неделю
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="radio" name="activity_level" id="activity_very_active" value="very_active">
+                                        <label class="form-check-label" for="activity_very_active">
+                                            <span class="fw-bold">Очень активный образ жизни</span> - тяжелый физический труд + ежедневные тренировки
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Шаг 2: Выбор цели -->
+                        <div class="card border-0 shadow-sm mb-4 animated" style="animation-delay: 0.3s;">
+                            <div class="card-header" style="background: linear-gradient(135deg, #4caf50, #8bc34a); color: white;">
+                                <h2 class="h5 mb-0"><i class="fas fa-bullseye me-2"></i> Шаг 2 из 3. Выбор цели</h2>
+                            </div>
+                            <div class="card-body p-4">
+                                <p class="lead mb-4">Определите вашу цель. В зависимости от выбранной цели будет скорректирован ваш дневной калораж.</p>
+                                
+                                <div class="row">
+                                    <div class="col-lg-4 mb-3">
+                                        <div class="form-check p-3 bg-light rounded">
+                                            <input class="form-check-input" type="radio" name="goal" id="goal_maintain" value="maintain" required>
+                                            <label class="form-check-label fw-bold" for="goal_maintain">
+                                                <i class="fas fa-balance-scale me-2 text-primary"></i>Поддерживать вес
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-4 mb-3">
+                                        <div class="form-check p-3 bg-light rounded">
+                                            <input class="form-check-input" type="radio" name="goal" id="goal_lose_slow" value="lose_slow">
+                                            <label class="form-check-label fw-bold" for="goal_lose_slow">
+                                                <i class="fas fa-tachometer-alt me-2 text-success"></i>Терять вес медленно (-10%)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-4 mb-3">
+                                        <div class="form-check p-3 bg-light rounded">
+                                            <input class="form-check-input" type="radio" name="goal" id="goal_lose_medium" value="lose_medium">
+                                            <label class="form-check-label fw-bold" for="goal_lose_medium">
+                                                <i class="fas fa-tachometer-alt me-2 text-warning"></i>Терять вес средне (-15%)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-4 mb-3">
+                                        <div class="form-check p-3 bg-light rounded">
+                                            <input class="form-check-input" type="radio" name="goal" id="goal_lose_fast" value="lose_fast">
+                                            <label class="form-check-label fw-bold" for="goal_lose_fast">
+                                                <i class="fas fa-tachometer-alt me-2 text-danger"></i>Терять вес быстро (-20%)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-4 mb-3">
+                                        <div class="form-check p-3 bg-light rounded">
+                                            <input class="form-check-input" type="radio" name="goal" id="goal_gain_slow" value="gain_slow">
+                                            <label class="form-check-label fw-bold" for="goal_gain_slow">
+                                                <i class="fas fa-plus-circle me-2 text-success"></i>Набирать вес медленно (+10%)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-4 mb-3">
+                                        <div class="form-check p-3 bg-light rounded">
+                                            <input class="form-check-input" type="radio" name="goal" id="goal_gain_medium" value="gain_medium">
+                                            <label class="form-check-label fw-bold" for="goal_gain_medium">
+                                                <i class="fas fa-plus-circle me-2 text-warning"></i>Набирать вес средне (+15%)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-4 mb-3">
+                                        <div class="form-check p-3 bg-light rounded">
+                                            <input class="form-check-input" type="radio" name="goal" id="goal_gain_fast" value="gain_fast">
+                                            <label class="form-check-label fw-bold" for="goal_gain_fast">
+                                                <i class="fas fa-plus-circle me-2 text-danger"></i>Набирать вес быстро (+20%)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Шаг 3: Расчет нутриентов -->
+                        <div class="card border-0 shadow-sm mb-4 animated" style="animation-delay: 0.4s;">
+                            <div class="card-header" style="background: linear-gradient(135deg, #4caf50, #8bc34a); color: white;">
+                                <h2 class="h5 mb-0"><i class="fas fa-chart-pie me-2"></i> Шаг 3 из 3. Расчет нутриентов в рационе</h2>
+                            </div>
+                            <div class="card-body p-4">
+                                <p class="lead mb-4">После расчета калорий система автоматически распределит их по макронутриентам: белкам, жирам и углеводам.</p>
+                                
+                                <div id="calculation-results" class="d-none calculator-results">
+                                    <div class="row mb-4">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label for="protein_ratio" class="form-label fw-bold"><i class="fas fa-drumstick-bite me-2 text-info"></i>Белки:</label>
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control form-control-lg" id="protein_ratio" name="protein_ratio" step="0.05" min="0.5" max="3">
+                                                    <span class="input-group-text">г/кг</span>
+                                                </div>
+                                                <small class="form-text text-muted">
+                                                    <span id="protein_daily" class="fw-bold">0</span> г. в день, или <span id="protein_calories" class="fw-bold">0</span> ккал из дневного калоража.
+                                                </small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label for="fat_ratio" class="form-label fw-bold"><i class="fas fa-cheese me-2 text-warning"></i>Жиры:</label>
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control form-control-lg" id="fat_ratio" name="fat_ratio" step="0.05" min="0.4" max="2">
+                                                    <span class="input-group-text">г/кг</span>
+                                                </div>
+                                                <small class="form-text text-muted">
+                                                    <span id="fat_daily" class="fw-bold">0</span> г. в день, или <span id="fat_calories" class="fw-bold">0</span> ккал из дневного калоража.
+                                                </small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group">
+                                                <label for="carbs_daily" class="form-label fw-bold"><i class="fas fa-bread-slice me-2 text-success"></i>Углеводы:</label>
+                                                <div class="input-group">
+                                                    <input type="number" class="form-control form-control-lg" id="carbs_daily" name="carbs_daily" readonly>
+                                                    <span class="input-group-text">г/день</span>
+                                                </div>
+                                                <small class="form-text text-muted">
+                                                    <span id="carbs_calories" class="fw-bold">0</span> ккал из дневного калоража.
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="card shadow-sm border-0 mb-4">
+                                        <div class="card-body p-4">
+                                            <h4 class="mb-4 text-center">Ваш идеальный рацион должен содержать:</h4>
+                                            <div class="row text-center">
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="shadow-sm p-4 rounded-3 h-100" style="background-color: var(--light-accent);">
+                                                        <i class="fas fa-fire-alt fa-2x mb-3 text-danger"></i>
+                                                        <h5>Калории</h5>
+                                                        <p class="display-5 fw-bold text-danger" id="total_calories">0</p>
+                                                        <span class="text-muted">ккал в день</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="shadow-sm p-4 rounded-3 h-100" style="background-color: var(--light-accent);">
+                                                        <i class="fas fa-drumstick-bite fa-2x mb-3 text-info"></i>
+                                                        <h5>Белки</h5>
+                                                        <p class="display-5 fw-bold text-info" id="protein_display">0</p>
+                                                        <span class="text-muted">г/сутки</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="shadow-sm p-4 rounded-3 h-100" style="background-color: var(--light-accent);">
+                                                        <i class="fas fa-cheese fa-2x mb-3 text-warning"></i>
+                                                        <h5>Жиры</h5>
+                                                        <p class="display-5 fw-bold text-warning" id="fat_display">0</p>
+                                                        <span class="text-muted">г/сутки</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="shadow-sm p-4 rounded-3 h-100" style="background-color: var(--light-accent);">
+                                                        <i class="fas fa-bread-slice fa-2x mb-3 text-success"></i>
+                                                        <h5>Углеводы</h5>
+                                                        <p class="display-5 fw-bold text-success" id="carbs_display">0</p>
+                                                        <span class="text-muted">г/сутки</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mb-4">
+                            <button type="button" id="calculate-btn" class="btn btn-primary btn-lg me-2">
+                                <i class="fas fa-calculator me-2"></i> Посчитать!
+                            </button>
+                            <button type="submit" id="save-btn" class="btn btn-success btn-lg me-2 d-none">
+                                <i class="fas fa-save me-2"></i> Сохранить цели питания
+                            </button>
+                            <a href="{% url 'meal_plan_list' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i> К списку планов питания
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calculateBtn = document.getElementById('calculate-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const calculationResults = document.getElementById('calculation-results');
+    
+    calculateBtn.addEventListener('click', function() {
+        // Валидация полей перед отправкой
+        const gender = document.querySelector('input[name="gender"]:checked')?.value;
+        const age = parseInt(document.getElementById('age').value);
+        const height = parseInt(document.getElementById('height').value);
+        const weight = parseFloat(document.getElementById('weight').value);
+        const activityLevel = document.querySelector('input[name="activity_level"]:checked')?.value;
+        const goal = document.querySelector('input[name="goal"]:checked')?.value;
+        
+        // Удаляем предыдущие ошибки
+        const prevError = this.parentElement.querySelector('.alert-danger');
+        if (prevError) {
+            prevError.remove();
+        }
+        
+        // Проверка на заполнение всех полей
+        let hasErrors = false;
+        let errorMessage = '';
+        
+        if (!gender) {
+            errorMessage += 'Выберите пол. ';
+            hasErrors = true;
+        }
+        
+        if (isNaN(age) || age <= 0 || age > 120) {
+            errorMessage += 'Укажите корректный возраст (1-120 лет). ';
+            hasErrors = true;
+        }
+        
+        if (isNaN(height) || height <= 0 || height > 250) {
+            errorMessage += 'Укажите корректный рост (до 250 см). ';
+            hasErrors = true;
+        }
+        
+        if (isNaN(weight) || weight <= 0 || weight > 300) {
+            errorMessage += 'Укажите корректный вес (до 300 кг). ';
+            hasErrors = true;
+        }
+        
+        if (!activityLevel) {
+            errorMessage += 'Выберите уровень активности. ';
+            hasErrors = true;
+        }
+        
+        if (!goal) {
+            errorMessage += 'Выберите цель. ';
+            hasErrors = true;
+        }
+        
+        if (hasErrors) {
+            // Отображаем сообщение об ошибке
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger mt-3';
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>' + errorMessage;
+            this.parentElement.appendChild(errorDiv);
+            return; // Прерываем выполнение функции
+        }
+        
+        // Выполнение AJAX-запроса для расчетов
+        fetch('/api/nutrition/calculate/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken') // Функция getCookie определена ниже
+            },
+            body: JSON.stringify({
+                gender: gender,
+                age: age,
+                height: height,
+                weight: weight,
+                activity_level: activityLevel,
+                goal: goal
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Ошибка HTTP: статус ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Отображение результатов
+            document.getElementById('total_calories').textContent = data.target_calories;
+            document.getElementById('protein_ratio').value = data.protein_daily / weight;
+            document.getElementById('protein_daily').textContent = data.protein_daily;
+            document.getElementById('protein_display').textContent = data.protein_daily;
+            document.getElementById('protein_calories').textContent = Math.round(data.protein_daily * 4);
+            
+            document.getElementById('fat_ratio').value = data.fats_daily / weight;
+            document.getElementById('fat_daily').textContent = data.fats_daily;
+            document.getElementById('fat_display').textContent = data.fats_daily;
+            document.getElementById('fat_calories').textContent = Math.round(data.fats_daily * 9);
+            
+            document.getElementById('carbs_daily').value = data.carbs_daily;
+            document.getElementById('carbs_display').textContent = data.carbs_daily;
+            document.getElementById('carbs_calories').textContent = Math.round(data.carbs_daily * 4);
+            
+            // Показ результатов и кнопки сохранения
+            calculationResults.classList.remove('d-none');
+            saveBtn.classList.remove('d-none');
+            
+            // Прокрутка к результатам
+            window.scrollTo({
+                top: calculationResults.offsetTop - 100,
+                behavior: 'smooth'
+            });
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            let errorMsg = 'Произошла ошибка при расчете. ';
+            
+            if (error.message) {
+                errorMsg += error.message;
+            } else {
+                errorMsg += 'Пожалуйста, проверьте введенные данные и попробуйте снова.';
+            }
+            
+            alert(errorMsg);
+            // Также можно добавить сообщение об ошибке непосредственно в интерфейс калькулятора
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger mt-3';
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>' + errorMsg;
+            
+            const btnContainer = calculateBtn.parentElement;
+            
+            // Удаляем предыдущее сообщение об ошибке, если оно есть
+            const prevError = btnContainer.querySelector('.alert-danger');
+            if (prevError) {
+                prevError.remove();
+            }
+            
+            btnContainer.appendChild(errorDiv);
+        });
+    });
+    
+    // Функция для получения CSRF токена из куки
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Анимация при прокрутке страницы
+    function revealOnScroll() {
+        const reveals = document.querySelectorAll('.animated');
+        
+        for (let i = 0; i < reveals.length; i++) {
+            const windowHeight = window.innerHeight;
+            const elementTop = reveals[i].getBoundingClientRect().top;
+            const elementVisible = 150;
+            
+            if (elementTop < windowHeight - elementVisible) {
+                reveals[i].classList.add('visible');
+            }
+        }
+    }
+    
+    window.addEventListener('scroll', revealOnScroll);
+    revealOnScroll(); // Вызываем функцию при загрузке страницы
+});
+</script>
+{% endblock %} 

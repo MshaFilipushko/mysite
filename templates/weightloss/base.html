@@ -253,23 +253,15 @@
                         <a class="nav-link {% if '/blog/' in request.path %}active{% endif %}" href="{% url 'blog_list' %}">Блог</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {% if '/recipes/' in request.path or '/challenges/' in request.path or '/calculators/' in request.path %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle {% if '/recipes/' in request.path or '/challenges/' in request.path or '/calculators/' in request.path or '/meal-plan/' in request.path %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Полезности
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{% url 'recipe_list' %}">Рецепты</a></li>
                             <li><a class="dropdown-item" href="{% url 'challenge_list' %}">Челленджи</a></li>
                             <li><a class="dropdown-item" href="{% url 'calculators' %}">Калькуляторы</a></li>
+                            <li><a class="dropdown-item" href="{% url 'meal_plan_list' %}">План питания</a></li>
                         </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if '/vip/' in request.path %}active{% endif %}" href="{% url 'vip_list' %}">
-                            {% if user.is_authenticated and user.profile.is_vip %}
-                                <span class="badge badge-warning">VIP</span>
-                            {% else %}
-                                VIP
-                            {% endif %}
-                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if '/forum/' in request.path %}active{% endif %}" href="{% url 'forum_home' %}">Форум</a>

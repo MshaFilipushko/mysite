@@ -1,0 +1,30 @@
+{% extends 'weightloss/base.html' %}
+
+{% block title %}Удаление продукта{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h1 class="h3 mb-0">Удаление продукта</h1>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <p>Вы действительно хотите удалить продукт <strong>{{ object.food.name }}</strong> ({{ object.amount }}г) из приема пищи <strong>{{ object.meal.get_meal_type_display }}</strong>?</p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-danger">Да, удалить</button>
+                            <a href="{% url 'meal_plan_detail' object.meal.plan.pk %}" class="btn btn-secondary">Отмена</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

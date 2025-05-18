@@ -1,0 +1,136 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+{% if object %}Редактирование целей питания{% else %}Новые цели питания{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h1 class="h3 mb-0">{% if object %}Редактирование целей питания{% else %}Новые цели питания{% endif %}</h1>
+                    <a href="{% url 'meal_plan_list' %}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-arrow-left"></i> Назад к планам питания
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <p class="lead">
+                                    Заполните данные для расчета вашей потребности в калориях и питательных веществах.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Основные данные -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h2 class="h5 mb-0">Основные данные</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.gender|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.age|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {{ form.height|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.weight|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Уровень активности -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h2 class="h5 mb-0">Уровень активности</h2>
+                            </div>
+                            <div class="card-body">
+                                {{ form.activity_level|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <!-- Цель -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h2 class="h5 mb-0">Цель</h2>
+                            </div>
+                            <div class="card-body">
+                                {{ form.goal|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                {% if object %}Сохранить изменения{% else %}Рассчитать и сохранить{% endif %}
+                            </button>
+                            <a href="{% url 'meal_plan_list' %}" class="btn btn-secondary btn-lg ml-2">Отмена</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Стилизация радио-кнопок для более привлекательного внешнего вида
+        document.querySelectorAll('.form-check-input[type="radio"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                // Убираем активный класс со всех родительских элементов в той же группе
+                document.querySelectorAll(`[name="${this.name}"]`).forEach(function(r) {
+                    r.closest('.form-check').classList.remove('active-radio');
+                });
+                
+                // Добавляем активный класс к выбранному элементу
+                if (this.checked) {
+                    this.closest('.form-check').classList.add('active-radio');
+                }
+            });
+            
+            // Инициализация начального состояния
+            if (radio.checked) {
+                radio.closest('.form-check').classList.add('active-radio');
+            }
+        });
+    });
+</script>
+
+<style>
+    /* Стили для улучшения отображения радио-кнопок */
+    .active-radio {
+        background-color: rgba(76, 175, 80, 0.1);
+        border-radius: 5px;
+        padding: 5px;
+        transition: all 0.3s;
+    }
+    
+    .form-check {
+        padding: 5px;
+        margin-bottom: 5px;
+        transition: all 0.3s;
+    }
+    
+    .form-check:hover {
+        background-color: rgba(76, 175, 80, 0.05);
+        border-radius: 5px;
+    }
+</style>
+{% endblock %} 

@@ -1,0 +1,262 @@
+/* Стили для раздела "План питания" */
+
+:root {
+    --primary-color: #4caf50;
+    --secondary-color: #2e7d32;
+    --accent-color: #8bc34a;
+    --light-accent: #e8f5e9;
+    --warning-color: #ffc107;
+    --danger-color: #f44336;
+    --info-color: #2196f3;
+    --text-color: #333333;
+    --light-gray: #f5f5f5;
+    --gray: #9e9e9e;
+    --white: #ffffff;
+}
+
+/* Основные стили компонентов */
+.meal-plan-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border: none;
+}
+
+.meal-plan-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.meal-plan-card .card-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    border-bottom: none;
+    padding: 1rem 1.25rem;
+}
+
+.meal-plan-hero {
+    background: linear-gradient(to right, rgba(76, 175, 80, 0.9), rgba(139, 195, 74, 0.8)), url('/static/images/meal-plan-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.meal-plan-hero h2 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.meal-plan-hero p {
+    font-size: 1.1rem;
+    max-width: 80%;
+}
+
+/* Стили для категорий продуктов */
+.food-category-card {
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background-color: var(--light-gray);
+}
+
+.food-category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.food-category-card.active {
+    border-color: var(--primary-color);
+    background-color: var(--light-accent);
+}
+
+.food-category-card .category-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+/* Стили для макро-компонентов */
+.macro-badge {
+    display: inline-block;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 30px;
+    margin-right: 0.5rem;
+}
+
+.macro-badge.protein {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.macro-badge.fat {
+    background-color: var(--warning-color);
+    color: var(--text-color);
+}
+
+.macro-badge.carbs {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.macro-badge.calories {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+/* Стили для таблицы продуктов */
+.food-table th {
+    background-color: var(--light-accent);
+    color: var(--secondary-color);
+    font-weight: 600;
+    border-top: none;
+}
+
+.food-table .custom-food {
+    background-color: rgba(76, 175, 80, 0.05);
+}
+
+/* Прогресс-бар для соотношений макронутриентов */
+.macro-progress {
+    height: 25px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1rem 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.macro-progress .progress-bar {
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: width 0.6s ease;
+}
+
+/* Иконки для плана питания */
+.meal-icon {
+    background-color: var(--light-accent);
+    color: var(--primary-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+/* Стили для карточек с днями недели */
+.day-card {
+    border-left: 4px solid var(--primary-color);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.day-card .card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.day-card .day-name {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Стили для калькулятора питания */
+.calculator-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.calculator-form .form-group label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.calculator-form .form-control {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.calculator-form .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+}
+
+.calculator-results {
+    background-color: var(--light-accent);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* Анимации для элементов страницы */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animated {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+/* Стили для информационных блоков */
+.info-step {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 1.5rem;
+}
+
+.info-step .step-number {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 45px;
+    height: 45px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.info-step h3 {
+    margin-bottom: 0.5rem;
+}
+
+/* Стили для страницы продуктов */
+.food-search {
+    border-radius: 30px;
+    padding-left: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.food-search .input-group-append button {
+    border-radius: 0 30px 30px 0;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+} 

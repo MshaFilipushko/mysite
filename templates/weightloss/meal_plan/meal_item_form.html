@@ -1,0 +1,132 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+{% if object %}Редактирование продукта{% else %}Добавление продукта{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h1 class="h3 mb-0">{% if object %}Редактирование продукта{% else %}Добавление продукта{% endif %}</h1>
+                    <a href="{% url 'meal_plan_detail' meal.plan.id %}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-arrow-left"></i> Назад к плану питания
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h2 class="h5 mb-0">Информация о продукте</h2>
+                            </div>
+                            <div class="card-body">
+                                {{ form.food|as_crispy_field }}
+                                <div class="form-group">
+                                    <label for="id_amount">
+                                        {{ form.amount.label }} 
+                                        <small class="text-muted">(изменение количества обновляет расчет КБЖУ)</small>
+                                    </label>
+                                    <input type="number" name="amount" min="1" value="{{ form.amount.value|default:100 }}" 
+                                           class="form-control" required id="id_amount">
+                                    {% if form.amount.errors %}
+                                        <div class="invalid-feedback">
+                                            {{ form.amount.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div id="food-info" class="mt-3">
+                                    <div class="alert alert-info">
+                                        <h5 class="alert-heading mb-3">Макронутриенты в выбранной порции:</h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>Калории:</strong> <span id="calories">0.0</span> ккал</p>
+                                                <p><strong>Белки:</strong> <span id="protein">0.0</span> г</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p><strong>Жиры:</strong> <span id="fat">0.0</span> г</p>
+                                                <p><strong>Углеводы:</strong> <span id="carbs">0.0</span> г</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                {% if object %}Сохранить изменения{% else %}Добавить продукт{% endif %}
+                            </button>
+                            <a href="{% url 'meal_plan_detail' meal.plan.id %}" class="btn btn-secondary btn-lg ml-2">Отмена</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const foodSelect = document.getElementById('id_food');
+        const amountInput = document.getElementById('id_amount');
+        const foodInfo = document.getElementById('food-info');
+        const caloriesSpan = document.getElementById('calories');
+        const proteinSpan = document.getElementById('protein');
+        const fatSpan = document.getElementById('fat');
+        const carbsSpan = document.getElementById('carbs');
+        
+        // Данные о продуктах
+        const foodData = {};
+        {% if foods_json %}
+        const foods = {{ foods_json|safe }};
+        foods.forEach(food => {
+            foodData[food.id] = {
+                name: food.name,
+                calories: food.calories,
+                protein: food.protein,
+                fat: food.fat,
+                carbs: food.carbs
+            };
+        });
+        {% endif %}
+        
+        // Функция для обновления информации о продукте
+        function updateFoodInfo() {
+            const foodId = foodSelect.value;
+            const amount = parseFloat(amountInput.value) || 0;
+            
+            if (foodId && foodId in foodData) {
+                const food = foodData[foodId];
+                const factor = amount / 100; // Пересчет на указанное количество грамм
+                
+                caloriesSpan.textContent = (food.calories * factor).toFixed(1);
+                proteinSpan.textContent = (food.protein * factor).toFixed(1);
+                fatSpan.textContent = (food.fat * factor).toFixed(1);
+                carbsSpan.textContent = (food.carbs * factor).toFixed(1);
+            } else {
+                // Если продукт не выбран, показываем нули
+                caloriesSpan.textContent = '0.0';
+                proteinSpan.textContent = '0.0';
+                fatSpan.textContent = '0.0';
+                carbsSpan.textContent = '0.0';
+            }
+        }
+        
+        // События для обновления информации
+        foodSelect.addEventListener('change', updateFoodInfo);
+        amountInput.addEventListener('input', updateFoodInfo);
+        
+        // Инициализация при загрузке страницы
+        updateFoodInfo();
+    });
+</script>
+{% endblock %} 

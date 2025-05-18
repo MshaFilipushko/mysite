@@ -1,0 +1,291 @@
+{% extends 'weightloss/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+{% if object %}Редактирование продукта{% else %}Новый продукт{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/meal_plan.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Hero секция -->
+            <div class="meal-plan-hero mb-4 animated">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h2 class="display-4 mb-3">{% if object %}Редактирование продукта{% else %}Новый продукт{% endif %}</h2>
+                        <p class="lead mb-4">Заполните информацию о питательной ценности продукта на 100 грамм</p>
+                        <div class="d-flex">
+                            <a href="{% url 'food_list' %}" class="btn btn-light btn-lg me-2">
+                                <i class="fas fa-arrow-left me-2"></i> К списку продуктов
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-none d-md-flex align-items-center justify-content-center">
+                        <i class="fas fa-apple-alt fa-5x text-white opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Форма -->
+            <div class="meal-plan-card mb-4 animated" style="animation-delay: 0.1s;">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Данные о продукте -->
+                        <div class="card border-0 shadow-sm mb-4 animated" style="animation-delay: 0.2s;">
+                            <div class="card-header" style="background: linear-gradient(135deg, #4caf50, #8bc34a); color: white;">
+                                <h2 class="h5 mb-0"><i class="fas fa-info-circle me-2"></i> Основная информация</h2>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <div class="d-flex mb-2">
+                                            <div class="me-3">
+                                                <i class="fas fa-tag text-primary fa-2x"></i>
+                                            </div>
+                                            <div>
+                                                <label for="{{ form.name.id_for_label }}" class="form-label fw-bold">Название продукта</label>
+                                                <p class="text-muted small mb-1">Введите полное и точное название</p>
+                                            </div>
+                                        </div>
+                                        {{ form.name|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="d-flex mb-2">
+                                            <div class="me-3">
+                                                <i class="fas fa-folder text-success fa-2x"></i>
+                                            </div>
+                                            <div>
+                                                <label for="{{ form.category.id_for_label }}" class="form-label fw-bold">Категория</label>
+                                                <p class="text-muted small mb-1">Выберите соответствующую категорию</p>
+                                            </div>
+                                        </div>
+                                        {{ form.category|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Питательная ценность -->
+                        <div class="card border-0 shadow-sm mb-4 animated" style="animation-delay: 0.3s;">
+                            <div class="card-header" style="background: linear-gradient(135deg, #4caf50, #8bc34a); color: white;">
+                                <h2 class="h5 mb-0"><i class="fas fa-chart-pie me-2"></i> Питательная ценность (на 100г)</h2>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row mb-4">
+                                    <div class="col-md-6 mb-4 mb-md-0">
+                                        <div class="d-flex mb-2">
+                                            <div class="me-3">
+                                                <i class="fas fa-fire-alt text-danger fa-2x"></i>
+                                            </div>
+                                            <div>
+                                                <label for="{{ form.calories.id_for_label }}" class="form-label fw-bold">Калории (ккал)</label>
+                                                <p class="text-muted small mb-1">Энергетическая ценность на 100г</p>
+                                            </div>
+                                        </div>
+                                        {{ form.calories|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex mb-2">
+                                            <div class="me-3">
+                                                <i class="fas fa-drumstick-bite text-info fa-2x"></i>
+                                            </div>
+                                            <div>
+                                                <label for="{{ form.protein.id_for_label }}" class="form-label fw-bold">Белки (г)</label>
+                                                <p class="text-muted small mb-1">Количество белка на 100г</p>
+                                            </div>
+                                        </div>
+                                        {{ form.protein|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-4 mb-md-0">
+                                        <div class="d-flex mb-2">
+                                            <div class="me-3">
+                                                <i class="fas fa-cheese text-warning fa-2x"></i>
+                                            </div>
+                                            <div>
+                                                <label for="{{ form.fats.id_for_label }}" class="form-label fw-bold">Жиры (г)</label>
+                                                <p class="text-muted small mb-1">Количество жиров на 100г</p>
+                                            </div>
+                                        </div>
+                                        {{ form.fats|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex mb-2">
+                                            <div class="me-3">
+                                                <i class="fas fa-bread-slice text-success fa-2x"></i>
+                                            </div>
+                                            <div>
+                                                <label for="{{ form.carbs.id_for_label }}" class="form-label fw-bold">Углеводы (г)</label>
+                                                <p class="text-muted small mb-1">Количество углеводов на 100г</p>
+                                            </div>
+                                        </div>
+                                        {{ form.carbs|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Предпросмотр макронутриентов -->
+                        <div class="card border-0 shadow-sm mb-4 animated" style="animation-delay: 0.4s;" id="nutrition-preview">
+                            <div class="card-header bg-white p-3">
+                                <h3 class="h5 mb-0"><i class="fas fa-eye me-2 text-primary"></i> Предпросмотр макронутриентов</h3>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row text-center">
+                                    <div class="col-md-3 mb-3">
+                                        <div class="shadow-sm p-3 rounded-3" style="background-color: var(--light-accent);">
+                                            <i class="fas fa-fire-alt fa-2x mb-2 text-danger"></i>
+                                            <h5>Калории</h5>
+                                            <p class="display-6 fw-bold text-danger" id="preview-calories">0</p>
+                                            <span class="text-muted">ккал</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="shadow-sm p-3 rounded-3" style="background-color: var(--light-accent);">
+                                            <i class="fas fa-drumstick-bite fa-2x mb-2 text-info"></i>
+                                            <h5>Белки</h5>
+                                            <p class="display-6 fw-bold text-info" id="preview-protein">0</p>
+                                            <span class="text-muted">г</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="shadow-sm p-3 rounded-3" style="background-color: var(--light-accent);">
+                                            <i class="fas fa-cheese fa-2x mb-2 text-warning"></i>
+                                            <h5>Жиры</h5>
+                                            <p class="display-6 fw-bold text-warning" id="preview-fats">0</p>
+                                            <span class="text-muted">г</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="shadow-sm p-3 rounded-3" style="background-color: var(--light-accent);">
+                                            <i class="fas fa-bread-slice fa-2x mb-2 text-success"></i>
+                                            <h5>Углеводы</h5>
+                                            <p class="display-6 fw-bold text-success" id="preview-carbs">0</p>
+                                            <span class="text-muted">г</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <div class="macro-progress">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: 25%" id="protein-bar">
+                                            Белки 25%
+                                        </div>
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 35%" id="fats-bar">
+                                            Жиры 35%
+                                        </div>
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 40%" id="carbs-bar">
+                                            Углеводы 40%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success btn-lg me-2">
+                                <i class="fas fa-check me-2"></i>
+                                {% if object %}Сохранить изменения{% else %}Добавить продукт{% endif %}
+                            </button>
+                            <a href="{% url 'food_list' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Функция для обновления предпросмотра
+    function updatePreview() {
+        // Получаем значения
+        const calories = parseFloat($('#id_calories').val()) || 0;
+        const protein = parseFloat($('#id_protein').val()) || 0;
+        const fats = parseFloat($('#id_fats').val()) || 0;
+        const carbs = parseFloat($('#id_carbs').val()) || 0;
+        
+        // Обновляем отображение
+        $('#preview-calories').text(calories.toFixed(1));
+        $('#preview-protein').text(protein.toFixed(1));
+        $('#preview-fats').text(fats.toFixed(1));
+        $('#preview-carbs').text(carbs.toFixed(1));
+        
+        // Рассчитываем калории из каждого макронутриента
+        const proteinCalories = protein * 4;
+        const fatsCalories = fats * 9;
+        const carbsCalories = carbs * 4;
+        const totalCalories = proteinCalories + fatsCalories + carbsCalories;
+        
+        // Проверяем, есть ли значения для расчета процентов
+        if (totalCalories > 0) {
+            const proteinPercentage = Math.round((proteinCalories / totalCalories) * 100);
+            const fatsPercentage = Math.round((fatsCalories / totalCalories) * 100);
+            const carbsPercentage = Math.round((carbsCalories / totalCalories) * 100);
+            
+            // Обновляем прогресс-бар
+            $('#protein-bar').css('width', proteinPercentage + '%')
+                             .text('Белки ' + proteinPercentage + '%')
+                             .attr('aria-valuenow', proteinPercentage);
+            
+            $('#fats-bar').css('width', fatsPercentage + '%')
+                          .text('Жиры ' + fatsPercentage + '%')
+                          .attr('aria-valuenow', fatsPercentage);
+            
+            $('#carbs-bar').css('width', carbsPercentage + '%')
+                           .text('Углеводы ' + carbsPercentage + '%')
+                           .attr('aria-valuenow', carbsPercentage);
+            
+            // Проверяем соответствие пищевой ценности
+            const calculatedCalories = Math.round(proteinCalories + fatsCalories + carbsCalories);
+            
+            if (Math.abs(calories - calculatedCalories) > 20) {
+                $('#preview-calories').after('<small class="d-block text-danger">Внимание: указанные калории (' + calories + ' ккал) не соответствуют сумме БЖУ (' + calculatedCalories + ' ккал)</small>');
+            }
+        } else {
+            // Если нет значений, устанавливаем значения по умолчанию
+            $('#protein-bar').css('width', '25%').text('Белки 25%').attr('aria-valuenow', 25);
+            $('#fats-bar').css('width', '35%').text('Жиры 35%').attr('aria-valuenow', 35);
+            $('#carbs-bar').css('width', '40%').text('Углеводы 40%').attr('aria-valuenow', 40);
+        }
+    }
+    
+    // Привязываем события к полям ввода
+    $('#id_calories, #id_protein, #id_fats, #id_carbs').on('input', updatePreview);
+    
+    // Обновляем предпросмотр при загрузке страницы
+    updatePreview();
+    
+    // Анимация при прокрутке страницы
+    function revealOnScroll() {
+        const reveals = document.querySelectorAll('.animated');
+        
+        for (let i = 0; i < reveals.length; i++) {
+            const windowHeight = window.innerHeight;
+            const elementTop = reveals[i].getBoundingClientRect().top;
+            const elementVisible = 150;
+            
+            if (elementTop < windowHeight - elementVisible) {
+                reveals[i].classList.add('visible');
+            }
+        }
+    }
+    
+    window.addEventListener('scroll', revealOnScroll);
+    revealOnScroll(); // Вызываем функцию при загрузке страницы
+});
+</script>
+{% endblock %} 
