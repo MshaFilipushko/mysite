@@ -70,7 +70,3 @@ python manage.py runserver
 ## Автор
 
 MshaFilipushko
-
-## Лицензия
-
-MIT 
